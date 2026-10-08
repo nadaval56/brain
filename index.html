@@ -3,7 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>מבחן סטרופ</title>
+<title>המוח</title>
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+} }
+</script>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Heebo:wght@300;400;700;900&display=swap" rel="stylesheet">
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -245,19 +251,161 @@
     .board { grid-template-columns: repeat(4, minmax(0, 1fr)); }
     .header-row { justify-content: center; }
   }
+
+  /* Section tabs (top bar) */
+  .section-tabs { display: flex; gap: 4px; background: var(--surface); border: 1px solid var(--border); border-radius: 50px; padding: 4px; }
+  .section-tab {
+    padding: 8px 20px;
+    border-radius: 40px;
+    border: none;
+    background: transparent;
+    color: var(--muted);
+    font-family: var(--ui-font);
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.25s ease;
+  }
+  .section-tab.active { background: var(--text); color: var(--bg); }
+  .section[hidden] { display: none !important; }
+
+  /* ── Brain viewer ── */
+  .brain-layout {
+    width: 100%;
+    max-width: 1500px;
+    display: grid;
+    grid-template-columns: 330px 1fr;
+    gap: 16px;
+    padding: 16px 20px 20px;
+    height: calc(100vh - 62px);
+    min-height: 520px;
+  }
+  .brain-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    overflow-y: auto;
+    min-height: 0;
+  }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 16px 18px;
+  }
+  .info-card { position: sticky; top: 0; z-index: 2; }
+  .info-card h2 { font-size: 24px; font-weight: 900; display: flex; align-items: center; gap: 10px; }
+  .info-card .swatch { width: 16px; height: 16px; border-radius: 50%; flex-shrink: 0; }
+  .info-card .where { font-size: 13px; color: var(--muted); margin-top: 2px; }
+  .info-card p { margin-top: 10px; font-size: 16px; line-height: 1.6; }
+  .info-card.empty p { color: var(--muted); margin-top: 0; }
+  .card h3 { font-size: 13px; color: var(--muted); letter-spacing: 0.5px; margin-bottom: 10px; }
+  .control-row { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
+  .control-row:last-child { margin-bottom: 0; }
+  .control-row label { font-size: 14px; font-weight: 700; min-width: 82px; }
+  .control-row input[type=range] { flex: 1; accent-color: var(--accent); }
+  .seg { display: flex; background: var(--bg); border: 1px solid var(--border); border-radius: 50px; padding: 3px; gap: 2px; }
+  .seg button, .small-btn {
+    border: none;
+    background: transparent;
+    color: var(--muted);
+    font-family: var(--ui-font);
+    font-size: 13px;
+    font-weight: 700;
+    padding: 6px 12px;
+    border-radius: 40px;
+    cursor: pointer;
+  }
+  .seg button.active { background: var(--surface); color: var(--text); box-shadow: 0 0 0 1px var(--border); }
+  .small-btn { border: 1px solid var(--border); background: var(--bg); }
+  .small-btn:hover, .small-btn.active { color: var(--text); border-color: var(--accent); }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip {
+    display: flex; align-items: center; gap: 6px;
+    border: 1px solid var(--border);
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--ui-font);
+    font-size: 13px;
+    font-weight: 700;
+    padding: 5px 11px;
+    border-radius: 40px;
+    cursor: pointer;
+  }
+  .chip i { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+  .chip.active { border-color: var(--text); }
+  .chips + h3 { margin-top: 14px; }
+
+  .brain-stage {
+    position: relative;
+    border-radius: 20px;
+    overflow: hidden;
+    background: radial-gradient(ellipse at center, var(--surface) 0%, var(--bg) 75%);
+    border: 1px solid var(--border);
+    min-height: 0;
+  }
+  .brain-stage canvas { display: block; width: 100%; height: 100%; touch-action: none; }
+  .brain-status {
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--muted); font-size: 18px; font-weight: 700;
+    pointer-events: none;
+  }
+  .part-label {
+    position: absolute;
+    transform: translate(-50%, -100%);
+    background: rgba(13, 15, 20, 0.85);
+    color: #fff;
+    font-size: 15px;
+    font-weight: 700;
+    padding: 5px 12px;
+    border-radius: 10px;
+    pointer-events: none;
+    white-space: nowrap;
+    display: none;
+    border: 1px solid rgba(255,255,255,0.25);
+  }
+  .part-label.pinned::after {
+    content: '';
+    position: absolute;
+    left: 50%; bottom: -7px;
+    transform: translateX(-50%);
+    border: 7px solid transparent;
+    border-bottom: 0;
+    border-top-color: rgba(13, 15, 20, 0.85);
+  }
+  .stage-hint {
+    position: absolute; bottom: 10px; left: 0; right: 0;
+    text-align: center; font-size: 12px; color: var(--muted);
+    pointer-events: none;
+  }
+  .credit { font-size: 11px; color: var(--muted); line-height: 1.5; }
+  .credit a { color: inherit; }
+
+  @media (max-width: 700px) {
+    .topbar .title { display: none; }
+  }
+  @media (max-width: 900px) {
+    .brain-layout { grid-template-columns: 1fr; height: auto; }
+    .brain-stage { height: 62vh; order: -1; }
+  }
 </style>
 </head>
 <body>
 
 <div class="topbar">
-  <div class="title">🧠 מבחן סטרופ</div>
+  <div class="title">🧠 המוח</div>
+  <div class="section-tabs">
+    <button class="section-tab active" id="sec-tab-stroop" onclick="showSection('stroop')">⏱ זמן עיבוד</button>
+    <button class="section-tab" id="sec-tab-brain" onclick="showSection('brain')">🧠 המוח בתלת־ממד</button>
+  </div>
   <div class="top-actions">
     <button class="pill-btn" onclick="toggleFullscreen()">⛶ מסך מלא</button>
     <button class="pill-btn" id="theme-btn" onclick="toggleTheme()">☀️ מצב בהיר</button>
   </div>
 </div>
 
-<div class="app">
+<div class="section app" id="section-stroop">
 
   <div class="header-row">
     <div class="mode-tabs">
@@ -288,7 +436,62 @@
 
 </div>
 
-<div class="hint">רווח = התחל / עצור &nbsp;|&nbsp; R = איפוס &nbsp;|&nbsp; N = מילים חדשות &nbsp;|&nbsp; 1 / 2 = דף א' / דף ב' &nbsp;|&nbsp; F = מסך מלא</div>
+<div class="section hint" id="section-stroop-hint">רווח = התחל / עצור &nbsp;|&nbsp; R = איפוס &nbsp;|&nbsp; N = מילים חדשות &nbsp;|&nbsp; 1 / 2 = דף א' / דף ב' &nbsp;|&nbsp; F = מסך מלא</div>
+
+<div class="section brain-layout" id="section-brain" hidden>
+  <div class="brain-panel">
+    <div class="card info-card empty" id="info-card">
+      <p>לחצו על חלק במוח (או על שם ברשימה) כדי לגלות מה הוא עושה.</p>
+    </div>
+
+    <div class="card">
+      <h3>שכבות</h3>
+      <div class="control-row">
+        <label for="explode">פתיחת המוח</label>
+        <input type="range" id="explode" min="0" max="100" value="0">
+      </div>
+      <div class="control-row">
+        <label>קליפת המוח</label>
+        <div class="seg" id="cortex-mode">
+          <button data-mode="solid" class="active">מלאה</button>
+          <button data-mode="transparent">שקופה</button>
+          <button data-mode="hidden">מוסתרת</button>
+        </div>
+      </div>
+      <div class="control-row">
+        <label>חצאי המוח</label>
+        <div class="seg" id="hemi-mode">
+          <button data-hemi="both" class="active">שניהם</button>
+          <button data-hemi="R">רק ימין</button>
+          <button data-hemi="L">רק שמאל</button>
+        </div>
+      </div>
+      <div class="control-row">
+        <button class="small-btn" id="btn-rotate">⟳ סיבוב אוטומטי</button>
+        <button class="small-btn" id="btn-view">⌂ איפוס מבט</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>קליפת המוח (בחוץ)</h3>
+      <div class="chips" id="chips-outer"></div>
+      <h3>עמוק בפנים</h3>
+      <div class="chips" id="chips-inner"></div>
+    </div>
+
+    <div class="credit">
+      מודל המוח: Anderson M. Winkler, <a href="https://brainder.org/research/brain-for-blender/" target="_blank" rel="noopener">Brain for Blender</a>
+      (מבוסס FreeSurfer), ברישיון <a href="https://creativecommons.org/licenses/by-sa/3.0/" target="_blank" rel="noopener">CC BY-SA 3.0</a>. החלקים אוחדו לאונות והוקטנו לתצוגה ברשת.
+    </div>
+  </div>
+
+  <div class="brain-stage" id="brain-stage">
+    <div class="brain-status" id="brain-status">טוען את המוח…</div>
+    <div class="part-label" id="hover-label"></div>
+    <div class="part-label pinned" id="pin-label"></div>
+    <div class="stage-hint">גררו כדי לסובב · גלגלת או צביטה לזום · לחיצה על חלק לפרטים</div>
+  </div>
+</div>
 
 <script>
 // ─────────────────────── Colors ───────────────────────
@@ -456,20 +659,48 @@ function toggleFullscreen() {
   else document.exitFullscreen?.();
 }
 
+// ─────────────────────── Sections ───────────────────────
+let section = 'stroop';
+let brainLoaded = false;
+
+function showSection(name) {
+  section = name;
+  document.getElementById('section-stroop').hidden = name !== 'stroop';
+  document.getElementById('section-stroop-hint').hidden = name !== 'stroop';
+  document.getElementById('section-brain').hidden = name !== 'brain';
+  document.getElementById('sec-tab-stroop').classList.toggle('active', name === 'stroop');
+  document.getElementById('sec-tab-brain').classList.toggle('active', name === 'brain');
+  history.replaceState(null, '', name === 'brain' ? '#brain' : '#');
+  if (name === 'brain') {
+    if (running) doStartStop();
+    if (!brainLoaded) {
+      brainLoaded = true;
+      import('./brain.js')
+        .then(m => m.initBrain())
+        .catch(err => {
+          console.error(err);
+          document.getElementById('brain-status').textContent = 'לא הצלחנו לטעון את המוח 😕';
+        });
+    }
+  }
+}
+
 // ─────────────────────── Keyboard ───────────────────────
 document.addEventListener('keydown', e => {
+  if (e.code === 'KeyD') toggleTheme();
+  if (e.code === 'KeyF') toggleFullscreen();
+  if (section !== 'stroop') return;
   if (e.code === 'Space') { e.preventDefault(); doStartStop(); }
   // e.code = physical key, so shortcuts work with a Hebrew keyboard layout too
   if (e.code === 'KeyR') doReset();
   if (e.code === 'KeyN') newWords();
-  if (e.code === 'KeyD') toggleTheme();
-  if (e.code === 'KeyF') toggleFullscreen();
   if (e.code === 'Digit1' || e.code === 'Numpad1') setPage('match');
   if (e.code === 'Digit2' || e.code === 'Numpad2') setPage('mismatch');
 });
 
 // Init
 setPage('match');
+showSection(location.hash === '#brain' ? 'brain' : 'stroop');
 </script>
 </body>
 </html>
