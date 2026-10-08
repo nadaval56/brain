@@ -180,32 +180,6 @@
   }
   .btn-icon:hover { color: var(--text); border-color: var(--muted); }
 
-  /* Word-set chips */
-  .set-row {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    flex-wrap: wrap;
-    justify-content: center;
-    font-size: 14px;
-    color: var(--muted);
-    font-weight: 700;
-  }
-  .chip {
-    background: transparent;
-    border: 1px solid var(--border);
-    border-radius: 50px;
-    padding: 6px 16px;
-    color: var(--muted);
-    font-family: var(--ui-font);
-    font-size: 14px;
-    font-weight: 700;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-  .chip:hover { color: var(--text); border-color: var(--muted); }
-  .chip.active { color: var(--text); border-color: var(--accent); background: var(--surface); }
-
   /* Instruction line */
   .instruction {
     font-size: clamp(16px, 1.8vw, 22px);
@@ -302,13 +276,6 @@
     </div>
   </div>
 
-  <div class="set-row">
-    מילים:
-    <button class="chip active" id="set-names" onclick="setWordSet('names')">שמות צבעים</button>
-    <button class="chip" id="set-things" onclick="setWordSet('things')">דברים שיש להם צבע</button>
-    <button class="chip" id="set-mixed" onclick="setWordSet('mixed')">מעורב</button>
-  </div>
-
   <div class="instruction">אמרו בקול את <b>צבע הכתב</b> – לא את המילה!</div>
 
   <div class="board-wrap">
@@ -339,24 +306,12 @@ const COLORS = {
 };
 const COLOR_KEYS = Object.keys(COLORS);
 
-// Kid-friendly things that clearly have one natural color
-const THINGS = [
-  ['תות', 'red'], ['עגבנייה', 'red'], ['דובדבן', 'red'], ['כבאית', 'red'],
-  ['ים', 'blue'], ['שמיים', 'blue'],
-  ['דשא', 'green'], ['מלפפון', 'green'], ['צפרדע', 'green'], ['עלה', 'green'],
-  ['בננה', 'yellow'], ['שמש', 'yellow'], ['לימון', 'yellow'], ['אפרוח', 'yellow'],
-  ['חציל', 'purple'],
-  ['פלמינגו', 'pink'], ['מסטיק', 'pink'],
-  ['שוקולד', 'brown'], ['קפה', 'brown'], ['דוב', 'brown'],
-  ['שלג', 'white'], ['חלב', 'white'], ['ענן', 'white'],
-].map(([text, color]) => ({ text, color }));
 const NAMES = COLOR_KEYS.map(k => ({ text: COLORS[k].name, color: k }));
 
 const WORD_COUNT = 20;
 
 // ─────────────────────── State ───────────────────────
 let page = 'match';
-let wordSet = 'names';
 let items = [];
 let running = false;
 let startTime = 0;
@@ -367,19 +322,13 @@ let isDark = true;
 // ─────────────────────── Words ───────────────────────
 function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
 
-function poolFor(set) {
-  if (set === 'names') return NAMES;
-  if (set === 'things') return THINGS;
-  return Math.random() < 0.5 ? NAMES : THINGS;
-}
-
 // Avoid repeating the same word or the same ink twice in a row
 function generate() {
   const out = [];
   let prevText = null, prevInk = null;
   for (let n = 0; n < WORD_COUNT; n++) {
     let word;
-    do { word = pick(poolFor(wordSet)); } while (word.text === prevText);
+    do { word = pick(NAMES); } while (word.text === prevText);
     let ink;
     if (page === 'match') ink = word.color;
     else do { ink = pick(COLOR_KEYS); } while (ink === word.color || ink === prevInk);
@@ -421,13 +370,6 @@ function newWords() {
   doReset();
   items = generate();
   renderBoard();
-}
-
-function setWordSet(set) {
-  wordSet = set;
-  ['names', 'things', 'mixed'].forEach(k =>
-    document.getElementById('set-' + k).classList.toggle('active', k === set));
-  newWords();
 }
 
 function setPage(p) {
