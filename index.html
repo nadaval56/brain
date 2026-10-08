@@ -318,6 +318,7 @@ let startTime = 0;
 let elapsed = 0;
 let rafId = null;
 let isDark = true;
+let isCovered = true;
 
 // ─────────────────────── Words ───────────────────────
 function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
@@ -345,10 +346,20 @@ function renderBoard() {
     const div = document.createElement('div');
     div.className = 'word';
     div.textContent = text;
-    div.style.color = COLORS[ink].ink;
     board.appendChild(div);
   });
+  paintWords();
   fitWords();
+}
+
+// While covered, paint random decoy inks so the blur doesn't give away
+// the real colors; the real inks appear only when the stopwatch starts.
+function paintWords() {
+  document.querySelectorAll('.word').forEach((div, i) => {
+    const real = items[i].ink;
+    const key = isCovered ? pick(COLOR_KEYS.filter(k => k !== real)) : real;
+    div.style.color = COLORS[key].ink;
+  });
 }
 
 // Shrink only the long words (e.g. "פלמינגו") so they fit their cell
@@ -362,6 +373,8 @@ function fitWords() {
 window.addEventListener('resize', fitWords);
 
 function setCovered(covered) {
+  isCovered = covered;
+  paintWords();
   document.getElementById('board').classList.toggle('covered', covered);
   document.getElementById('cover').classList.toggle('hidden', !covered);
 }
