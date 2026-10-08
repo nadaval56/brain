@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>מבחן סטרופ</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Heebo:wght@300;400;700;900&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0d0f14;
+    --surface: #161b26;
+    --border: #252c3f;
+    --accent: #00e5a0;
+    --accent3: #ffd166;
+    --text: #e8eaf0;
+    --muted: #5a6282;
+    --digit-font: 'Bebas Neue', monospace;
+    --ui-font: 'Heebo', sans-serif;
+
+    /* Ink colors — chosen to stay distinct on a classroom projector */
+    --c-red: #ff3b3b;
+    --c-blue: #3d8bff;
+    --c-green: #2ee05a;
+    --c-yellow: #ffe23d;
+    --c-purple: #a66bff;
+    --c-pink: #ff5fc8;
+  }
+
+  body.light {
+    --bg: #ffffff;
+    --surface: #f4f4f4;
+    --border: #d0d0d0;
+    --accent: #111111;
+    --accent3: #555555;
+    --text: #111111;
+    --muted: #999999;
+
+    --c-red: #e01b1b;
+    --c-blue: #1660e0;
+    --c-green: #10a338;
+    --c-yellow: #e6b400;
+    --c-purple: #7a2fe0;
+    --c-pink: #e0279e;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--ui-font);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow-x: hidden;
+    user-select: none;
+    transition: background 0.3s, color 0.3s;
+  }
+
+  /* Top bar */
+  .topbar {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+    padding: 10px 20px;
+    background: var(--bg);
+    border-bottom: 1px solid var(--border);
+    transition: background 0.3s, border-color 0.3s;
+  }
+
+  .title {
+    font-weight: 900;
+    font-size: 22px;
+    letter-spacing: 0.5px;
+  }
+
+  .top-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+  .pill-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 50px;
+    padding: 8px 18px;
+    color: var(--text);
+    font-family: var(--ui-font);
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .pill-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  .app {
+    width: 100%;
+    max-width: 1300px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 18px;
+    padding: 16px 20px 30px;
+  }
+
+  /* Header row: page tabs + stopwatch + controls */
+  .header-row {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+
+  .mode-tabs {
+    display: flex;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 50px;
+    padding: 5px;
+    gap: 4px;
+  }
+
+  .tab {
+    padding: 10px 24px;
+    border-radius: 40px;
+    border: none;
+    background: transparent;
+    color: var(--muted);
+    font-family: var(--ui-font);
+    font-size: 17px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.25s ease;
+  }
+  .tab.active { background: var(--accent); color: #fff; }
+  body:not(.light) .tab.active { color: #000; }
+
+  .stopwatch {
+    display: flex;
+    align-items: baseline;
+    direction: ltr;
+    font-family: var(--digit-font);
+    color: var(--text);
+    transition: color 0.3s;
+  }
+  .stopwatch .main { font-size: clamp(64px, 9vw, 120px); line-height: 1; letter-spacing: 3px; }
+  .stopwatch .cs { font-size: clamp(30px, 4vw, 54px); color: var(--muted); margin-left: 4px; }
+  .stopwatch.running { color: var(--accent); }
+  .stopwatch.running .cs { color: var(--accent); opacity: 0.7; }
+  .stopwatch.stopped { color: var(--accent3); }
+
+  .controls { display: flex; gap: 12px; align-items: center; }
+
+  .btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    border: none;
+    border-radius: 50px;
+    font-family: var(--ui-font);
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  .btn-main {
+    width: 150px;
+    height: 56px;
+    background: var(--accent);
+    color: #fff;
+    font-size: 18px;
+  }
+  body:not(.light) .btn-main { color: #000; }
+  .btn-main:hover { transform: scale(1.05); }
+  .btn-main:active { transform: scale(0.97); }
+  .btn-main.pause { background: var(--accent3); }
+
+  .btn-icon {
+    width: 52px;
+    height: 52px;
+    background: var(--surface);
+    color: var(--muted);
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    font-size: 22px;
+  }
+  .btn-icon:hover { color: var(--text); border-color: var(--muted); }
+
+  /* Instruction line */
+  .instruction {
+    font-size: clamp(16px, 1.8vw, 22px);
+    color: var(--muted);
+    text-align: center;
+  }
+  .instruction b { color: var(--text); }
+
+  /* Word board */
+  .board-wrap {
+    position: relative;
+    width: 100%;
+  }
+
+  .board {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: clamp(8px, 1.5vw, 20px);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    padding: clamp(14px, 2.5vw, 34px);
+    transition: filter 0.3s, opacity 0.3s;
+  }
+  .board.covered { filter: blur(22px); opacity: 0.5; }
+
+  .word {
+    text-align: center;
+    font-weight: 900;
+    font-size: clamp(30px, 5.6vw, 84px);
+    line-height: 1.25;
+    padding: 4px 0;
+  }
+
+  .cover {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    text-align: center;
+    pointer-events: none;
+  }
+  .cover.hidden { display: none; }
+  .cover h2 { font-size: clamp(28px, 4vw, 52px); font-weight: 900; }
+  .cover p { font-size: clamp(16px, 1.8vw, 22px); color: var(--muted); }
+
+  .hint {
+    font-size: 12px;
+    color: var(--muted);
+    letter-spacing: 1px;
+    opacity: 0.6;
+    text-align: center;
+    padding: 4px 0 18px;
+  }
+
+  @media (max-width: 700px) {
+    .board { grid-template-columns: repeat(4, 1fr); }
+    .header-row { justify-content: center; }
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="title">🧠 מבחן סטרופ</div>
+  <div class="top-actions">
+    <button class="pill-btn" onclick="toggleFullscreen()">⛶ מסך מלא</button>
+    <button class="pill-btn" id="theme-btn" onclick="toggleTheme()">☀️ מצב בהיר</button>
+  </div>
+</div>
+
+<div class="app">
+
+  <div class="header-row">
+    <div class="mode-tabs">
+      <button class="tab active" id="tab-match" onclick="setPage('match')">דף א' · צבע תואם</button>
+      <button class="tab" id="tab-mismatch" onclick="setPage('mismatch')">דף ב' · צבע לא תואם</button>
+    </div>
+
+    <div class="stopwatch" id="stopwatch">
+      <span class="main" id="sw-main">00:00</span><span class="cs" id="sw-cs">.00</span>
+    </div>
+
+    <div class="controls">
+      <button class="btn btn-icon" onclick="doReset()" title="איפוס (R)">↺</button>
+      <button class="btn btn-main" id="btn-start" onclick="doStartStop()">▶ התחל</button>
+      <button class="btn btn-icon" onclick="newWords()" title="מילים חדשות (N)">🔀</button>
+    </div>
+  </div>
+
+  <div class="instruction">אמרו בקול את <b>צבע הכתב</b> – לא את המילה!</div>
+
+  <div class="board-wrap">
+    <div class="board covered" id="board"></div>
+    <div class="cover" id="cover">
+      <h2>מוכנים?</h2>
+      <p>המילים יופיעו כשהסטופר יתחיל</p>
+    </div>
+  </div>
+
+</div>
+
+<div class="hint">רווח = התחל / עצור &nbsp;|&nbsp; R = איפוס &nbsp;|&nbsp; N = מילים חדשות &nbsp;|&nbsp; 1 / 2 = דף א' / דף ב' &nbsp;|&nbsp; F = מסך מלא</div>
+
+<script>
+// ─────────────────────── Colors ───────────────────────
+const COLORS = [
+  { word: 'אדום',  css: 'var(--c-red)' },
+  { word: 'כחול',  css: 'var(--c-blue)' },
+  { word: 'ירוק',  css: 'var(--c-green)' },
+  { word: 'צהוב',  css: 'var(--c-yellow)' },
+  { word: 'סגול',  css: 'var(--c-purple)' },
+  { word: 'ורוד',  css: 'var(--c-pink)' },
+];
+const WORD_COUNT = 20;
+
+// ─────────────────────── State ───────────────────────
+let page = 'match';
+let running = false;
+let startTime = 0;
+let elapsed = 0;
+let rafId = null;
+let isDark = true;
+
+// ─────────────────────── Words ───────────────────────
+function randIdx(exclude) {
+  let i;
+  do { i = Math.floor(Math.random() * COLORS.length); } while (exclude.includes(i));
+  return i;
+}
+
+// Avoid repeating the same word or the same ink twice in a row
+function generate() {
+  const items = [];
+  let prevWord = -1, prevInk = -1;
+  for (let n = 0; n < WORD_COUNT; n++) {
+    let w, ink;
+    if (page === 'match') {
+      w = randIdx([prevWord]);
+      ink = w;
+    } else {
+      w = randIdx([prevWord]);
+      ink = randIdx([w, prevInk]);
+    }
+    items.push({ w, ink });
+    prevWord = w; prevInk = ink;
+  }
+  return items;
+}
+
+function renderBoard() {
+  const board = document.getElementById('board');
+  board.innerHTML = '';
+  generate().forEach(({ w, ink }) => {
+    const div = document.createElement('div');
+    div.className = 'word';
+    div.textContent = COLORS[w].word;
+    div.style.color = COLORS[ink].css;
+    board.appendChild(div);
+  });
+}
+
+function setCovered(covered) {
+  document.getElementById('board').classList.toggle('covered', covered);
+  document.getElementById('cover').classList.toggle('hidden', !covered);
+}
+
+function newWords() {
+  doReset();
+  renderBoard();
+}
+
+function setPage(p) {
+  page = p;
+  document.getElementById('tab-match').classList.toggle('active', p === 'match');
+  document.getElementById('tab-mismatch').classList.toggle('active', p === 'mismatch');
+  newWords();
+}
+
+// ─────────────────────── Stopwatch ───────────────────────
+function doStartStop() {
+  if (!running) {
+    startTime = performance.now() - elapsed;
+    running = true;
+    setCovered(false);
+    rafId = requestAnimationFrame(tick);
+  } else {
+    running = false;
+    cancelAnimationFrame(rafId);
+  }
+  updateUI();
+}
+
+function doReset() {
+  running = false;
+  cancelAnimationFrame(rafId);
+  elapsed = 0;
+  setCovered(true);
+  updateDisplay(0);
+  updateUI();
+}
+
+function tick(now) {
+  elapsed = now - startTime;
+  updateDisplay(elapsed);
+  rafId = requestAnimationFrame(tick);
+}
+
+function updateDisplay(ms) {
+  const m = Math.floor(ms / 60000);
+  const s = Math.floor((ms % 60000) / 1000);
+  const cs = Math.floor((ms % 1000) / 10);
+  document.getElementById('sw-main').textContent = `${pad(m)}:${pad(s)}`;
+  document.getElementById('sw-cs').textContent = '.' + pad(cs);
+}
+
+function updateUI() {
+  const btn = document.getElementById('btn-start');
+  const sw = document.getElementById('stopwatch');
+  if (running) {
+    btn.textContent = '⏸ עצור'; btn.classList.add('pause');
+    sw.className = 'stopwatch running';
+  } else {
+    btn.textContent = elapsed > 0 ? '▶ המשך' : '▶ התחל';
+    btn.classList.remove('pause');
+    sw.className = 'stopwatch' + (elapsed > 0 ? ' stopped' : '');
+  }
+}
+
+function pad(n) { return String(Math.floor(n)).padStart(2, '0'); }
+
+// ─────────────────────── Theme / Fullscreen ───────────────────────
+function toggleTheme() {
+  isDark = !isDark;
+  document.body.classList.toggle('light', !isDark);
+  document.getElementById('theme-btn').textContent = isDark ? '☀️ מצב בהיר' : '🌙 מצב כהה';
+}
+
+function toggleFullscreen() {
+  if (!document.fullscreenElement) document.documentElement.requestFullscreen?.();
+  else document.exitFullscreen?.();
+}
+
+// ─────────────────────── Keyboard ───────────────────────
+document.addEventListener('keydown', e => {
+  if (e.code === 'Space') { e.preventDefault(); doStartStop(); }
+  // e.code = physical key, so shortcuts work with a Hebrew keyboard layout too
+  if (e.code === 'KeyR') doReset();
+  if (e.code === 'KeyN') newWords();
+  if (e.code === 'KeyD') toggleTheme();
+  if (e.code === 'KeyF') toggleFullscreen();
+  if (e.code === 'Digit1' || e.code === 'Numpad1') setPage('match');
+  if (e.code === 'Digit2' || e.code === 'Numpad2') setPage('mismatch');
+});
+
+// Init
+setPage('match');
+</script>
+</body>
+</html>
