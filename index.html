@@ -18,14 +18,6 @@
     --muted: #5a6282;
     --digit-font: 'Bebas Neue', monospace;
     --ui-font: 'Heebo', sans-serif;
-
-    /* Ink colors — chosen to stay distinct on a classroom projector */
-    --c-red: #ff3b3b;
-    --c-blue: #3d8bff;
-    --c-green: #2ee05a;
-    --c-yellow: #ffe23d;
-    --c-purple: #a66bff;
-    --c-pink: #ff5fc8;
   }
 
   body.light {
@@ -36,13 +28,6 @@
     --accent3: #555555;
     --text: #111111;
     --muted: #999999;
-
-    --c-red: #e01b1b;
-    --c-blue: #1660e0;
-    --c-green: #10a338;
-    --c-yellow: #e6b400;
-    --c-purple: #7a2fe0;
-    --c-pink: #e0279e;
   }
 
   body {
@@ -195,6 +180,32 @@
   }
   .btn-icon:hover { color: var(--text); border-color: var(--muted); }
 
+  /* Word-set chips */
+  .set-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: center;
+    font-size: 14px;
+    color: var(--muted);
+    font-weight: 700;
+  }
+  .chip {
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 50px;
+    padding: 6px 16px;
+    color: var(--muted);
+    font-family: var(--ui-font);
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .chip:hover { color: var(--text); border-color: var(--muted); }
+  .chip.active { color: var(--text); border-color: var(--accent); background: var(--surface); }
+
   /* Instruction line */
   .instruction {
     font-size: clamp(16px, 1.8vw, 22px);
@@ -212,7 +223,7 @@
   .board {
     width: 100%;
     display: grid;
-    grid-template-columns: repeat(5, 1fr);
+    grid-template-columns: repeat(5, minmax(0, 1fr));
     gap: clamp(8px, 1.5vw, 20px);
     background: var(--surface);
     border: 1px solid var(--border);
@@ -225,7 +236,8 @@
   .word {
     text-align: center;
     font-weight: 900;
-    font-size: clamp(30px, 5.6vw, 84px);
+    font-size: clamp(22px, 4.4vw, 72px);
+    white-space: nowrap;
     line-height: 1.25;
     padding: 4px 0;
   }
@@ -255,7 +267,7 @@
   }
 
   @media (max-width: 700px) {
-    .board { grid-template-columns: repeat(4, 1fr); }
+    .board { grid-template-columns: repeat(4, minmax(0, 1fr)); }
     .header-row { justify-content: center; }
   }
 </style>
@@ -289,6 +301,13 @@
     </div>
   </div>
 
+  <div class="set-row">
+    מילים:
+    <button class="chip active" id="set-names" onclick="setWordSet('names')">שמות צבעים</button>
+    <button class="chip" id="set-things" onclick="setWordSet('things')">דברים שיש להם צבע</button>
+    <button class="chip" id="set-mixed" onclick="setWordSet('mixed')">מעורב</button>
+  </div>
+
   <div class="instruction">אמרו בקול את <b>צבע הכתב</b> – לא את המילה!</div>
 
   <div class="board-wrap">
@@ -305,18 +324,40 @@
 
 <script>
 // ─────────────────────── Colors ───────────────────────
-const COLORS = [
-  { word: 'אדום',  css: 'var(--c-red)' },
-  { word: 'כחול',  css: 'var(--c-blue)' },
-  { word: 'ירוק',  css: 'var(--c-green)' },
-  { word: 'צהוב',  css: 'var(--c-yellow)' },
-  { word: 'סגול',  css: 'var(--c-purple)' },
-  { word: 'ורוד',  css: 'var(--c-pink)' },
-];
+// Each color has a few shades (dark / light theme) so the same color
+// doesn't always look identical. Shades stay clearly inside their family
+// so they're still easy to name on a projector.
+const COLORS = {
+  red:    { name: 'אדום', dark: ['#ff3b3b', '#ff5a4f', '#e8322f'], light: ['#e01b1b', '#c8102e', '#ef2b2b'] },
+  blue:   { name: 'כחול', dark: ['#3d8bff', '#4f6bff', '#2f9bff'], light: ['#1660e0', '#1d3fcf', '#0b74d6'] },
+  green:  { name: 'ירוק', dark: ['#2ee05a', '#4ccf3a', '#1fd17a'], light: ['#10a338', '#2e8b1f', '#0e9b5c'] },
+  yellow: { name: 'צהוב', dark: ['#ffe23d', '#fff04a', '#ffd21f'], light: ['#e6b400', '#d9a800', '#f0c000'] },
+  orange: { name: 'כתום', dark: ['#ff8c1a', '#ff7a2e', '#ff9d2e'], light: ['#f07000', '#e65c00', '#ff7f11'] },
+  purple: { name: 'סגול', dark: ['#a66bff', '#b57cff', '#9152ff'], light: ['#7a2fe0', '#6a1fc9', '#8b3ff0'] },
+  pink:   { name: 'ורוד', dark: ['#ff5fc8', '#ff7ad6', '#ff4fb0'], light: ['#e0279e', '#d6338a', '#ec3fae'] },
+  brown:  { name: 'חום',  dark: ['#c27a3e', '#b06a33', '#cf8a4a'], light: ['#8b4a1c', '#7a3f14', '#9c5a26'] },
+};
+const COLOR_KEYS = Object.keys(COLORS);
+
+// Kid-friendly things that clearly have one natural color
+const THINGS = [
+  ['תות', 'red'], ['עגבנייה', 'red'], ['דובדבן', 'red'], ['כבאית', 'red'],
+  ['ים', 'blue'], ['שמיים', 'blue'],
+  ['דשא', 'green'], ['מלפפון', 'green'], ['צפרדע', 'green'], ['עלה', 'green'],
+  ['בננה', 'yellow'], ['שמש', 'yellow'], ['לימון', 'yellow'], ['אפרוח', 'yellow'],
+  ['גזר', 'orange'], ['תפוז', 'orange'],
+  ['חציל', 'purple'],
+  ['פלמינגו', 'pink'], ['מסטיק', 'pink'],
+  ['שוקולד', 'brown'], ['קפה', 'brown'], ['דוב', 'brown'],
+].map(([text, color]) => ({ text, color }));
+const NAMES = COLOR_KEYS.map(k => ({ text: COLORS[k].name, color: k }));
+
 const WORD_COUNT = 20;
 
 // ─────────────────────── State ───────────────────────
 let page = 'match';
+let wordSet = 'names';
+let items = [];
 let running = false;
 let startTime = 0;
 let elapsed = 0;
@@ -324,42 +365,52 @@ let rafId = null;
 let isDark = true;
 
 // ─────────────────────── Words ───────────────────────
-function randIdx(exclude) {
-  let i;
-  do { i = Math.floor(Math.random() * COLORS.length); } while (exclude.includes(i));
-  return i;
+function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+
+function poolFor(set) {
+  if (set === 'names') return NAMES;
+  if (set === 'things') return THINGS;
+  return Math.random() < 0.5 ? NAMES : THINGS;
 }
 
 // Avoid repeating the same word or the same ink twice in a row
 function generate() {
-  const items = [];
-  let prevWord = -1, prevInk = -1;
+  const out = [];
+  let prevText = null, prevInk = null;
   for (let n = 0; n < WORD_COUNT; n++) {
-    let w, ink;
-    if (page === 'match') {
-      w = randIdx([prevWord]);
-      ink = w;
-    } else {
-      w = randIdx([prevWord]);
-      ink = randIdx([w, prevInk]);
-    }
-    items.push({ w, ink });
-    prevWord = w; prevInk = ink;
+    let word;
+    do { word = pick(poolFor(wordSet)); } while (word.text === prevText);
+    let ink;
+    if (page === 'match') ink = word.color;
+    else do { ink = pick(COLOR_KEYS); } while (ink === word.color || ink === prevInk);
+    out.push({ text: word.text, ink, shade: Math.floor(Math.random() * 3) });
+    prevText = word.text; prevInk = ink;
   }
-  return items;
+  return out;
 }
 
 function renderBoard() {
   const board = document.getElementById('board');
   board.innerHTML = '';
-  generate().forEach(({ w, ink }) => {
+  items.forEach(({ text, ink, shade }) => {
     const div = document.createElement('div');
     div.className = 'word';
-    div.textContent = COLORS[w].word;
-    div.style.color = COLORS[ink].css;
+    div.textContent = text;
+    div.style.color = COLORS[ink][isDark ? 'dark' : 'light'][shade];
     board.appendChild(div);
   });
+  fitWords();
 }
+
+// Shrink only the long words (e.g. "פלמינגו") so they fit their cell
+function fitWords() {
+  document.querySelectorAll('.word').forEach(w => {
+    w.style.fontSize = '';
+    const ratio = w.clientWidth / w.scrollWidth;
+    if (ratio < 1) w.style.fontSize = (parseFloat(getComputedStyle(w).fontSize) * ratio * 0.97) + 'px';
+  });
+}
+window.addEventListener('resize', fitWords);
 
 function setCovered(covered) {
   document.getElementById('board').classList.toggle('covered', covered);
@@ -368,7 +419,15 @@ function setCovered(covered) {
 
 function newWords() {
   doReset();
+  items = generate();
   renderBoard();
+}
+
+function setWordSet(set) {
+  wordSet = set;
+  ['names', 'things', 'mixed'].forEach(k =>
+    document.getElementById('set-' + k).classList.toggle('active', k === set));
+  newWords();
 }
 
 function setPage(p) {
@@ -435,6 +494,7 @@ function toggleTheme() {
   isDark = !isDark;
   document.body.classList.toggle('light', !isDark);
   document.getElementById('theme-btn').textContent = isDark ? '☀️ מצב בהיר' : '🌙 מצב כהה';
+  renderBoard();
 }
 
 function toggleFullscreen() {
