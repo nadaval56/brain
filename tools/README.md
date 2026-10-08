@@ -17,7 +17,8 @@ python tools/build_glb.py DL assets/brain.glb /tmp/solid
 ## Printable puzzle (STL)
 
 ```sh
-python tools/print_stl.py DL /tmp/solid print/stl 0.7   # 0.7 = brain ~12 cm long
+python tools/print_stl.py DL /tmp/solid out/ 0.7   # 0.7 = brain ~12 cm long
 ```
 
-One closed STL per piece, in assembled position, with ~0.5 mm clearance between touching pieces.
+14 closed STL pieces (fused hemispheres + deep parts) with ~0.5 mm clearance and holes for
+LEGO Technic friction pins, plus `pin_test.stl` to check the hole fit on your printer.
