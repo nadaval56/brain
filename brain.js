@@ -83,7 +83,7 @@ let renderer, scene, camera, controls, stage;
 const meshes = [];
 let selectedKey = null, selectedSide = null, hoverKey = null;
 let explode = 0;
-let cortexMode = 'solid';
+const shown = new Set(Object.keys(PARTS)); // parts ticked in the list
 let hemi = 'both';
 const raycaster = new THREE.Raycaster();
 const pointer = new THREE.Vector2();
@@ -98,7 +98,6 @@ export function initBrain() {
 
   scene = new THREE.Scene();
   camera = new THREE.PerspectiveCamera(38, 1, 1, 3000);
-  camera.position.copy(HOME);
   scene.add(camera);
 
   scene.add(new THREE.HemisphereLight(0xffffff, 0x334055, 1.4));
@@ -114,6 +113,7 @@ export function initBrain() {
 
   new ResizeObserver(resize).observe(stage);
   resize();
+  homeView();
 
   new GLTFLoader().load('assets/brain.glb', gltf => {
     gltf.scene.traverse(obj => {
@@ -143,6 +143,12 @@ export function initBrain() {
   renderer.setAnimationLoop(frame);
 }
 
+// Start view; on narrow (portrait) screens step back so the whole brain fits
+function homeView() {
+  camera.position.copy(HOME).multiplyScalar(Math.max(1, 1.2 / camera.aspect));
+  controls.target.set(0, 0, 0);
+}
+
 function resize() {
   const w = stage.clientWidth, h = stage.clientHeight;
   if (!w || !h) return;
@@ -161,13 +167,11 @@ function applyLayers() {
     if (outer && side) m.position.x += (side === 'L' ? -1 : 1) * 25 * explode;
 
     const hiddenSide = hemi !== 'both' && side && side !== hemi;
-    m.visible = !hiddenSide && !(outer && cortexMode === 'hidden');
+    m.visible = !hiddenSide && shown.has(key);
 
     const mat = m.material;
-    const see = outer && cortexMode === 'transparent';
-    mat.transparent = see || key === 'ventricles';
-    mat.opacity = see ? 0.16 : key === 'ventricles' ? 0.8 : 1;
-    mat.depthWrite = !see;
+    mat.transparent = key === 'ventricles';
+    mat.opacity = key === 'ventricles' ? 0.8 : 1;
     const on = key === selectedKey, hov = key === hoverKey;
     mat.emissive.set(on ? PARTS[key].color : '#000000');
     mat.emissiveIntensity = on ? 0.45 : 0;
@@ -178,30 +182,45 @@ function applyLayers() {
 // ─────────────────────── Panel ───────────────────────
 function buildPanel() {
   for (const [k, p] of Object.entries(PARTS)) {
-    const b = document.createElement('button');
-    b.className = 'chip';
-    b.dataset.key = k;
-    b.innerHTML = `<i style="background:${p.color}"></i>${p.name}`;
-    b.onclick = () => {
-      select(k, null, true);
-      // On phones the model sits above the list – bring it back into view
-      if (stage.getBoundingClientRect().bottom < 80) stage.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    const row = document.createElement('label');
+    row.className = 'part-row';
+    row.dataset.key = k;
+    row.innerHTML = `<input type="checkbox" checked><i style="background:${p.color}"></i>
+      <span>${p.name}</span><button class="info-btn" title="מה זה?">?</button>`;
+    row.querySelector('input').onchange = e => {
+      e.target.checked ? shown.add(k) : shown.delete(k);
+      applyLayers();
     };
-    document.getElementById(p.outer ? 'chips-outer' : 'chips-inner').appendChild(b);
+    row.querySelector('.info-btn').onclick = e => {
+      e.preventDefault(); // don't toggle the checkbox
+      select(k, null);
+      // On phones the model sits above the list – bring it back into view
+      if (stage.getBoundingClientRect().top < 0) stage.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    };
+    document.getElementById(p.outer ? 'parts-outer' : 'parts-inner').appendChild(row);
   }
+
+  document.querySelectorAll('.group-actions button').forEach(btn => {
+    btn.onclick = () => {
+      const outer = btn.dataset.group === 'outer', on = btn.dataset.on === '1';
+      document.querySelectorAll('.part-row').forEach(row => {
+        const k = row.dataset.key;
+        if (PARTS[k].outer !== outer) return;
+        row.querySelector('input').checked = on;
+        on ? shown.add(k) : shown.delete(k);
+      });
+      applyLayers();
+    };
+  });
 
   const ex = document.getElementById('explode');
   ex.oninput = () => { explode = ex.value / 100; applyLayers(); };
 
-  segment('cortex-mode', 'mode', v => { cortexMode = v; });
   segment('hemi-mode', 'hemi', v => { hemi = v; });
 
   const rot = document.getElementById('btn-rotate');
   rot.onclick = () => { controls.autoRotate = !controls.autoRotate; rot.classList.toggle('active', controls.autoRotate); };
-  document.getElementById('btn-view').onclick = () => {
-    camera.position.copy(HOME);
-    controls.target.set(0, 0, 0);
-  };
+  document.getElementById('btn-view').onclick = homeView;
 }
 
 function segment(id, attr, set) {
@@ -215,32 +234,22 @@ function segment(id, attr, set) {
   });
 }
 
-function setSegment(id, attr, value) {
-  document.querySelectorAll(`#${id} button`).forEach(b => b.classList.toggle('active', b.dataset[attr] === value));
-}
-
-function select(key, side, fromList) {
+function select(key, side) {
   selectedKey = key;
   selectedSide = side;
   document.getElementById('hover-label').style.display = 'none';
-  // A deep part chosen from the list is hidden behind the cortex – make the cortex see-through
-  if (key && fromList && !PARTS[key].outer && cortexMode === 'solid') {
-    cortexMode = 'transparent';
-    setSegment('cortex-mode', 'mode', 'transparent');
-  }
-  document.querySelectorAll('.chip').forEach(c => c.classList.toggle('active', c.dataset.key === key));
+  document.querySelectorAll('.part-row').forEach(r => r.classList.toggle('active', r.dataset.key === key));
 
+  // Explanation floats over the bottom of the model, so opening it doesn't push anything down
   const card = document.getElementById('info-card');
-  if (!key) {
-    card.className = 'card info-card empty';
-    card.innerHTML = '<p>לחצו על חלק במוח (או על שם ברשימה) כדי לגלות מה הוא עושה.</p>';
-  } else {
+  card.hidden = !key;
+  if (key) {
     const p = PARTS[key];
     const paired = meshes.some(m => m.userData.key === key && m.userData.side);
     const where = side ? SIDE_TEXT[side] : paired ? 'יש אחד בכל חצי מוח' : 'במרכז המוח';
-    card.className = 'card info-card';
-    card.innerHTML = `<h2><span class="swatch" style="background:${p.color}"></span>${p.name}</h2>
+    card.innerHTML = `<button class="info-close" title="סגירה">✕</button><h2><span class="swatch" style="background:${p.color}"></span>${p.name}</h2>
       <div class="where">${where}</div><p>${p.text}</p>`;
+    card.querySelector('.info-close').onclick = () => select(null, null);
   }
   applyLayers();
 }
@@ -250,8 +259,7 @@ function pick(ev) {
   const r = renderer.domElement.getBoundingClientRect();
   pointer.set(((ev.clientX - r.left) / r.width) * 2 - 1, -((ev.clientY - r.top) / r.height) * 2 + 1);
   raycaster.setFromCamera(pointer, camera);
-  // See-through cortex can't be picked, so taps reach the deep parts behind it
-  const targets = meshes.filter(m => m.visible && !(m.userData.outer && cortexMode === 'transparent'));
+  const targets = meshes.filter(m => m.visible);
   return raycaster.intersectObjects(targets, false)[0]?.object || null;
 }
 
@@ -265,7 +273,7 @@ function bindPointer() {
     if (!down || Math.hypot(e.clientX - down.x, e.clientY - down.y) > 6) { down = null; return; }
     down = null;
     const hit = pick(e);
-    select(hit ? hit.userData.key : null, hit ? hit.userData.side : null, false);
+    select(hit ? hit.userData.key : null, hit ? hit.userData.side : null);
   });
   el.addEventListener('pointermove', e => {
     if (e.pointerType !== 'mouse' || e.buttons) { hoverLabel.style.display = 'none'; return; }
