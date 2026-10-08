@@ -225,8 +225,9 @@
     display: grid;
     grid-template-columns: repeat(5, minmax(0, 1fr));
     gap: clamp(8px, 1.5vw, 20px);
-    background: var(--surface);
-    border: 1px solid var(--border);
+    /* Always dark, in both themes, so every ink (incl. white) reads clearly */
+    background: #11141c;
+    border: 1px solid #252c3f;
     border-radius: 24px;
     padding: clamp(14px, 2.5vw, 34px);
     transition: filter 0.3s, opacity 0.3s;
@@ -324,18 +325,17 @@
 
 <script>
 // ─────────────────────── Colors ───────────────────────
-// Each color has a few shades (dark / light theme) so the same color
-// doesn't always look identical. Shades stay clearly inside their family
-// so they're still easy to name on a projector.
+// One clear, typical shade per color — nobody should have to wonder
+// "which color is that?", the only challenge is word vs. ink.
 const COLORS = {
-  red:    { name: 'אדום', dark: ['#ff3b3b', '#ff5a4f', '#e8322f'], light: ['#e01b1b', '#c8102e', '#ef2b2b'] },
-  blue:   { name: 'כחול', dark: ['#3d8bff', '#4f6bff', '#2f9bff'], light: ['#1660e0', '#1d3fcf', '#0b74d6'] },
-  green:  { name: 'ירוק', dark: ['#2ee05a', '#4ccf3a', '#1fd17a'], light: ['#10a338', '#2e8b1f', '#0e9b5c'] },
-  yellow: { name: 'צהוב', dark: ['#ffe23d', '#fff04a', '#ffd21f'], light: ['#e6b400', '#d9a800', '#f0c000'] },
-  orange: { name: 'כתום', dark: ['#ff8c1a', '#ff7a2e', '#ff9d2e'], light: ['#f07000', '#e65c00', '#ff7f11'] },
-  purple: { name: 'סגול', dark: ['#a66bff', '#b57cff', '#9152ff'], light: ['#7a2fe0', '#6a1fc9', '#8b3ff0'] },
-  pink:   { name: 'ורוד', dark: ['#ff5fc8', '#ff7ad6', '#ff4fb0'], light: ['#e0279e', '#d6338a', '#ec3fae'] },
-  brown:  { name: 'חום',  dark: ['#c27a3e', '#b06a33', '#cf8a4a'], light: ['#8b4a1c', '#7a3f14', '#9c5a26'] },
+  red:    { name: 'אדום', ink: '#ff2020' },
+  blue:   { name: 'כחול', ink: '#2b6cff' },
+  green:  { name: 'ירוק', ink: '#1ec83c' },
+  yellow: { name: 'צהוב', ink: '#ffe600' },
+  purple: { name: 'סגול', ink: '#9933ff' },
+  pink:   { name: 'ורוד', ink: '#ff69c8' },
+  brown:  { name: 'חום',  ink: '#a0582a' },
+  white:  { name: 'לבן',  ink: '#ffffff' },
 };
 const COLOR_KEYS = Object.keys(COLORS);
 
@@ -345,10 +345,10 @@ const THINGS = [
   ['ים', 'blue'], ['שמיים', 'blue'],
   ['דשא', 'green'], ['מלפפון', 'green'], ['צפרדע', 'green'], ['עלה', 'green'],
   ['בננה', 'yellow'], ['שמש', 'yellow'], ['לימון', 'yellow'], ['אפרוח', 'yellow'],
-  ['גזר', 'orange'], ['תפוז', 'orange'],
   ['חציל', 'purple'],
   ['פלמינגו', 'pink'], ['מסטיק', 'pink'],
   ['שוקולד', 'brown'], ['קפה', 'brown'], ['דוב', 'brown'],
+  ['שלג', 'white'], ['חלב', 'white'], ['ענן', 'white'],
 ].map(([text, color]) => ({ text, color }));
 const NAMES = COLOR_KEYS.map(k => ({ text: COLORS[k].name, color: k }));
 
@@ -383,7 +383,7 @@ function generate() {
     let ink;
     if (page === 'match') ink = word.color;
     else do { ink = pick(COLOR_KEYS); } while (ink === word.color || ink === prevInk);
-    out.push({ text: word.text, ink, shade: Math.floor(Math.random() * 3) });
+    out.push({ text: word.text, ink });
     prevText = word.text; prevInk = ink;
   }
   return out;
@@ -392,11 +392,11 @@ function generate() {
 function renderBoard() {
   const board = document.getElementById('board');
   board.innerHTML = '';
-  items.forEach(({ text, ink, shade }) => {
+  items.forEach(({ text, ink }) => {
     const div = document.createElement('div');
     div.className = 'word';
     div.textContent = text;
-    div.style.color = COLORS[ink][isDark ? 'dark' : 'light'][shade];
+    div.style.color = COLORS[ink].ink;
     board.appendChild(div);
   });
   fitWords();
@@ -494,7 +494,6 @@ function toggleTheme() {
   isDark = !isDark;
   document.body.classList.toggle('light', !isDark);
   document.getElementById('theme-btn').textContent = isDark ? '☀️ מצב בהיר' : '🌙 מצב כהה';
-  renderBoard();
 }
 
 function toggleFullscreen() {
