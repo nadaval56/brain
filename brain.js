@@ -74,10 +74,8 @@ const PARTS = {
   },
 };
 
-// Mesh names: <part>[_L|_R|_mid][_core]; a "_core" is the solid filling behind a cortex lobe
-const baseOf = name => name.replace(/_core$/, '');
-const keyOf = name => baseOf(name).replace(/_(L|R|mid)$/, '');
-const sideOf = name => { const b = baseOf(name); return b.endsWith('_L') ? 'L' : b.endsWith('_R') ? 'R' : null; };
+const keyOf = name => name.replace(/_(L|R|mid)$/, '');
+const sideOf = name => (name.endsWith('_L') ? 'L' : name.endsWith('_R') ? 'R' : null);
 const SIDE_TEXT = { L: 'חצי המוח השמאלי', R: 'חצי המוח הימני' };
 
 // ─────────────────────── State ───────────────────────
@@ -118,28 +116,20 @@ export function initBrain() {
   homeView();
 
   new GLTFLoader().load('assets/brain.glb', gltf => {
-    const byName = {};
     gltf.scene.traverse(obj => {
       if (!obj.isMesh) return;
       const k = keyOf(obj.name);
       const part = PARTS[k];
       if (!part) return;
-      const core = obj.name.endsWith('_core');
       obj.geometry.computeVertexNormals();
       obj.geometry.computeBoundingSphere();
       obj.material = new THREE.MeshStandardMaterial({
-        color: new THREE.Color(part.color).multiplyScalar(core ? 0.72 : 1),
-        roughness: 0.55, metalness: 0.05, side: THREE.DoubleSide,
+        color: part.color, roughness: 0.55, metalness: 0.05, side: THREE.DoubleSide,
       });
-      obj.userData = { key: k, side: sideOf(obj.name), outer: part.outer, core,
+      obj.userData = { key: k, side: sideOf(obj.name), outer: part.outer,
                        center: obj.geometry.boundingSphere.center.clone() };
-      byName[obj.name] = obj;
       meshes.push(obj);
     });
-    // A lobe's solid filling travels with its outer surface when the brain opens
-    for (const m of meshes) {
-      if (m.userData.core) m.userData.center = byName[baseOf(m.name)].userData.center;
-    }
     scene.add(gltf.scene);
     document.getElementById('brain-status').remove();
     applyLayers();
@@ -180,8 +170,6 @@ function applyLayers() {
     m.visible = !hiddenSide && shown.has(key);
 
     const mat = m.material;
-    mat.transparent = key === 'ventricles';
-    mat.opacity = key === 'ventricles' ? 0.8 : 1;
     const on = key === selectedKey, hov = key === hoverKey;
     mat.emissive.set(on ? PARTS[key].color : '#000000');
     mat.emissiveIntensity = on ? 0.45 : 0;
