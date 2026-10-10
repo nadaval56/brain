@@ -8,6 +8,8 @@ the two hemispheres are pinned together the deep parts are locked inside.
 Every part is re-voxelised on one shared grid so pieces never overlap, a clearance gap is left
 between touching pieces, and matching holes for a Technic pin (Ø4.8 mm, 16 mm long, with a
 centre collar) are cut where two pieces meet with enough material around them.
+Each STL is then turned to its best print orientation (least support; pin holes vertical where
+possible) and set on the bed at the origin.
 
 usage: python tools/print_stl.py DL SOLID OUT [SCALE]
   DL    = Brain for Blender download folder (see tools/README.md)
@@ -35,9 +37,9 @@ PITCH = 0.4          # voxel size in mm, before scaling
 GAP_VOXELS = 1       # each side gives up one voxel → ~0.55 mm clearance after scaling
 
 # Technic friction pin (e.g. LEGO 2780 / 4459): Ø4.8 shaft, ~7.9 mm each side of a Ø6.2 collar
-HOLE_D = 5.0         # printed holes come out a little small; see pin_test.stl
+HOLE_D = 5.2         # printed holes come out a little small; 5.2 fit best on the test block
 HOLE_DEPTH = 8.4     # from the piece's surface
-CB_D, CB_DEPTH = 6.6, 0.9   # shallow counterbore for the collar
+CB_D, CB_DEPTH = 6.8, 0.9   # shallow counterbore for the collar
 WALL = 1.6           # plastic needed around a hole
 
 # (piece A, piece B, pins wanted, pin axis = the direction B moves to join A)
@@ -237,12 +239,54 @@ def to_mm(q):  # grid index → final printed coordinates
 
 
 def hole(q_mm, into):
-    """Cylinder + counterbore starting just outside the face at q_mm, going `into` the piece."""
-    parts = []
-    for dia, depth in ((HOLE_D, HOLE_DEPTH + 0.3), (CB_D, CB_DEPTH + 0.3)):
-        start, end = q_mm - into * 2.0, q_mm + into * depth
-        parts.append(trimesh.creation.cylinder(radius=dia / 2, segment=[start, end], sections=48))
-    return parts
+    """Cylinder + counterbore starting just outside the face at q_mm, going `into` the piece.
+    The hole ends in a 90° drill point: when it opens downward on the printer, the pointed end
+    needs no support (a flat end would get support material that can't be cleaned out)."""
+    r = HOLE_D / 2
+    end = q_mm + into * (HOLE_DEPTH + 0.3)
+    parts = [trimesh.creation.cylinder(radius=r, segment=[q_mm - into * 2.0, end], sections=48),
+             trimesh.creation.cylinder(radius=CB_D / 2, segment=[q_mm - into * 2.0, q_mm + into * (CB_DEPTH + 0.3)],
+                                       sections=48)]
+    tip = trimesh.creation.cone(radius=r, height=r, sections=48)       # base at z=0, apex at +z
+    T = trimesh.geometry.align_vectors([0, 0, 1], into)
+    T[:3, 3] = end - into * 0.01
+    tip.apply_transform(T)
+    return parts + [tip]
+
+
+def support_score(m, down):
+    """Overhang area that needs support (minus what rests on the bed) if `down` points to the bed."""
+    R = trimesh.geometry.align_vectors(down, [0, 0, -1])
+    nz = (m.face_normals @ R[:3, :3].T)[:, 2]
+    z = (m.triangles_center @ R[:3, :3].T)[:, 2]
+    on_bed = z < z.min() + 0.4
+    overhang = (nz < -0.71) & ~on_bed                  # facing down more steeply than 45°
+    contact = (nz < -0.97) & on_bed
+    return m.area_faces[overhang].sum() - 2 * m.area_faces[contact].sum()
+
+
+def orient_for_print(m, holes_into):
+    """Rotate for printing and sit it on the bed at the origin.
+    Pieces with pin holes: as many holes as possible vertical (they print round, like the test
+    block) and opening upward, so nothing is printed inside the holes or the pockets beside them.
+    Other pieces: least support, and of the near-best options the lowest one (steadier)."""
+    if holes_into:
+        main = max(holes_into, key=lambda a: sum(abs(a @ b) > 0.99 for b in holes_into))
+        # holes point into the piece; face the side most of them open on upward
+        # (brainstem: one hole on each side, so the side needing less support goes down)
+        along = [h for h in holes_into if abs(h @ main) > 0.99]
+        ups = sum(h @ main > 0 for h in along)
+        downs = [main if ups > len(along) / 2 else -main] if ups != len(along) / 2 else [main, -main]
+    else:   # free choice: ~200 evenly spread directions
+        k = np.arange(200) + 0.5
+        phi, th = np.arccos(1 - 2 * k / 200), np.pi * (1 + 5 ** 0.5) * k
+        downs = np.c_[np.cos(th) * np.sin(phi), np.sin(th) * np.sin(phi), np.cos(phi)]
+    scores = np.array([support_score(m, d) for d in downs])
+    good = [d for d, sc in zip(downs, scores) if sc <= scores.min() + 0.15 * abs(scores.min()) + 30]  # mm²
+    best = min(good, key=lambda d: np.ptp(m.vertices @ d))
+    m.apply_transform(trimesh.geometry.align_vectors(best, [0, 0, -1]))
+    m.apply_translation([-m.centroid[0], -m.centroid[1], -m.bounds[0][2]])
+    return m
 
 
 report = []
@@ -261,6 +305,7 @@ for n in names:
             cutters += hole(to_mm(q), d if n == b else -d)
     if cutters:
         m = trimesh.boolean.difference([m] + cutters, engine='manifold')
+    m = orient_for_print(m, [d if n == b else -d for a, b, _, d in pins if n in (a, b)])
     m.export(os.path.join(OUT, f'{n}.stl'))
     holes = sum(n in (a, b) for a, b, _, _ in pins)
     report.append((n, m.is_watertight, len(m.split(only_watertight=False)), m.volume / 1000, m.extents, holes))
@@ -276,5 +321,7 @@ for i, dia in enumerate((4.8, 4.9, 5.0, 5.1, 5.2)):
     for k in range(i + 1):   # notches on the front edge
         cut.append(trimesh.creation.box((0.8, 2, 3), transform=trimesh.transformations.translation_matrix(
             [x - 2 + k * 1.2, -7, 3.5])))
-trimesh.boolean.difference([block] + cut, engine='manifold').export(os.path.join(OUT, 'pin_test.stl'))
+test = trimesh.boolean.difference([block] + cut, engine='manifold')
+test.apply_translation([0, 0, 5])   # sit on the bed
+test.export(os.path.join(OUT, 'pin_test.stl'))
 print('pins per set:', len(pins))
