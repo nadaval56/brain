@@ -9,67 +9,67 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 // outer = cortex (the wrinkled surface); inner = deep structures
 const PARTS = {
   frontal: {
-    name: 'האונה המצחית', color: '#4f8ef7', outer: true,
+    name: 'האונה המצחית', en: 'Frontal lobe', color: '#4f8ef7', outer: true,
     text: 'ה"מנהל" של המוח: מתכננת, מקבלת החלטות, שומרת על ריכוז ועוצרת תגובות אוטומטיות. היא זו שעובדת קשה בדף ב\' של מבחן סטרופ – כדי לא לקרוא את המילה!',
   },
   motor: {
-    name: 'קליפת המוח המוטורית', color: '#ff9f43', outer: true,
+    name: 'קליפת המוח המוטורית', en: 'Primary motor cortex', color: '#ff9f43', outer: true,
     text: 'רצועה ששולחת פקודות לשרירים – להזיז יד, רגל או לשון. צד ימין של המוח מזיז את צד שמאל של הגוף, ולהפך.',
   },
   sensory: {
-    name: 'קליפת המוח החושית', color: '#ffd23f', outer: true,
+    name: 'קליפת המוח החושית', en: 'Primary somatosensory cortex', color: '#ffd23f', outer: true,
     text: 'רצועה שנמצאת ממש מאחורי המוטורית ומקבלת תחושות מכל הגוף: מגע, חום, קור וכאב. לאצבעות ולשפתיים יש בה הרבה מקום.',
   },
   parietal: {
-    name: 'האונה הקודקודית', color: '#3ecf6e', outer: true,
+    name: 'האונה הקודקודית', en: 'Parietal lobe', color: '#3ecf6e', outer: true,
     text: 'מחברת את המידע מהחושים לתמונה אחת: איפה הגוף שלי נמצא, איפה הדברים סביבי, וגם עוזרת בחשבון.',
   },
   temporal: {
-    name: 'האונה הרקתית', color: '#e66fd2', outer: true,
+    name: 'האונה הרקתית', en: 'Temporal lobe', color: '#e66fd2', outer: true,
     text: 'נמצאת מעל האוזניים: שמיעה, הבנת מילים ושפה, זיהוי פנים, ועוזרת לשמור זיכרונות.',
   },
   occipital: {
-    name: 'האונה העורפית', color: '#9b7bf2', outer: true,
+    name: 'האונה העורפית', en: 'Occipital lobe', color: '#9b7bf2', outer: true,
     text: 'מרכז הראייה של המוח, בחלק האחורי של הראש. כאן המוח מפענח צורות, תנועה וצבעים – כמו צבע הדיו במבחן סטרופ.',
   },
   cingulate: {
-    name: 'הפיתול החגורתי', color: '#ff7b7b', outer: true,
+    name: 'הפיתול החגורתי', en: 'Cingulate gyrus', color: '#ff7b7b', outer: true,
     text: 'מסתתר בצד הפנימי של כל חצי מוח. מזהה התנגשויות וטעויות ("רגע, משהו פה לא מסתדר!") – והוא פעיל במיוחד במבחן סטרופ.',
   },
   insula: {
-    name: 'האינסולה', color: '#2ed3c6', outer: true,
+    name: 'האינסולה', en: 'Insula', color: '#2ed3c6', outer: true,
     text: 'אונה קטנה שמוסתרת עמוק בתוך קפל בצד המוח. מרגישה מה קורה בתוך הגוף: רעב, דופק, נשימה – וגם רגשות כמו גועל.',
   },
   amygdala: {
-    name: 'האמיגדלה', color: '#ff2d2d', outer: false,
+    name: 'האמיגדלה', en: 'Amygdala', color: '#ff2d2d', outer: false,
     text: 'בגודל ובצורה של שקד. "מערכת האזעקה" של המוח: מזהה סכנה במהירות ומפעילה פחד ותגובת "הילחם או ברח". קשורה גם לרגשות חזקים.',
   },
   hippocampus: {
-    name: 'ההיפוקמפוס', color: '#ffb000', outer: false,
+    name: 'ההיפוקמפוס', en: 'Hippocampus', color: '#ffb000', outer: false,
     text: 'השם שלו ביוונית הוא "סוסון ים" בגלל הצורה. הופך חוויות של היום לזיכרונות שנשארים, ועוזר לנו לזכור את הדרך.',
   },
   thalamus: {
-    name: 'התלמוס', color: '#00c2ff', outer: false,
+    name: 'התלמוס', en: 'Thalamus', color: '#00c2ff', outer: false,
     text: '"תחנת הממסר" של המוח: כמעט כל מידע מהחושים (חוץ מריח) עובר דרכו בדרך לקליפת המוח.',
   },
   basalganglia: {
-    name: 'גרעיני הבסיס', color: '#a3e635', outer: false,
+    name: 'גרעיני הבסיס', en: 'Basal ganglia', color: '#a3e635', outer: false,
     text: 'קבוצת גרעינים שעוזרת לבחור איזו תנועה לעשות ולהתחיל אותה, ושומרת הרגלים – כמו רכיבה על אופניים בלי לחשוב.',
   },
   cerebellum: {
-    name: 'המוח הקטן', color: '#c98a55', outer: false,
+    name: 'המוח הקטן', en: 'Cerebellum', color: '#c98a55', outer: false,
     text: 'בחלק האחורי התחתון. אחראי על שיווי משקל ותיאום תנועות מדויק. למרות שהוא קטן – יש בו יותר ממחצית תאי העצב של המוח!',
   },
   brainstem: {
-    name: 'גזע המוח', color: '#94a3b8', outer: false,
+    name: 'גזע המוח', en: 'Brainstem', color: '#94a3b8', outer: false,
     text: 'מחבר את המוח לחוט השדרה. שולט בדברים שקורים לבד: נשימה, דופק, בליעה ושינה.',
   },
   corpuscallosum: {
-    name: 'הגוף המסוייד', color: '#f1f1f1', outer: false,
+    name: 'הגוף המסוייד', en: 'Corpus callosum', color: '#f1f1f1', outer: false,
     text: 'גשר של מיליוני סיבי עצב שמחבר בין חצי המוח הימני לשמאלי, כדי ששניהם יעבדו ביחד.',
   },
   ventricles: {
-    name: 'חדרי המוח', color: '#5ab8ff', outer: false,
+    name: 'חדרי המוח', en: 'Ventricles', color: '#5ab8ff', outer: false,
     text: 'חללים בתוך המוח שמלאים בנוזל שקוף. הנוזל מגן על המוח כמו כרית ומביא לו חומרים.',
   },
 };
@@ -135,7 +135,7 @@ export function initBrain() {
     applyLayers();
   }, undefined, err => {
     console.error(err);
-    document.getElementById('brain-status').textContent = 'לא הצלחנו לטעון את המוח 😕';
+    document.getElementById('brain-status').textContent = 'לא הצלחנו לטעון את המודל';
   });
 
   buildPanel();
@@ -245,7 +245,8 @@ function select(key, side) {
     const p = PARTS[key];
     const paired = meshes.some(m => m.userData.key === key && m.userData.side);
     const where = side ? SIDE_TEXT[side] : paired ? 'יש אחד בכל חצי מוח' : 'במרכז המוח';
-    card.innerHTML = `<button class="info-close" title="סגירה">✕</button><h2><span class="swatch" style="background:${p.color}"></span>${p.name}</h2>
+    card.innerHTML = `<button class="info-close" title="סגירה" aria-label="סגירה"><svg class="icon"><use href="#i-x"/></svg></button>
+      <h2><span class="swatch" style="background:${p.color}"></span>${p.name}<span class="latin" dir="ltr">${p.en}</span></h2>
       <div class="where">${where}</div><p>${p.text}</p>`;
     card.querySelector('.info-close').onclick = () => select(null, null);
   }
