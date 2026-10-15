@@ -209,18 +209,15 @@ function addPart(obj, k, side) {
     color: part.color, roughness: 0.55, metalness: 0.05, side: THREE.DoubleSide,
   }));
 
-  // Highlight helpers, shown only while the part is selected:
-  // outline = back faces pushed out a few pixels; xray = the hidden part seen through the parts in front of it
+  // Outline shown while the part is selected: back faces pushed out a few pixels.
+  // It is depth-tested, so parts in front of the selected one hide its outline too.
   const outline = new THREE.Mesh(obj.geometry, OUTLINE_MAT);
-  const xray = new THREE.Mesh(obj.geometry, withStripes(new THREE.MeshBasicMaterial({
-    color: part.color, transparent: true, opacity: 0.6, depthWrite: false,
-    depthFunc: THREE.GreaterDepth, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -8,
-  })));
-  xray.renderOrder = 10;
-  for (const h of [outline, xray]) { h.visible = false; h.raycast = () => {}; obj.add(h); }
+  outline.visible = false;
+  outline.raycast = () => {};
+  obj.add(outline);
 
   obj.userData = { key: k, side, outer: part.outer, center: obj.geometry.boundingSphere.center.clone(),
-                   outline, xray };
+                   outline };
   meshes.push(obj);
 }
 
@@ -302,7 +299,7 @@ function isSelected(m) {
 
 function applyLayers() {
   for (const m of meshes) {
-    const { center, outer, side, outline, xray } = m.userData;
+    const { center, outer, side, outline } = m.userData;
     const k = partOf(m);
     // Explode: push each part away from the middle; the cortex moves further so the inside shows.
     // Merged lobes all move with their hemisphere's centre, so they stay glued together.
@@ -321,10 +318,6 @@ function applyLayers() {
     mat.emissiveIntensity = on ? 0.4 : hov ? 0.12 : 0;
     mat.userData.stripe.value = on ? 0.45 : 0;
     outline.visible = on;
-    xray.visible = on && k !== 'cerebrum'; // a whole hemisphere needs no x-ray, and its own inner lobes would wash it out
-    xray.material.color.set(color);
-    stripeColor(mat.color, xray.material.userData.stripeColor.value);
-    xray.material.userData.stripe.value = on ? 0.55 : 0;
   }
 }
 
