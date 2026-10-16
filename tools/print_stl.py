@@ -14,7 +14,8 @@ possible) and set on the bed at the origin.
 usage: python tools/print_stl.py DL SOLID OUT [SCALE]
   DL    = Brain for Blender download folder (see tools/README.md)
   SOLID = output folder of tools/solid.py
-  SCALE = size factor (default 0.7 → brain ~12 cm long)
+  SCALE = size factor (default 0.7 → brain ~12 cm long; 1.17 → ~20 cm)
+Pin holes are sized in printed mm, so they stay Ø5.2 at any SCALE.
 """
 import os, sys
 import numpy as np
@@ -33,8 +34,10 @@ SCALE = float(sys.argv[4]) if len(sys.argv) > 4 else 0.7
 SUB = os.path.join(DL, 'sub/subcortical_obj')
 os.makedirs(OUT, exist_ok=True)
 
-PITCH = 0.4          # voxel size in mm, before scaling
-GAP_VOXELS = 1       # each side gives up one voxel → ~0.55 mm clearance after scaling
+# Voxel size in mm before scaling: 0.28 mm on the print (0.4 at the default 0.7), so the clearance
+# between pieces stays the same at any size (larger prints just use a finer grid).
+PITCH = min(0.4, 0.28 / SCALE)
+GAP_VOXELS = 1       # each side gives up one voxel → ~0.55 mm clearance on the print
 
 # Technic friction pin (e.g. LEGO 2780 / 4459): Ø4.8 shaft, ~7.9 mm each side of a Ø6.2 collar
 HOLE_D = 5.2         # printed holes come out a little small; 5.2 fit best on the test block
@@ -289,11 +292,18 @@ def orient_for_print(m, holes_into):
     return m
 
 
+del edt, occupied   # free memory: meshing the hemispheres on a fine grid needs a lot
 report = []
 for n in names:
-    f = ndimage.gaussian_filter(np.pad(masks[n].astype(np.float32), 2), 0.7)
+    idx = np.argwhere(masks[n])   # mesh only the piece's own box, not the whole grid
+    a0, b0 = idx.min(0), idx.max(0) + 1
+    f = ndimage.gaussian_filter(np.pad(masks[n][a0[0]:b0[0], a0[1]:b0[1], a0[2]:b0[2]].astype(np.float32), 3), 0.7)
+    del idx
     vv, ff, _, _ = measure.marching_cubes(f, 0.5)
-    m = trimesh.Trimesh(to_mm(vv - 2), ff[:, ::-1], process=True)
+    del f
+    m = trimesh.Trimesh(to_mm(vv - 3 + a0), ff[:, ::-1], process=True)
+    del vv, ff
+    masks[n] = None
     m = largest_body(m)
     trimesh.smoothing.filter_taubin(m, iterations=6)
     m = reduce(m, int(np.clip(abs(m.volume) / SCALE ** 3 / 1000 * 1500, 12_000, 80_000)))
