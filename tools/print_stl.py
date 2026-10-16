@@ -292,11 +292,18 @@ def orient_for_print(m, holes_into):
     return m
 
 
+del edt, occupied   # free memory: meshing the hemispheres on a fine grid needs a lot
 report = []
 for n in names:
-    f = ndimage.gaussian_filter(np.pad(masks[n].astype(np.float32), 2), 0.7)
+    idx = np.argwhere(masks[n])   # mesh only the piece's own box, not the whole grid
+    a0, b0 = idx.min(0), idx.max(0) + 1
+    f = ndimage.gaussian_filter(np.pad(masks[n][a0[0]:b0[0], a0[1]:b0[1], a0[2]:b0[2]].astype(np.float32), 3), 0.7)
+    del idx
     vv, ff, _, _ = measure.marching_cubes(f, 0.5)
-    m = trimesh.Trimesh(to_mm(vv - 2), ff[:, ::-1], process=True)
+    del f
+    m = trimesh.Trimesh(to_mm(vv - 3 + a0), ff[:, ::-1], process=True)
+    del vv, ff
+    masks[n] = None
     m = largest_body(m)
     trimesh.smoothing.filter_taubin(m, iterations=6)
     m = reduce(m, int(np.clip(abs(m.volume) / SCALE ** 3 / 1000 * 1500, 12_000, 80_000)))
