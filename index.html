@@ -423,6 +423,188 @@
   .credit { font-size: 11px; color: var(--muted); line-height: 1.6; padding: 0 4px; }
   .credit a { color: inherit; }
 
+  /* ── Reflexes ── */
+  .rx {
+    width: 100%; max-width: 1180px;
+    display: flex; flex-direction: column; gap: 22px;
+    padding: 28px 24px 40px;
+    --skin: #f2c6a0; --skin-2: #e2a982; --skin-line: #b97f5b;
+    --adult: #c98f64; --bone: #f8f1df;
+    --sens: #2b7bff; --motor: #ef4444; --up: #a855f7;
+  }
+  body.dark .rx { --skin-line: #8a5a3c; }
+  .rx-nav { display: flex; flex-wrap: wrap; gap: 8px; }
+  .rx-nav button {
+    border: 1px solid var(--border); background: var(--surface); color: var(--text-2);
+    font-size: 14px; font-weight: 500; padding: 7px 14px; border-radius: 999px; cursor: pointer;
+  }
+  .rx-nav button:hover { border-color: var(--accent); color: var(--accent); }
+  .rx-block {
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+    box-shadow: var(--shadow); padding: 22px; scroll-margin-top: 84px;
+    display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); gap: 24px; align-items: start;
+  }
+  .rx-block.wide { grid-template-columns: 1fr; }
+  .rx-block h2 { font-size: 22px; font-weight: 700; letter-spacing: -0.3px; margin-bottom: 8px; }
+  .rx-block h2 small { font-size: 13px; font-weight: 500; color: var(--muted); margin-inline-start: 8px; }
+  .rx-block h4 { font-size: 14px; font-weight: 700; margin: 14px 0 6px; color: var(--text); }
+  .rx-block p, .rx-block li { font-size: 15px; line-height: 1.7; color: var(--text-2); }
+  .rx-block ol, .rx-block ul { padding-inline-start: 20px; }
+  .rx-block b { color: var(--text); font-weight: 600; }
+  .rx-text > p + p { margin-top: 8px; }
+  .rx-chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0 4px; }
+  .rx-chip {
+    display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600;
+    background: var(--accent-soft); color: var(--accent); border-radius: 999px; padding: 4px 12px;
+  }
+  .rx-steps { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 12px; font-size: 13px; }
+  .rx-steps span { border: 1px solid var(--border); border-radius: 8px; padding: 4px 9px; background: var(--surface-2); color: var(--text-2); }
+  .rx-steps i { color: var(--muted); font-style: normal; }
+  .rx-stage {
+    position: relative; background: var(--surface-2); border: 1px solid var(--border);
+    border-radius: 12px; padding: 12px; display: flex; flex-direction: column; gap: 10px;
+  }
+  .rx-stage svg.scene, .baby-card svg.scene { width: 100%; height: auto; display: block; touch-action: none; direction: ltr; }
+  .rx svg text { font-family: var(--ui-font); font-size: 13px; fill: var(--text-2); }
+  .rx svg text.small { font-size: 11px; fill: var(--muted); }
+  .rx-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; }
+  .rx-row .lbl { font-size: 13px; font-weight: 600; color: var(--muted); }
+  .rx-row input[type=range] { flex: 1; min-width: 120px; accent-color: var(--accent); }
+  .rx-msg {
+    font-size: 14px; font-weight: 500; color: var(--text-2); min-height: 22px;
+    background: var(--surface); border: 1px solid var(--border); border-radius: 9px; padding: 7px 12px;
+  }
+  .rx-msg.good { border-color: #16a34a; color: #15803d; }
+  .rx-msg.bad { border-color: #dc2626; color: #b91c1c; }
+  body.dark .rx-msg.good { color: #4ade80; }
+  body.dark .rx-msg.bad { color: #f87171; }
+  .rx-fig { margin: 12px 0 0; border-radius: 10px; overflow: hidden; border: 1px solid var(--border); background: var(--surface-2); }
+  .rx-fig img { display: block; width: 100%; height: auto; }
+  .rx-fig figcaption { font-size: 12px; color: var(--muted); padding: 6px 10px; line-height: 1.5; }
+  .rx-figs { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .rx-tip {
+    margin-top: 12px; background: var(--accent-soft); border-inline-start: 3px solid var(--accent);
+    border-radius: 8px; padding: 9px 13px; font-size: 14px; line-height: 1.6; color: var(--text-2);
+  }
+  .rx-tip b { color: var(--accent); }
+  .rx details { margin-top: 10px; border-top: 1px solid var(--border); padding-top: 8px; }
+  .rx summary { cursor: pointer; font-size: 14px; font-weight: 600; color: var(--accent); }
+  .rx details[open] summary { margin-bottom: 6px; }
+  .rx-grades { width: 100%; border-collapse: collapse; font-size: 14px; margin-top: 6px; }
+  .rx-grades td { padding: 5px 8px; border-bottom: 1px solid var(--border); color: var(--text-2); }
+  .rx-grades td:first-child { font-family: var(--mono); font-weight: 600; color: var(--text); width: 44px; }
+  .rx-grades tr.on td { background: var(--accent-soft); }
+
+  /* arc scene */
+  .arc-cord { fill: var(--surface); stroke: var(--border-strong); stroke-width: 1.5; }
+  .arc-brain { color: var(--muted); }
+  .nerve { fill: none; stroke-width: 3; stroke-linecap: round; opacity: 0.35; transition: opacity 0.2s; }
+  .nerve.sens { stroke: var(--sens); } .nerve.motor { stroke: var(--motor); } .nerve.up { stroke: var(--up); stroke-dasharray: 2 5; }
+  .nerve.lit { opacity: 1; }
+  .spark { stroke: #fff; stroke-width: 2; display: none; }
+  .spark.sens { fill: var(--sens); } .spark.motor { fill: var(--motor); } .spark.up { fill: var(--up); }
+  .muscle-flash { fill: var(--motor); opacity: 0; transition: opacity 0.12s; }
+  .muscle-flash.on { opacity: 0.55; }
+  .bubble { opacity: 0; transition: opacity 0.2s, transform 0.2s; transform-box: fill-box; transform-origin: center; transform: scale(0.6); }
+  .bubble.on { opacity: 1; transform: scale(1); }
+  .bubble rect { fill: var(--surface); stroke: var(--up); stroke-width: 2; }
+  .bubble text { font-size: 18px !important; font-weight: 800; fill: var(--up) !important; }
+  .heat { animation: heat 1.2s ease-in-out infinite alternate; }
+  @keyframes heat { from { opacity: 0.55; } to { opacity: 1; } }
+  .rx-clock { font-family: var(--mono); font-size: 22px; font-weight: 500; color: var(--text); direction: ltr; min-width: 92px; }
+
+  /* knee */
+  .knee-target { fill: none; stroke: var(--accent); stroke-width: 2; stroke-dasharray: 4 3; animation: pulse 1.4s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+  @keyframes pulse { 50% { transform: scale(1.25); opacity: 0.5; } }
+  .hide-target .knee-target { display: none; }
+  .knee-hammer { pointer-events: none; transition: opacity 0.15s; }
+  .trace-bg { fill: var(--surface); stroke: var(--border); }
+  .trace-axis { stroke: var(--border-strong); stroke-width: 1; }
+  .trace-line { fill: none; stroke: var(--accent); stroke-width: 2.5; stroke-linejoin: round; }
+  .trace-hit { stroke: var(--warn); stroke-width: 1.5; stroke-dasharray: 3 3; }
+  .grade-btns { display: none; }
+  .mystery .grade-btns { display: flex; }
+
+  /* eyes */
+  .eye-white { fill: #fbfbf8; stroke: var(--skin-line); stroke-width: 2; }
+  .eye-pupil { fill: #070707; }
+  .eye-lash { fill: none; stroke: #3b2a20; stroke-width: 4; stroke-linecap: round; }
+  .eye-read { display: flex; justify-content: space-around; font-family: var(--mono); font-size: 13px; color: var(--text-2); direction: ltr; }
+
+  /* babies */
+  .baby-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+  .baby-card { background: var(--surface-2); border: 1px solid var(--border); border-radius: 12px; padding: 14px; display: flex; flex-direction: column; gap: 8px; }
+  .baby-card h3 { font-size: 17px; font-weight: 700; color: var(--text); }
+  .baby-card h3 small { font-size: 12px; font-weight: 600; color: var(--accent); margin-inline-start: 6px; }
+  .baby-card p { font-size: 14px; line-height: 1.6; }
+  .baby-card svg.scene { background: var(--surface); border-radius: 10px; border: 1px solid var(--border); }
+  .finger { transform-box: view-box; transition: transform 0.35s cubic-bezier(.5,1.6,.6,1); }
+  .leg-thigh, .leg-shin { transform-box: view-box; }
+  .stepping .leg-a .leg-thigh { animation: thigh 1.1s ease-in-out infinite; }
+  .stepping .leg-a .leg-shin  { animation: shin 1.1s ease-in-out infinite; }
+  .stepping .leg-b .leg-thigh { animation: thigh 1.1s ease-in-out -0.55s infinite; }
+  .stepping .leg-b .leg-shin  { animation: shin 1.1s ease-in-out -0.55s infinite; }
+  @keyframes thigh { 0%, 100% { transform: rotate(10deg); } 50% { transform: rotate(-45deg); } }
+  @keyframes shin  { 0%, 100% { transform: rotate(0deg); } 30% { transform: rotate(55deg); } 60% { transform: rotate(20deg); } }
+  .step-baby { transition: transform 0.6s ease; }
+  .floor { stroke: var(--border-strong); stroke-width: 3; stroke-dasharray: 14 10; }
+  .stepping .floor { animation: floor 0.55s linear infinite; }
+  @keyframes floor { to { stroke-dashoffset: 24; } }
+  .moro-arm, .moro-leg { transform-box: view-box; transition: transform 0.3s; }
+  .moro .moro-arm.l { animation: moroL 1.8s ease-out; } .moro .moro-arm.r { animation: moroR 1.8s ease-out; }
+  .moro .moro-leg.l { animation: moroLegL 1.8s ease-out; } .moro .moro-leg.r { animation: moroLegR 1.8s ease-out; }
+  @keyframes moroL { 20%, 45% { transform: rotate(110deg); } 75% { transform: rotate(-30deg); } }
+  @keyframes moroR { 20%, 45% { transform: rotate(-110deg); } 75% { transform: rotate(30deg); } }
+  @keyframes moroLegL { 20%, 45% { transform: rotate(25deg); } }
+  @keyframes moroLegR { 20%, 45% { transform: rotate(-25deg); } }
+  .moro-open { opacity: 0; } .moro .moro-open { animation: eyesOpen 1.8s; } .moro .moro-closed { animation: eyesShut 1.8s; }
+  @keyframes eyesOpen { 10%, 85% { opacity: 1; } }
+  @keyframes eyesShut { 10%, 85% { opacity: 0; } }
+  .shake { animation: shake 0.35s; }
+  @keyframes shake { 25% { transform: translateX(-6px); } 50% { transform: translateX(5px); } 75% { transform: translateX(-3px); } }
+  .toe { transform-box: view-box; transition: transform 0.35s cubic-bezier(.4,1.5,.6,1); }
+  .timeline { display: flex; flex-direction: column; gap: 6px; margin-top: 6px; }
+  .tl-row { display: grid; grid-template-columns: 120px 1fr; align-items: center; gap: 10px; font-size: 13px; color: var(--text-2); }
+  .tl-track { position: relative; height: 18px; background: var(--surface-2); border-radius: 6px; direction: ltr; }
+  .tl-bar { position: absolute; top: 0; bottom: 0; left: 0; border-radius: 6px; background: linear-gradient(90deg, var(--accent) 70%, transparent); }
+  .tl-axis { display: grid; grid-template-columns: 120px 1fr; gap: 10px; font-size: 11px; color: var(--muted); }
+  .tl-axis div:last-child { display: flex; justify-content: space-between; direction: ltr; }
+
+  /* reaction game */
+  .rt-pad {
+    height: 200px; border-radius: 14px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;
+    font-size: 24px; font-weight: 700; cursor: pointer; color: #fff; background: #475569;
+    transition: background 0.1s; user-select: none; touch-action: manipulation;
+  }
+  .rt-pad small { display: block; font-size: 14px; font-weight: 500; opacity: 0.85; margin-top: 4px; }
+  .rt-pad.wait { background: #dc2626; } .rt-pad.go { background: #16a34a; } .rt-pad.early { background: #b45309; }
+  .rt-bars { display: flex; flex-direction: column; gap: 7px; }
+  .rt-bar { display: grid; grid-template-columns: 130px 1fr 64px; align-items: center; gap: 8px; font-size: 13px; color: var(--text-2); }
+  .rt-bar .track { height: 14px; background: var(--surface); border-radius: 5px; border: 1px solid var(--border); overflow: hidden; }
+  .rt-bar .fill { height: 100%; width: 0; background: var(--muted); border-radius: 5px; transition: width 0.5s; }
+  .rt-bar.reflex .fill { background: var(--motor); } .rt-bar.you .fill { background: var(--accent); }
+  .rt-bar .val { font-family: var(--mono); direction: ltr; text-align: left; }
+
+  /* quiz */
+  .quiz { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 12px; }
+  .q-card { background: var(--surface-2); border: 1px solid var(--border); border-radius: 12px; padding: 14px; display: flex; flex-direction: column; gap: 10px; }
+  .q-card .q { font-size: 16px; font-weight: 600; color: var(--text); }
+  .q-card .ans { display: flex; gap: 8px; }
+  .q-card .ans button { flex: 1; }
+  .q-card .why { font-size: 13px; line-height: 1.55; color: var(--text-2); display: none; }
+  .q-card.done .why { display: block; }
+  .q-card.right { border-color: #16a34a; } .q-card.wrong { border-color: #dc2626; }
+  .q-card.done .ans button { pointer-events: none; opacity: 0.5; }
+  .q-card.done .ans button.picked { opacity: 1; }
+
+  @media (max-width: 900px) {
+    .rx { padding: 18px 14px 30px; }
+    .rx-block { grid-template-columns: 1fr; padding: 16px; }
+    .baby-grid { grid-template-columns: 1fr; }
+    .tl-row, .tl-axis { grid-template-columns: 92px 1fr; }
+    .rt-bar { grid-template-columns: 104px 1fr 56px; }
+  }
+
   @media (max-width: 1000px) {
     .toolbar { grid-template-columns: 1fr; justify-items: center; text-align: center; }
     .controls { justify-content: center; }
@@ -462,6 +644,7 @@
   <symbol id="i-pause" viewBox="0 0 24 24"><path d="M8 5v14M16 5v14" stroke-width="3.2"/></symbol>
   <symbol id="i-rotate" viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><path d="M21 3v5h-5"/></symbol>
   <symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 2v5M12 17v5M2 12h5M17 12h5"/></symbol>
+  <symbol id="i-zap" viewBox="0 0 24 24"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></symbol>
   <symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></symbol>
 </svg>
 
@@ -476,6 +659,7 @@
   <nav class="section-tabs">
     <button class="section-tab active" id="sec-tab-stroop" onclick="showSection('stroop')"><svg class="icon"><use href="#i-timer"/></svg>זמן עיבוד</button>
     <button class="section-tab" id="sec-tab-brain" onclick="showSection('brain')"><svg class="icon"><use href="#i-cube"/></svg>אטלס המוח</button>
+    <button class="section-tab" id="sec-tab-reflex" onclick="showSection('reflex')"><svg class="icon"><use href="#i-zap"/></svg>רפלקסים</button>
   </nav>
   <div class="top-actions">
     <button class="icon-btn" onclick="toggleFullscreen()" title="מסך מלא (F)" aria-label="מסך מלא"><svg class="icon"><use href="#i-expand"/></svg></button>
@@ -601,6 +785,491 @@
     <div class="info-card" id="info-card" hidden></div>
   </div>
 </div>
+
+<main class="section rx" id="section-reflex" hidden>
+
+  <div class="page-head">
+    <div>
+      <div class="eyebrow">מערכת העצבים · רפלקסים</div>
+      <h1 class="page-title">רפלקסים: כשהגוף מגיב לבד</h1>
+      <p class="lead">לוחצים, מאירים, מקישים, ורואים איך הגוף עונה <b>לפני שהספקתם לחשוב</b>.</p>
+    </div>
+  </div>
+
+  <nav class="rx-nav" aria-label="ניווט בעמוד">
+    <button data-go="rx-what">⚡ מה זה רפלקס?</button>
+    <button data-go="rx-knee">🦵 רפלקס הברך</button>
+    <button data-go="rx-pupil">👁️ האישונים</button>
+    <button data-go="rx-baby">👶 רפלקסים של תינוקות</button>
+    <button data-go="rx-game">⏱️ משחק: רפלקס מול תגובה</button>
+    <button data-go="rx-quiz">❓ רפלקס או לא?</button>
+  </nav>
+
+  <!-- ───── What is a reflex ───── -->
+  <section class="rx-block" id="rx-what">
+    <div class="rx-text">
+      <h2>מה זה רפלקס?</h2>
+      <p><b>רפלקס</b> הוא תגובה אוטומטית של הגוף לגירוי. הוא קורה בלי שמחליטים עליו, הוא מהיר מאוד, והוא נראה כמעט אותו דבר בכל פעם.</p>
+      <div class="rx-chips">
+        <span class="rx-chip">⚡ מהיר</span>
+        <span class="rx-chip">🤖 אוטומטי, בלי החלטה</span>
+        <span class="rx-chip">🔁 קבוע, אותה תגובה כל פעם</span>
+        <span class="rx-chip">🛡️ בדרך כלל מגן עלינו</span>
+      </div>
+      <p>הסוד של המהירות הוא <b>קשת הרפלקס</b>: מסלול קצר שבו הסיגנל לא צריך לעלות עד המוח כדי שתהיה תגובה. ברוב הרפלקסים הוא "מסתובב" כבר בחוט השדרה.</p>
+      <div class="rx-steps">
+        <span>קולטן חש</span><i>←</i><span style="color:var(--sens)">עצב תחושה</span><i>←</i><span>חוט השדרה</span><i>←</i><span style="color:var(--motor)">עצב תנועה</span><i>←</i><span>שריר זז</span>
+      </div>
+      <div class="rx-tip"><b>נסו:</b> לחצו על "געו בכיריים" וצפו בהילוך איטי. היד כבר בורחת לפני שהמוח בכלל יודע שכואב. ה"אאוץ'!" מגיע אחר כך.</div>
+    </div>
+    <div class="rx-stage">
+      <svg class="scene" id="arc-svg" viewBox="0 0 640 320" role="img" aria-label="קשת רפלקס: יד נוגעת בכיריים חמות">
+        <rect x="490" y="262" width="130" height="16" rx="4" fill="#475569"/>
+        <ellipse class="heat" cx="550" cy="261" rx="46" ry="5" fill="#f97316"/>
+        <path class="heat" d="M520,250 q6,-10 0,-20 M550,246 q6,-10 0,-20 M580,250 q6,-10 0,-20" fill="none" stroke="#fb923c" stroke-width="3" stroke-linecap="round"/>
+        <text x="555" y="302" text-anchor="middle">כיריים חמות</text>
+
+        <g transform="translate(266,0) scale(4.5)" class="arc-brain"><use href="#i-brain" width="24" height="24" style="stroke:currentColor;fill:none;stroke-width:0.7;stroke-linecap:round;stroke-linejoin:round"/></g>
+        <text x="386" y="48">מוח</text>
+        <rect class="arc-cord" x="308" y="92" width="24" height="220" rx="12"/>
+        <text x="342" y="304">חוט השדרה</text>
+
+        <line x1="332" y1="196" x2="440" y2="206" stroke="var(--skin)" stroke-width="30" stroke-linecap="round"/>
+        <ellipse class="muscle-flash" id="arc-muscle" cx="388" cy="200" rx="36" ry="12"/>
+        <g id="arc-fore">
+          <line x1="440" y1="206" x2="528" y2="244" stroke="var(--skin)" stroke-width="26" stroke-linecap="round"/>
+          <ellipse cx="548" cy="250" rx="22" ry="11" fill="var(--skin)" stroke="var(--skin-line)" stroke-width="1.5"/>
+          <path class="nerve sens" d="M548,248 L440,206"/>
+        </g>
+        <path class="nerve sens" d="M440,206 L332,190 L322,190"/>
+        <path class="nerve motor" d="M318,198 L332,201 L392,204"/>
+        <path class="nerve up" d="M316,186 L316,100"/>
+
+        <path id="arc-path-sens" d="M548,248 L440,206 L332,190 L322,190" fill="none" stroke="none"/>
+        <path id="arc-path-motor" d="M322,190 L318,198 L332,201 L392,204" fill="none" stroke="none"/>
+        <path id="arc-path-up" d="M316,186 L316,100" fill="none" stroke="none"/>
+        <circle class="spark sens" id="spark-sens" r="7"/>
+        <circle class="spark motor" id="spark-motor" r="7"/>
+        <circle class="spark up" id="spark-up" r="7"/>
+
+        <text x="486" y="196" style="fill:var(--sens);font-weight:600">עצב תחושה</text>
+        <text x="350" y="240" style="fill:var(--motor);font-weight:600">עצב תנועה ← שריר</text>
+        <text x="236" y="150" style="fill:var(--up);font-weight:600" text-anchor="end">בדרך למוח</text>
+        <g class="bubble" id="arc-ouch">
+          <rect x="160" y="22" width="96" height="40" rx="14"/>
+          <text x="208" y="49" text-anchor="middle" direction="rtl">אאוץ'!</text>
+        </g>
+      </svg>
+      <div class="rx-row">
+        <button class="btn btn-main" id="arc-go">🔥 געו בכיריים</button>
+        <div class="seg" id="arc-speed">
+          <button data-speed="25" class="active">הילוך איטי</button>
+          <button data-speed="1">מהירות אמיתית</button>
+        </div>
+        <span class="rx-clock" id="arc-clock">0 ms</span>
+      </div>
+      <div class="rx-msg" id="arc-msg">הכחול: הודעה מהיד. האדום: פקודה לשריר. הסגול: הדיווח שעולה למוח.</div>
+    </div>
+  </section>
+
+  <!-- ───── Knee ───── -->
+  <section class="rx-block" id="rx-knee">
+    <div class="rx-text">
+      <h2>רפלקס הברך <small>Patellar reflex</small></h2>
+      <p>מכה קטנה בגיד שמתחת לפיקת הברך מותחת לרגע את שריר הירך הקדמי. השריר "חושב" שהוא נמתח מדי, ומתכווץ מיד. הרגל בועטת קדימה.</p>
+      <p>זה הרפלקס הכי פשוט שיש: רק <b>שני תאי עצב</b>, תחושה ותנועה, עם חיבור אחד בחוט השדרה.</p>
+
+      <h4>איך בודקים?</h4>
+      <ol>
+        <li>הנבדק יושב על קצה שולחן או כיסא גבוה. הרגליים תלויות חופשי ולא נוגעות ברצפה.</li>
+        <li>ממששים את הגיד הרך שמתחת לפיקת הברך.</li>
+        <li>מקישים מכה קצרה וחדה עם פטיש רפלקסים. הפטיש מתנדנד מפרק כף היד, כמו מטוטלת.</li>
+        <li>מסתכלים על הבעיטה וממששים את שריר הירך מתכווץ. משווים בין שתי הרגליים.</li>
+      </ol>
+
+      <h4>מה התוצאות אומרות?</h4>
+      <table class="rx-grades" id="knee-grades">
+        <tr data-g="0"><td>0</td><td>אין תגובה בכלל</td></tr>
+        <tr data-g="1"><td>1+</td><td>חלשה. לפעמים מופיעה רק עם "תרגיל ינדרשיק"</td></tr>
+        <tr data-g="2"><td>2+</td><td>תקינה, בעיטה קטנה-בינונית</td></tr>
+        <tr data-g="3"><td>3+</td><td>ערה מהרגיל, בעיטה חזקה</td></tr>
+        <tr data-g="4"><td>4+</td><td>ערה מאוד, עם <b>קלונוס</b>: הרגל רועדת שוב ושוב</td></tr>
+      </table>
+      <div class="rx-tip"><b>למה המוח חשוב פה?</b> המוח לא מפעיל את הרפלקס, אבל כל הזמן <b>מרסן</b> אותו. רפלקס חלש או חסר מרמז על בעיה בעצב או בשריר ("הקשת נקטעה"). רפלקס חזק מדי מרמז שה"בלמים" מהמוח לא מגיעים, למשל אחרי שבץ או פגיעה בחוט השדרה.</div>
+
+      <h4>בדיקה מעמיקה: להתנגד ולעקוף את ההתנגדות</h4>
+      <p><b>נסו להתנגד:</b> אפשר "לעזור" לרפלקס להיעלם: לכווץ את הרגל, להסתכל על הברך ולחכות למכה. הבעיטה קטנה יותר, אבל כמעט אי אפשר לבטל אותה לגמרי. גם לחץ ולחוץ "חוסמים" אותה.</p>
+      <p><b>תרגיל ינדרשיק (Jendrassik):</b> הנבדק משלב את האצבעות של שתי הידיים כמו שני ווים, ובדיוק ברגע המכה <b>מושך חזק לצדדים</b>. הקשב הולך לידיים, הנבדק מפסיק "לשמור" על הרגל, וכל מערכת התנועה נדרכת, אז הרפלקס מתחזק. רופאים משתמשים בתרגיל כשהרפלקס נראה חלש, כדי לבדוק אם הוא <b>באמת</b> חסר. אפשר גם לחרוק שיניים או לקמץ אגרוף.</p>
+      <div class="rx-figs">
+        <figure class="rx-fig">
+          <img src="assets/reflexes/knee-jerk-1880s.jpg" alt="איור ישן: רופא מקיש על ברך של נבדק יושב" loading="lazy">
+          <figcaption>מספר רפואי מסוף המאה ה־19: "איך לקבל את רפלקס הברך כשהוא לא מופיע בדרך הרגילה". Wellcome Collection, CC BY 4.0</figcaption>
+        </figure>
+        <figure class="rx-fig">
+          <img src="assets/reflexes/hammer.jpg" alt="פטיש רפלקסים עם ראש גומי משולש" loading="lazy">
+          <figcaption>פטיש רפלקסים קלאסי: ראש גומי משולש וידית מתכת. הקצה של הידית משמש לבדיקת בבינסקי. Samir, ויקישיתוף, CC BY-SA 3.0</figcaption>
+        </figure>
+      </div>
+    </div>
+
+    <div class="rx-stage" id="knee-stage">
+      <div class="rx-row">
+        <span class="lbl">המטופל:</span>
+        <div class="seg" id="knee-patient">
+          <button data-g="2" class="active">תקין</button>
+          <button data-g="1">חלש</button>
+          <button data-g="0">חסר</button>
+          <button data-g="3">ער</button>
+          <button data-g="4">ער מאוד</button>
+        </div>
+        <button class="small-btn" id="knee-mystery">🕵️ מטופל מסתורי</button>
+      </div>
+      <svg class="scene" id="knee-svg" viewBox="0 0 460 380" role="img" aria-label="רגל של נבדק יושב ופטיש רפלקסים">
+        <ellipse class="arc-cord" cx="78" cy="60" rx="46" ry="34"/>
+        <path d="M58,46 Q78,60 98,46 Q104,62 94,76 Q78,66 62,76 Q52,62 58,46 Z" fill="var(--border-strong)"/>
+        <text x="78" y="112" text-anchor="middle">חוט השדרה</text>
+        <text x="78" y="127" text-anchor="middle" class="small" direction="rtl">מקטעים L2–L4</text>
+
+        <rect x="26" y="96" width="12" height="114" rx="4" fill="var(--border-strong)"/>
+        <rect x="26" y="204" width="226" height="14" rx="4" fill="var(--border-strong)"/>
+        <rect x="34" y="218" width="10" height="150" rx="3" fill="var(--border-strong)"/>
+        <rect x="230" y="218" width="10" height="150" rx="3" fill="var(--border-strong)"/>
+
+        <line x1="70" y1="180" x2="262" y2="184" stroke="var(--skin)" stroke-width="52" stroke-linecap="round"/>
+        <ellipse class="muscle-flash" id="knee-quad" cx="178" cy="166" rx="72" ry="11"/>
+        <text x="150" y="190" class="small">שריר הירך הקדמי</text>
+
+        <g id="knee-shin">
+          <line x1="262" y1="188" x2="270" y2="332" stroke="var(--skin)" stroke-width="40" stroke-linecap="round"/>
+          <line x1="262" y1="342" x2="324" y2="350" stroke="var(--skin)" stroke-width="22" stroke-linecap="round"/>
+          <line x1="283" y1="198" x2="287" y2="228" stroke="var(--bone)" stroke-width="7" stroke-linecap="round"/>
+          <circle class="knee-target" cx="286" cy="214" r="13"/>
+        </g>
+        <ellipse cx="284" cy="184" rx="11" ry="15" fill="var(--bone)" stroke="var(--skin-line)" stroke-width="1.5"/>
+        <text x="306" y="182" class="small">פיקת הברך</text>
+        <text x="306" y="232" class="small">הגיד ← כאן מקישים</text>
+
+        <path class="nerve sens" id="knee-sens" d="M182,160 C160,110 132,82 102,66"/>
+        <path class="nerve motor" id="knee-motor" d="M56,74 C66,132 118,152 166,162"/>
+
+        <g class="knee-hammer" id="knee-hammer" transform="translate(380,250)">
+          <g id="knee-hammer-swing">
+            <line x1="0" y1="0" x2="70" y2="-62" stroke="#cbd5e1" stroke-width="5" stroke-linecap="round"/>
+            <line x1="0" y1="0" x2="70" y2="-62" stroke="#94a3b8" stroke-width="1.5" stroke-linecap="round"/>
+            <rect x="-19" y="-9" width="38" height="18" rx="8" fill="#9f1239" transform="rotate(-42)"/>
+          </g>
+        </g>
+      </svg>
+      <svg class="scene" viewBox="0 0 400 92" aria-label="גרף זווית הברך לאורך הזמן">
+        <rect class="trace-bg" x="0.5" y="0.5" width="399" height="91" rx="8"/>
+        <line class="trace-axis" x1="12" y1="74" x2="390" y2="74"/>
+        <line class="trace-hit" id="trace-hit" x1="12" y1="10" x2="12" y2="74" style="display:none"/>
+        <polyline class="trace-line" id="trace-line" points=""/>
+        <text x="388" y="20" text-anchor="end" class="small">כמה הרגל עלתה</text>
+        <text x="12" y="88" class="small">0</text>
+        <text x="201" y="88" class="small" text-anchor="middle">0.5 שנ׳</text>
+        <text x="388" y="88" class="small" text-anchor="end">1 שנ׳</text>
+      </svg>
+      <div class="rx-row">
+        <span class="lbl">המטופל מתנגד:</span>
+        <input type="range" id="knee-resist" min="0" max="100" value="0" aria-label="כמה המטופל מתנגד">
+        <button class="small-btn" id="knee-jendrassik">🤝 תרגיל ינדרשיק</button>
+      </div>
+      <div class="rx-row grade-btns" id="knee-guess">
+        <span class="lbl">מה הדרגה?</span>
+        <div class="seg">
+          <button data-guess="0">0</button><button data-guess="1">1+</button><button data-guess="2">2+</button><button data-guess="3">3+</button><button data-guess="4">4+</button>
+        </div>
+      </div>
+      <div class="rx-msg" id="knee-msg">קחו את הפטיש והקישו על הגיד שמתחת לפיקת הברך (העיגול המהבהב).</div>
+    </div>
+  </section>
+
+  <!-- ───── Pupils ───── -->
+  <section class="rx-block" id="rx-pupil">
+    <div class="rx-text">
+      <h2>רפלקס האישון <small>Pupillary light reflex</small></h2>
+      <p>האישון הוא החור השחור באמצע העין. כשיש הרבה אור הוא <b>מצטמצם</b> כדי להגן על הרשתית, וכשחשוך הוא <b>מתרחב</b> כדי לאסוף יותר אור.</p>
+      <p>הקסם: מספיק להאיר לתוך עין <b>אחת</b>, ושני האישונים מצטמצמים יחד. המסלול עובר דרך <b>גזע המוח</b>, ומשם הפקודה יוצאת לשתי העיניים.</p>
+      <h4>איך בודקים?</h4>
+      <ol>
+        <li>מחשיכים קצת את החדר. הנבדק מסתכל על נקודה רחוקה.</li>
+        <li>מכניסים אור פנס לעין אחת מהצד, לשנייה-שתיים.</li>
+        <li>מסתכלים על <b>שתי</b> העיניים: האם האישון המואר מצטמצם (תגובה ישירה)? והשני (תגובה מוצלבת)?</li>
+        <li>עושים אותו דבר לעין השנייה ומשווים.</li>
+      </ol>
+      <h4>מה התוצאות אומרות?</h4>
+      <p><b>תקין:</b> שני האישונים שווים, ושניהם מצטמצמים מהר כשמאירים לכל אחת מהעיניים.<br>
+      <b>עצב הראייה פגוע בעין אחת:</b> כשמאירים לעין הזו, האישונים כמעט לא מגיבים, כי ההודעה על האור לא מגיעה. כשמאירים לעין השנייה, שניהם מצטמצמים.<br>
+      <b>העצב שמכווץ את האישון פגוע:</b> האישון בצד הפגוע נשאר רחב, לא משנה לאיזו עין מאירים.</p>
+      <div class="rx-tip"><b>למה רופאים בודקים אישונים אחרי מכה בראש?</b> כי הרפלקס עובר בגזע המוח. אישון רחב שלא מגיב לאור יכול לרמז על לחץ על המוח.</div>
+      <figure class="rx-fig">
+        <img src="assets/reflexes/pupils.jpg" alt="אותה עין פעמיים: אישון קטן באור ואישון רחב בחושך" loading="lazy">
+        <figcaption>אותה עין באור (אישון קטן) ובחושך (אישון רחב). Rapidreflex, ויקישיתוף, CC BY-SA 4.0</figcaption>
+      </figure>
+      <div class="rx-tip"><b>נסו בבית:</b> עמדו מול מראה, עצמו עיניים ל־20 שניות ופקחו. תראו את האישון מתכווץ. שימו לב: ההצטמצמות מהירה, וההתרחבות בחושך איטית בהרבה.</div>
+    </div>
+    <div class="rx-stage">
+      <div class="rx-row">
+        <span class="lbl">המטופל:</span>
+        <div class="seg" id="eye-patient">
+          <button data-p="ok" class="active">תקין</button>
+          <button data-p="optic">עצב ראייה ימני פגוע</button>
+          <button data-p="cn3">עצב מכווץ שמאלי פגוע</button>
+        </div>
+        <button class="small-btn" id="eye-mystery">🕵️ מסתורי</button>
+      </div>
+      <svg class="scene" id="eye-svg" viewBox="0 0 560 250" role="img" aria-label="שתי עיניים ופנס">
+        <defs>
+          <clipPath id="eye-clip"><path d="M-100,0 Q0,-86 100,0 Q0,86 -100,0 Z"/></clipPath>
+          <radialGradient id="iris-grad">
+            <stop offset="0" stop-color="#6b4a1e"/><stop offset="0.55" stop-color="#8b5e2b"/><stop offset="1" stop-color="#3f2a12"/>
+          </radialGradient>
+          <radialGradient id="glow-grad">
+            <stop offset="0" stop-color="#fffbe6" stop-opacity="0.95"/><stop offset="0.45" stop-color="#fff3b0" stop-opacity="0.55"/><stop offset="1" stop-color="#fff3b0" stop-opacity="0"/>
+          </radialGradient>
+        </defs>
+        <rect x="0" y="0" width="560" height="250" rx="12" fill="var(--skin)"/>
+        <g id="eye-R" transform="translate(150,118)">
+          <path d="M-88,-62 Q0,-102 88,-62" fill="none" stroke="#5b4030" stroke-width="10" stroke-linecap="round"/>
+          <g clip-path="url(#eye-clip)">
+            <rect x="-100" y="-90" width="200" height="180" class="eye-white"/>
+            <circle r="48" fill="url(#iris-grad)"/>
+            <circle r="40" fill="none" stroke="#c9944d" stroke-width="10" stroke-dasharray="1.5 4" opacity="0.6"/>
+            <circle class="eye-pupil" id="pupil-R" r="25"/>
+            <circle cx="15" cy="-15" r="7" fill="#fff" opacity="0.85"/>
+          </g>
+          <path d="M-100,0 Q0,-86 100,0 Q0,86 -100,0 Z" fill="none" stroke="var(--skin-line)" stroke-width="3"/>
+          <path class="eye-lash" d="M-100,0 Q0,-86 100,0"/>
+        </g>
+        <g id="eye-L" transform="translate(410,118)">
+          <path d="M-88,-62 Q0,-102 88,-62" fill="none" stroke="#5b4030" stroke-width="10" stroke-linecap="round"/>
+          <g clip-path="url(#eye-clip)">
+            <rect x="-100" y="-90" width="200" height="180" class="eye-white"/>
+            <circle r="48" fill="url(#iris-grad)"/>
+            <circle r="40" fill="none" stroke="#c9944d" stroke-width="10" stroke-dasharray="1.5 4" opacity="0.6"/>
+            <circle class="eye-pupil" id="pupil-L" r="25"/>
+            <circle cx="15" cy="-15" r="7" fill="#fff" opacity="0.85"/>
+          </g>
+          <path d="M-100,0 Q0,-86 100,0 Q0,86 -100,0 Z" fill="none" stroke="var(--skin-line)" stroke-width="3"/>
+          <path class="eye-lash" d="M-100,0 Q0,-86 100,0"/>
+        </g>
+        <path d="M282,112 L270,168 Q280,178 294,170" fill="none" stroke="var(--skin-line)" stroke-width="3" stroke-linecap="round"/>
+        <text x="150" y="232" text-anchor="middle" style="fill:#5b4030;font-weight:600">העין הימנית של המטופל</text>
+        <text x="410" y="232" text-anchor="middle" style="fill:#5b4030;font-weight:600">העין השמאלית של המטופל</text>
+        <rect id="eye-dark" x="0" y="0" width="560" height="250" rx="12" fill="#000" opacity="0.3" pointer-events="none"/>
+        <g id="torch" style="display:none" pointer-events="none">
+          <circle r="80" fill="url(#glow-grad)"/>
+          <g transform="rotate(35)">
+            <rect x="34" y="-9" width="60" height="18" rx="5" fill="#334155"/>
+            <rect x="24" y="-13" width="16" height="26" rx="4" fill="#64748b"/>
+          </g>
+        </g>
+      </svg>
+      <div class="eye-read"><span id="read-R">6.0 mm</span><span id="read-L">6.0 mm</span></div>
+      <div class="rx-row">
+        <span class="lbl">🌙 אור בחדר ☀️</span>
+        <input type="range" id="eye-room" min="0" max="100" value="35" aria-label="עוצמת האור בחדר">
+      </div>
+      <div class="rx-row grade-btns" id="eye-guess">
+        <span class="lbl">מה הבעיה?</span>
+        <div class="seg">
+          <button data-guess="ok">אין בעיה</button><button data-guess="optic">עצב ראייה ימני</button><button data-guess="cn3">עצב מכווץ שמאלי</button>
+        </div>
+      </div>
+      <div class="rx-msg" id="eye-msg">העבירו את העכבר (או האצבע) מעל העיניים: הפנס מאיר לאן שאתם מצביעים.</div>
+    </div>
+  </section>
+
+  <!-- ───── Babies ───── -->
+  <section class="rx-block wide" id="rx-baby">
+    <div class="rx-text">
+      <h2>רפלקסים של תינוקות</h2>
+      <p>תינוקות נולדים עם "ערכת רפלקסים" מוכנה מראש: לאחוז, לחפש את השד, לינוק, "ללכת". כשהמוח הגדול מתבגר הוא מתחיל <b>לרסן</b> אותם, והם נעלמים בגיל צפוי. לכן רופאי ילדים בודקים אותם: רפלקס שחסר בזמן, או רפלקס ש"נתקע" יותר מדי זמן, הוא סימן לבדוק את התפתחות מערכת העצבים.</p>
+    </div>
+
+    <div class="baby-grid">
+      <div class="baby-card">
+        <h3>✊ רפלקס האחיזה <small>עד גיל 5–6 חודשים</small></h3>
+        <svg class="scene" id="grasp-svg" viewBox="0 0 360 300" role="img" aria-label="כף יד של תינוק ואצבע של מבוגר">
+          <g id="grasp-hand">
+            <rect x="138" y="232" width="84" height="90" rx="30" fill="var(--skin)" stroke="var(--skin-line)" stroke-width="1.5"/>
+            <rect x="128" y="276" width="104" height="40" rx="10" fill="#bfdbfe"/>
+            <rect x="118" y="150" width="124" height="110" rx="46" fill="var(--skin)" stroke="var(--skin-line)" stroke-width="1.5"/>
+            <path d="M138,196 Q180,214 226,190 M146,226 Q180,236 214,222" fill="none" stroke="var(--skin-2)" stroke-width="2.5" stroke-linecap="round"/>
+            <g id="adult-finger" transform="translate(330,70)">
+              <rect x="0" y="-18" width="320" height="36" rx="18" fill="var(--adult)" stroke="#8a5a3c" stroke-width="1.5"/>
+              <path d="M18,-10 Q12,0 18,10" fill="none" stroke="#8a5a3c" stroke-width="1.5"/>
+            </g>
+            <g id="grasp-fingers">
+              <rect class="finger" x="123" y="96" width="26" height="74" rx="13" fill="var(--skin)" stroke="var(--skin-line)" stroke-width="1.5" style="transform-origin:136px 160px"/>
+              <rect class="finger" x="153" y="86" width="26" height="84" rx="13" fill="var(--skin)" stroke="var(--skin-line)" stroke-width="1.5" style="transform-origin:166px 160px"/>
+              <rect class="finger" x="183" y="90" width="26" height="80" rx="13" fill="var(--skin)" stroke="var(--skin-line)" stroke-width="1.5" style="transform-origin:196px 160px"/>
+              <rect class="finger" x="213" y="104" width="26" height="66" rx="13" fill="var(--skin)" stroke="var(--skin-line)" stroke-width="1.5" style="transform-origin:226px 160px"/>
+              <rect class="finger thumb" x="99" y="170" width="26" height="66" rx="13" fill="var(--skin)" stroke="var(--skin-line)" stroke-width="1.5" style="transform-origin:112px 232px; transform: rotate(-35deg)"/>
+            </g>
+          </g>
+        </svg>
+        <div class="rx-msg" id="grasp-msg">הכניסו את "האצבע" לכף היד של התינוק. אחרי שנתפסה, נסו להרים.</div>
+        <p><b>איך בודקים:</b> מניחים אצבע בכף היד של התינוק ולוחצים קלות. <b>תקין:</b> האצבעות נסגרות חזק סביב האצבע. האחיזה חזקה כל כך שאפשר כמעט להרים איתה את התינוק (לא מנסים בבית!). יש גם אחיזה דומה בכף הרגל, שנעלמת רק בגיל שנה בערך.</p>
+        <figure class="rx-fig" style="margin-top:0">
+          <img src="assets/reflexes/grasp.jpg" alt="תינוק אוחז חזק באצבע של מבוגר" loading="lazy" style="max-height:260px;object-fit:cover">
+          <figcaption>אחיזה אמיתית. Mattes, ויקישיתוף, נחלת הכלל</figcaption>
+        </figure>
+      </div>
+
+      <div class="baby-card">
+        <h3>🚶 רפלקס ההליכה <small>עד גיל חודשיים בערך</small></h3>
+        <svg class="scene" id="step-svg" viewBox="0 0 360 320" role="img" aria-label="תינוק מוחזק מעל הרצפה">
+          <line class="floor" x1="0" y1="300" x2="360" y2="300"/>
+          <g class="step-baby" id="step-baby" style="transform: translateY(-50px)">
+            <line x1="164" y1="118" x2="84" y2="-20" stroke="var(--adult)" stroke-width="22" stroke-linecap="round"/>
+            <g class="leg-b">
+              <g class="leg-thigh" style="transform-origin:182px 196px">
+                <line x1="182" y1="196" x2="190" y2="240" stroke="var(--skin-2)" stroke-width="18" stroke-linecap="round"/>
+                <g class="leg-shin" style="transform-origin:190px 240px">
+                  <line x1="190" y1="240" x2="184" y2="280" stroke="var(--skin-2)" stroke-width="15" stroke-linecap="round"/>
+                  <line x1="184" y1="285" x2="204" y2="287" stroke="var(--skin-2)" stroke-width="11" stroke-linecap="round"/>
+                </g>
+              </g>
+            </g>
+            <rect x="158" y="104" width="50" height="100" rx="24" fill="var(--skin)" stroke="var(--skin-line)" stroke-width="1.5"/>
+            <rect x="156" y="166" width="54" height="42" rx="16" fill="#fff" stroke="#cbd5e1" stroke-width="1.5"/>
+            <g class="leg-a">
+              <g class="leg-thigh" style="transform-origin:182px 196px">
+                <line x1="182" y1="196" x2="190" y2="240" stroke="var(--skin)" stroke-width="18" stroke-linecap="round"/>
+                <g class="leg-shin" style="transform-origin:190px 240px">
+                  <line x1="190" y1="240" x2="184" y2="280" stroke="var(--skin)" stroke-width="15" stroke-linecap="round"/>
+                  <line x1="184" y1="285" x2="204" y2="287" stroke="var(--skin)" stroke-width="11" stroke-linecap="round"/>
+                </g>
+              </g>
+            </g>
+            <line x1="184" y1="122" x2="200" y2="166" stroke="var(--skin)" stroke-width="12" stroke-linecap="round"/>
+            <circle cx="184" cy="70" r="34" fill="var(--skin)" stroke="var(--skin-line)" stroke-width="1.5"/>
+            <path d="M172,38 q10,-12 18,0" fill="none" stroke="#7c5a3c" stroke-width="3" stroke-linecap="round"/>
+            <circle cx="172" cy="74" r="7" fill="var(--skin-2)"/>
+            <circle cx="204" cy="66" r="3.5" fill="#1f2937"/>
+            <path d="M200,86 q6,5 12,-1" fill="none" stroke="#9a3412" stroke-width="2.5" stroke-linecap="round"/>
+            <ellipse cx="204" cy="120" rx="14" ry="10" fill="var(--adult)"/>
+            <line x1="204" y1="118" x2="290" y2="-20" stroke="var(--adult)" stroke-width="22" stroke-linecap="round"/>
+          </g>
+        </svg>
+        <div class="rx-row"><button class="small-btn" id="step-btn">⬇️ הניחו את כפות הרגליים על הרצפה</button></div>
+        <p><b>איך בודקים:</b> מחזיקים את התינוק זקוף מתחת לבתי השחי, ונותנים לכפות הרגליים לגעת במשטח. <b>תקין:</b> התינוק "צועד" צעד אחרי צעד.</p>
+        <div class="rx-tip" style="margin-top:0"><b>תעלומה:</b> למה זה נעלם? בניסוי מפורסם הכניסו תינוקות בני כמה חודשים למים עד המותניים, והצעדים חזרו! אחד ההסברים: הרגליים משמינות מהר יותר מששרירים מתחזקים. התינוק פשוט לא מצליח להרים אותן.</div>
+      </div>
+
+      <div class="baby-card">
+        <h3>😱 רפלקס מורו (הבהלה) <small>עד גיל 4–6 חודשים</small></h3>
+        <svg class="scene" id="moro-svg" viewBox="0 0 360 260" role="img" aria-label="תינוק שוכב על הגב">
+          <rect x="60" y="20" width="240" height="230" rx="30" fill="#fde68a" opacity="0.45"/>
+          <g class="moro-leg l" style="transform-origin:168px 196px"><line x1="168" y1="196" x2="158" y2="244" stroke="var(--skin)" stroke-width="18" stroke-linecap="round"/></g>
+          <g class="moro-leg r" style="transform-origin:192px 196px"><line x1="192" y1="196" x2="202" y2="244" stroke="var(--skin)" stroke-width="18" stroke-linecap="round"/></g>
+          <g class="moro-arm l" style="transform-origin:150px 118px"><line x1="150" y1="118" x2="136" y2="174" stroke="var(--skin)" stroke-width="14" stroke-linecap="round"/><circle cx="134" cy="184" r="10" fill="var(--skin)" stroke="var(--skin-line)"/></g>
+          <g class="moro-arm r" style="transform-origin:210px 118px"><line x1="210" y1="118" x2="224" y2="174" stroke="var(--skin)" stroke-width="14" stroke-linecap="round"/><circle cx="226" cy="184" r="10" fill="var(--skin)" stroke="var(--skin-line)"/></g>
+          <ellipse cx="180" cy="152" rx="38" ry="56" fill="#bfdbfe" stroke="#93c5fd" stroke-width="2"/>
+          <circle cx="180" cy="74" r="34" fill="var(--skin)" stroke="var(--skin-line)" stroke-width="1.5"/>
+          <g class="moro-closed" fill="none" stroke="#1f2937" stroke-width="2.5" stroke-linecap="round">
+            <path d="M162,72 q6,5 12,0 M186,72 q6,5 12,0"/><path d="M174,90 q6,4 12,0"/>
+          </g>
+          <g class="moro-open">
+            <circle cx="168" cy="70" r="6" fill="#fff" stroke="#1f2937" stroke-width="2"/><circle cx="168" cy="70" r="3" fill="#1f2937"/>
+            <circle cx="192" cy="70" r="6" fill="#fff" stroke="#1f2937" stroke-width="2"/><circle cx="192" cy="70" r="3" fill="#1f2937"/>
+            <ellipse cx="180" cy="92" rx="7" ry="6" fill="#9a3412"/>
+          </g>
+        </svg>
+        <div class="rx-row"><button class="small-btn" id="moro-btn">💥 בום! רעש פתאומי</button></div>
+        <p><b>איך בודקים:</b> הרופא תומך בראש ובגב של התינוק ונותן לראש "ליפול" כמה סנטימטרים אחורה לתוך היד שלו. <b>תקין:</b> הידיים נפתחות לצדדים, האצבעות נפרשות, ואז הידיים חוזרות פנימה כמו חיבוק. לפעמים זה נגמר בבכי. תגובה חלשה רק בצד אחד יכולה לרמז על פגיעה בכתף או ביד.</p>
+        <figure class="rx-fig" style="margin-top:0">
+          <img src="assets/reflexes/moro.jpg" alt="תינוק שוכב בעריסה עם ידיים פרושות לצדדים" loading="lazy">
+          <figcaption>תינוק באמצע רפלקס מורו. tawamie, ויקישיתוף, CC BY-SA 3.0</figcaption>
+        </figure>
+      </div>
+
+      <div class="baby-card">
+        <h3>🦶 רפלקס בבינסקי <small>תקין עד גיל 1–2</small></h3>
+        <div class="rx-row">
+          <div class="seg" id="babinski-who">
+            <button data-who="baby" class="active">תינוק</button>
+            <button data-who="adult">מבוגר בריא</button>
+            <button data-who="damage">מבוגר עם פגיעה</button>
+          </div>
+        </div>
+        <svg class="scene" id="babinski-svg" viewBox="0 0 400 230" role="img" aria-label="כף רגל במבט מהצד">
+          <line x1="112" y1="-10" x2="120" y2="110" stroke="var(--skin)" stroke-width="54" stroke-linecap="round"/>
+          <path d="M84,112 Q58,176 102,182 L296,178 Q314,176 314,162 Q310,142 280,136 Q206,122 156,104 L132,92 Z" fill="var(--skin)" stroke="var(--skin-line)" stroke-width="1.5"/>
+          <g id="toe-fan" opacity="0">
+            <ellipse cx="324" cy="176" rx="17" ry="8" fill="var(--skin-2)" stroke="var(--skin-line)" transform="rotate(18 306 172)"/>
+            <ellipse cx="326" cy="170" rx="17" ry="8" fill="var(--skin-2)" stroke="var(--skin-line)" transform="rotate(6 306 168)"/>
+          </g>
+          <g class="toe" id="toe-small" style="transform-origin:302px 164px">
+            <ellipse cx="324" cy="168" rx="20" ry="9" fill="var(--skin-2)" stroke="var(--skin-line)"/>
+          </g>
+          <g class="toe" id="toe-big" style="transform-origin:302px 154px">
+            <rect x="298" y="141" width="52" height="25" rx="12.5" fill="var(--skin)" stroke="var(--skin-line)" stroke-width="1.5"/>
+            <rect x="334" y="142" width="13" height="8" rx="3" fill="var(--bone)"/>
+          </g>
+          <g id="stick" transform="translate(100,190)" style="display:none">
+            <line x1="0" y1="0" x2="-30" y2="44" stroke="#64748b" stroke-width="5" stroke-linecap="round"/>
+            <circle r="4" fill="#334155"/>
+          </g>
+          <text x="200" y="215" text-anchor="middle" class="small">לחצו על כף הרגל כדי לגרד את הסוליה</text>
+        </svg>
+        <div class="rx-row"><button class="small-btn" id="babinski-btn">✏️ גרדו את הסוליה</button></div>
+        <div class="rx-msg" id="babinski-msg">בחרו את הנבדק וגרדו את הסוליה.</div>
+        <p><b>איך בודקים:</b> מעבירים חפץ לא חד (למשל קצה הידית של פטיש הרפלקסים) לאורך הצד החיצוני של הסוליה, מהעקב אל האצבעות. <b>אצל מבוגר:</b> האצבעות מתכופפות למטה. <b>אצל תינוק:</b> הבוהן עולה למעלה והאצבעות נפרשות כמו מניפה. אם זה קורה אצל מבוגר, זה סימן לפגיעה במסלול שיורד מהמוח לחוט השדרה.</p>
+      </div>
+    </div>
+
+    <div>
+      <h4>מתי כל רפלקס נעלם? <span style="color:var(--muted);font-weight:500">(גיל בחודשים, בערך)</span></h4>
+      <div class="timeline" id="timeline"></div>
+      <div class="tl-axis"><div></div><div><span>0</span><span>6</span><span>12</span><span>18</span><span>24</span></div></div>
+    </div>
+  </section>
+
+  <!-- ───── Reaction game ───── -->
+  <section class="rx-block" id="rx-game">
+    <div class="rx-text">
+      <h2>משחק: רפלקס מול תגובה</h2>
+      <p>כשאתם לוחצים על כפתור כי ראיתם צבע, זה <b>לא</b> רפלקס. זאת תגובה רצונית: העין שולחת תמונה למוח, המוח מזהה, מחליט ושולח פקודה לאצבע. זה לוקח הרבה יותר זמן.</p>
+      <p>לחצו על הלוח כשהוא נהיה <b style="color:#16a34a">ירוק</b> (או מקש רווח). 5 ניסיונות, ונשווה את הממוצע שלכם לרפלקסים.</p>
+      <div class="rt-pad" id="rt-pad" tabindex="0" role="button">לחצו כדי להתחיל<small>חכו לירוק, ואז מהר!</small></div>
+      <div class="rx-msg" id="rt-msg" style="margin-top:10px">ניסיונות: –</div>
+    </div>
+    <div class="rx-stage">
+      <h4 style="margin:0">כמה זמן לוקח? (אלפיות שנייה)</h4>
+      <div class="rt-bars" id="rt-bars"></div>
+      <details open>
+        <summary>📏 בלי מחשב: מבחן הסרגל</summary>
+        <p>חבר מחזיק סרגל אנכי, ואתם מחזיקים אצבעות פתוחות סביב ה־0, בלי לגעת. החבר משחרר בלי להזהיר, ואתם תופסים. כמה סנטימטרים הסרגל נפל?</p>
+        <div class="rx-row">
+          <input type="range" id="ruler" min="2" max="40" value="15" aria-label="ס״מ שהסרגל נפל">
+          <span class="rx-clock" id="ruler-out" style="font-size:16px;min-width:auto"></span>
+        </div>
+        <p style="font-size:13px;color:var(--muted)">החישוב: גוף נופל עובר d = ½·g·t², אז t = √(2d/g).</p>
+      </details>
+    </div>
+  </section>
+
+  <!-- ───── Quiz ───── -->
+  <section class="rx-block wide" id="rx-quiz">
+    <div class="rx-text">
+      <h2>רפלקס או לא? <small id="quiz-score"></small></h2>
+      <p>לכל מקרה: האם זה רפלקס, או משהו שהמוח החליט או למד לעשות?</p>
+    </div>
+    <div class="quiz" id="quiz"></div>
+  </section>
+
+  <div class="credit">
+    תמונות מוויקישיתוף: <a href="https://commons.wikimedia.org/wiki/File:Greifreflex.JPG" target="_blank" rel="noopener">אחיזה</a> (Mattes, נחלת הכלל) ·
+    <a href="https://commons.wikimedia.org/wiki/File:Moro_Reflex.JPG" target="_blank" rel="noopener">מורו</a> (tawamie, CC BY-SA 3.0) ·
+    <a href="https://commons.wikimedia.org/wiki/File:Pupillary_light_reflex.jpg" target="_blank" rel="noopener">אישונים</a> (Rapidreflex, CC BY-SA 4.0) ·
+    <a href="https://commons.wikimedia.org/wiki/File:Reflex_hammer.jpg" target="_blank" rel="noopener">פטיש רפלקסים</a> (Samir, CC BY-SA 3.0) ·
+    <a href="https://commons.wikimedia.org/wiki/File:Knee-jerk._Wellcome_L0014111.jpg" target="_blank" rel="noopener">רפלקס הברך, איור היסטורי</a> (Wellcome Collection, CC BY 4.0).
+    שאר האיורים וההנפשות צוירו במיוחד לעמוד הזה. המספרים בעמוד הם הערכות לצורך המחשה.
+  </div>
+</main>
 
 <script>
 // ─────────────────────── Colors ───────────────────────
@@ -778,29 +1447,40 @@ function toggleFullscreen() {
 }
 
 // ─────────────────────── Sections ───────────────────────
+const SECTIONS = ['stroop', 'brain', 'reflex'];
+const HASHES = { stroop: '#', brain: '#brain', reflex: '#reflexes' };
 let section = 'stroop';
 let brainLoaded = false;
+let reflexLoaded = false;
 
 function showSection(name) {
   section = name;
-  document.getElementById('section-stroop').hidden = name !== 'stroop';
-  document.getElementById('section-stroop-hint').hidden = name !== 'stroop';
-  document.getElementById('section-brain').hidden = name !== 'brain';
-  document.getElementById('sec-tab-stroop').classList.toggle('active', name === 'stroop');
-  document.getElementById('sec-tab-brain').classList.toggle('active', name === 'brain');
-  history.replaceState(null, '', name === 'brain' ? '#brain' : '#');
-  if (name === 'brain') {
-    if (running) doStartStop();
-    if (!brainLoaded) {
-      brainLoaded = true;
-      import('./brain.js')
-        .then(m => m.initBrain())
-        .catch(err => {
-          console.error(err);
-          document.getElementById('brain-status').textContent = 'לא הצלחנו לטעון את המודל';
-        });
-    }
+  for (const s of SECTIONS) {
+    document.getElementById('section-' + s).hidden = name !== s;
+    document.getElementById('sec-tab-' + s).classList.toggle('active', name === s);
   }
+  document.getElementById('section-stroop-hint').hidden = name !== 'stroop';
+  history.replaceState(null, '', HASHES[name]);
+  if (name !== 'stroop' && running) doStartStop();
+  if (name === 'brain' && !brainLoaded) {
+    brainLoaded = true;
+    import('./brain.js')
+      .then(m => m.initBrain())
+      .catch(err => {
+        console.error(err);
+        document.getElementById('brain-status').textContent = 'לא הצלחנו לטעון את המודל';
+      });
+  }
+  if (name === 'reflex' && !reflexLoaded) {
+    reflexLoaded = true;
+    import('./reflexes.js').then(m => m.initReflexes()).catch(err => console.error(err));
+  }
+}
+
+function sectionFromHash() {
+  if (location.hash === '#brain') return 'brain';
+  if (location.hash === '#reflexes') return 'reflex';
+  return 'stroop';
 }
 
 // ─────────────────────── Keyboard ───────────────────────
@@ -819,8 +1499,8 @@ document.addEventListener('keydown', e => {
 // Init
 try { setTheme(localStorage.getItem('theme') === 'dark'); } catch (e) { setTheme(false); }
 setPage('match');
-showSection(location.hash === '#brain' ? 'brain' : 'stroop');
-window.addEventListener('hashchange', () => showSection(location.hash === '#brain' ? 'brain' : 'stroop'));
+showSection(sectionFromHash());
+window.addEventListener('hashchange', () => showSection(sectionFromHash()));
 </script>
 </body>
 </html>

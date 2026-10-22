@@ -1,0 +1,581 @@
+// Reflexes section: an animated reflex arc, knee and pupil simulators, baby
+// reflexes, a reaction-time game and a quiz. Loaded the first time the tab opens.
+
+const $ = id => document.getElementById(id);
+const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+const ease = t => (t < 0.5 ? 2 * t * t : 1 - (-2 * t + 2) ** 2 / 2);
+
+function svgPoint(svg, e) {
+  const pt = svg.createSVGPoint();
+  pt.x = e.clientX; pt.y = e.clientY;
+  return pt.matrixTransform(svg.getScreenCTM().inverse());
+}
+
+// Segmented buttons: mark the clicked one active and report its data-* values
+function seg(el, onPick) {
+  el.querySelectorAll('button').forEach(b => b.addEventListener('click', () => {
+    el.querySelectorAll('button').forEach(x => x.classList.toggle('active', x === b));
+    onPick(b.dataset);
+  }));
+}
+function clearSeg(el) { el.querySelectorAll('button').forEach(b => b.classList.remove('active')); }
+
+function say(el, text, kind = '') {
+  el.textContent = text;
+  el.className = 'rx-msg' + (kind ? ' ' + kind : '');
+}
+
+const isVisible = () => !$('section-reflex').hidden;
+
+// ─────────────────────── Reflex arc (hot stove) ───────────────────────
+function initArc() {
+  const svg = $('arc-svg');
+  const paths = { sens: $('arc-path-sens'), motor: $('arc-path-motor'), up: $('arc-path-up') };
+  const sparks = { sens: $('spark-sens'), motor: $('spark-motor'), up: $('spark-up') };
+  const nerves = k => svg.querySelectorAll('.nerve.' + k);
+  const fore = $('arc-fore'), muscle = $('arc-muscle'), ouch = $('arc-ouch');
+  const clock = $('arc-clock'), msg = $('arc-msg'), btn = $('arc-go');
+
+  // Real milliseconds after the touch (rough textbook values)
+  const WIN = { sens: [0, 18], motor: [18, 40], up: [22, 250] };
+  const MOVE = [40, 110], OUCH = 280, END = 420;
+  const STAGES = [
+    [0, '1. קולטנים בעור מרגישים חום. ההודעה רצה בעצב התחושה…'],
+    [18, '2. בחוט השדרה ההודעה עוברת ישר לעצב התנועה, בלי לשאול את המוח!'],
+    [40, '3. השריר מתכווץ והיד בורחת. עברו רק 40 אלפיות שנייה.'],
+    [110, '4. היד כבר בטוחה… והמוח עדיין לא יודע מה קרה.'],
+    [OUCH, "5. רק עכשיו ההודעה הגיעה למוח: אאוץ'! רק עכשיו מרגישים כאב."],
+  ];
+  let speed = 25, t0 = 0, raf = 0;
+
+  function frame(now) {
+    const ms = Math.max(0, now - t0) / speed;
+    for (const k of Object.keys(WIN)) {
+      const [a, b] = WIN[k];
+      const on = ms >= a && ms <= b;
+      sparks[k].style.display = on ? 'block' : 'none';
+      nerves(k).forEach(n => n.classList.toggle('lit', on));
+      if (on) {
+        const p = paths[k], pt = p.getPointAtLength((ms - a) / (b - a) * p.getTotalLength());
+        sparks[k].setAttribute('cx', pt.x); sparks[k].setAttribute('cy', pt.y);
+      }
+    }
+    muscle.classList.toggle('on', ms >= MOVE[0] && ms < MOVE[1] + 60);
+    const lift = ms < MOVE[0] ? 0 : ease(clamp((ms - MOVE[0]) / (MOVE[1] - MOVE[0]), 0, 1));
+    fore.setAttribute('transform', `rotate(${-32 * lift} 440 206)`);
+    ouch.classList.toggle('on', ms >= OUCH);
+    clock.textContent = Math.round(Math.min(ms, END)) + ' ms';
+    msg.textContent = STAGES.filter(s => ms >= s[0]).pop()[1];
+    if (ms < END) raf = requestAnimationFrame(frame);
+    else btn.textContent = '🔁 שוב';
+  }
+
+  btn.addEventListener('click', () => {
+    cancelAnimationFrame(raf);
+    btn.textContent = '🔥 געו בכיריים';
+    t0 = performance.now();
+    raf = requestAnimationFrame(frame);
+  });
+  seg($('arc-speed'), d => { speed = +d.speed; });
+}
+
+// ─────────────────────── Knee jerk ───────────────────────
+const GRADE_TEXT = ['0', '1+', '2+', '3+', '4+'];
+function initKnee() {
+  const svg = $('knee-svg'), stage = $('knee-stage');
+  const shin = $('knee-shin'), hammer = $('knee-hammer'), swing = $('knee-hammer-swing');
+  const quad = $('knee-quad'), msg = $('knee-msg');
+  const traceLine = $('trace-line'), traceHit = $('trace-hit');
+  const jBtn = $('knee-jendrassik'), resistIn = $('knee-resist');
+  const TENDON = { x: 286, y: 214 }, PIVOT = '262 188';
+  const LATENCY = 30, DURATION = 1000;
+
+  let grade = 2, mystery = false, hidden = 2, jend = false, jTimer = 0, busy = false;
+  svg.style.cursor = 'none';
+
+  const rows = [...document.querySelectorAll('#knee-grades tr')];
+  const markRow = g => rows.forEach(r => r.classList.toggle('on', +r.dataset.g === g));
+  markRow(2);
+
+  const alpha = (t, tau) => (t <= 0 ? 0 : (t / tau) * Math.exp(1 - t / tau));
+
+  function kneeAngle(t, amp, clonus) {
+    t -= LATENCY;
+    if (t <= 0) return 0;
+    let a = amp * alpha(t, 90);
+    if (t > 120) a += amp * 0.18 * Math.exp(-t / 300) * Math.sin(2 * Math.PI * (t - 120) / 420);
+    if (clonus) for (let k = 1; k <= 5; k++) a += amp * 0.45 * 0.85 ** k * alpha(t - k * 160, 60);
+    return Math.max(0, a);
+  }
+
+  function moveHammer(e) {
+    const p = svgPoint(svg, e);
+    hammer.setAttribute('transform', `translate(${p.x},${p.y})`);
+    hammer.style.opacity = 1;
+    return p;
+  }
+  svg.addEventListener('pointermove', moveHammer);
+  svg.addEventListener('pointerleave', e => { if (e.pointerType === 'mouse') hammer.style.opacity = 0.35; });
+
+  function setJend(on) {
+    jend = on;
+    jBtn.classList.toggle('active', on);
+    clearTimeout(jTimer);
+    if (on) jTimer = setTimeout(() => setJend(false), 5000);
+  }
+  jBtn.addEventListener('click', () => {
+    setJend(true);
+    say(msg, '🤝 המטופל משלב אצבעות ומושך חזק לצדדים… עכשיו מקישים! (יש לכם 5 שניות)');
+  });
+
+  function explain(g, amp, resist) {
+    if (g === 0) return jend
+      ? 'גם עם ינדרשיק אין תגובה (0). הקשת "נקטעה": בעצב, בשריר או בחוט השדרה.'
+      : 'אין תגובה. לפני שקובעים "0" נסו גם את תרגיל ינדרשיק.';
+    if (g === 1) return jend
+      ? 'עם ינדרשיק הופיעה בעיטה! הרפלקס קיים, רק חלש (1+).'
+      : 'בקושי זזה (1+). נסו עכשיו עם תרגיל ינדרשיק.';
+    if (resist > 0.4 && !jend) return 'המטופל מתנגד, אז הבעיטה קטנה יותר. נסו את תרגיל ינדרשיק: הקשב הולך לידיים ופחות "שומר" על הרגל.';
+    if (jend && resist > 0.4) return 'למרות ההתנגדות, עם ינדרשיק הבעיטה חזרה. המטופל עסוק בידיים ומפסיק לרסן את הרגל.';
+    if (g === 2) return 'בעיטה תקינה (2+). בגרף רואים שהרגל מתחילה לזוז כ־30 אלפיות שנייה אחרי המכה.';
+    if (g === 3) return 'בעיטה חזקה מהרגיל (3+). אולי ה"בלמים" מהמוח חלשים. משווים לרגל השנייה.';
+    return 'בעיטה חזקה מאוד, ואחריה רעידות חוזרות: קלונוס (4+). סימן שהבלמים מהמוח לא מגיעים.';
+  }
+
+  function strike(p) {
+    const d = Math.hypot(p.x - TENDON.x, p.y - TENDON.y);
+    if (d > 17) {
+      say(msg, d < 45 ? 'כמעט! פגעתם בעצם או בפיקה, לא בגיד. כוונו קצת מתחת לפיקת הברך.' : 'פספסתם. כוונו לגיד שמתחת לפיקת הברך (העיגול המהבהב).', 'bad');
+      return;
+    }
+    const g = mystery ? hidden : grade;
+    const resist = resistIn.value / 100;
+    const base = [0, 4, 20, 34, 40][g];
+    const resistF = 1 - 0.75 * resist * (jend ? 0.2 : 1);
+    const jendF = jend ? (g === 1 ? 3.5 : 1.6) : 1;
+    const amp = Math.min(48, base * resistF * jendF);
+    const clonus = g === 4 && resist < 0.5;
+
+    busy = true;
+    svg.querySelectorAll('.nerve').forEach(n => n.classList.add('lit'));
+    stage.classList.add('hide-target');
+    traceHit.style.display = '';
+    const pts = [];
+    const t0 = performance.now();
+    function frame(now) {
+      const t = now - t0;
+      const a = kneeAngle(t, amp, clonus);
+      shin.setAttribute('transform', `rotate(${-a} ${PIVOT})`);
+      swing.setAttribute('transform', `rotate(${t < 70 ? -18 * Math.sin(Math.PI * t / 70) : 0} 70 -62)`);
+      quad.classList.toggle('on', amp > 0 && t > LATENCY && t < LATENCY + 200 + (clonus ? 700 : 0));
+      if (t > 300) svg.querySelectorAll('.nerve').forEach(n => n.classList.remove('lit'));
+      pts.push(`${12 + (Math.min(t, DURATION) / DURATION) * 378},${74 - a * 1.2}`);
+      traceLine.setAttribute('points', pts.join(' '));
+      if (t < DURATION) requestAnimationFrame(frame);
+      else {
+        busy = false;
+        shin.removeAttribute('transform');
+        stage.classList.remove('hide-target');
+        if (jend) setJend(false);
+      }
+    }
+    requestAnimationFrame(frame);
+    say(msg, mystery ? 'הקשתם. אפשר להקיש שוב, לנסות התנגדות או ינדרשיק, ואז לבחור דרגה.' : explain(g, amp, resist));
+  }
+
+  svg.addEventListener('pointerdown', e => {
+    if (busy) return;
+    strike(moveHammer(e));
+  });
+
+  seg($('knee-patient'), d => {
+    grade = +d.g; mystery = false;
+    stage.classList.remove('mystery');
+    markRow(grade);
+    say(msg, `מטופל עם רפלקס ${GRADE_TEXT[grade]}. הקישו על הגיד.`);
+  });
+
+  $('knee-mystery').addEventListener('click', () => {
+    mystery = true;
+    hidden = Math.floor(Math.random() * 5);
+    stage.classList.add('mystery');
+    clearSeg($('knee-patient'));
+    markRow(-1);
+    say(msg, '🕵️ מטופל חדש נכנס. הקישו, נסו התנגדות או ינדרשיק, ונחשו את הדרגה.');
+  });
+
+  $('knee-guess').querySelectorAll('button').forEach(b => b.addEventListener('click', () => {
+    const g = +b.dataset.guess;
+    if (g === hidden) {
+      say(msg, `נכון! הדרגה היא ${GRADE_TEXT[hidden]}. ` + (hidden === 1 ? 'שמתם לב כמה ינדרשיק עזר?' : 'רוצים עוד אחד? לחצו "מטופל מסתורי".'), 'good');
+      mystery = false;
+      stage.classList.remove('mystery');
+      grade = hidden;
+      markRow(hidden);
+      $('knee-patient').querySelector(`[data-g="${hidden}"]`).classList.add('active');
+    } else {
+      say(msg, `לא ${GRADE_TEXT[g]}. הקישו שוב, השוו לגובה בגרף ונסו שוב.`, 'bad');
+    }
+  }));
+}
+
+// ─────────────────────── Pupils ───────────────────────
+function initPupils() {
+  const svg = $('eye-svg'), msg = $('eye-msg');
+  const EYES = { R: { x: 150, y: 118 }, L: { x: 410, y: 118 } };
+  const pupils = { R: $('pupil-R'), L: $('pupil-L') };
+  const reads = { R: $('read-R'), L: $('read-L') };
+  const torch = $('torch'), dark = $('eye-dark'), roomIn = $('eye-room');
+  const LATENCY = 0.2, TAU_IN = 0.3, TAU_OUT = 1.5;
+
+  let patient = 'ok', mystery = false, hidden = 'ok';
+  let flash = null, litEye = null;
+  const mm = { R: 5.5, L: 5.5 };
+  const history = [];
+  let last = performance.now();
+
+  const TIPS = {
+    ok: { R: 'מאירים לעין הימנית, ושני האישונים מצטמצמים יחד, גם זה שבחושך!', L: 'מאירים לעין השמאלית, ושני האישונים מצטמצמים יחד.' },
+    optic: { R: 'מאירים לעין הימנית… והאישונים כמעט לא מגיבים. ההודעה על האור לא יוצאת מהעין הזו.', L: 'מאירים לעין השמאלית: שני האישונים מצטמצמים, גם הימני! אז הפקודה לכווץ אותו עובדת.' },
+    cn3: { R: 'מאירים לעין הימנית: הימני מצטמצם, אבל השמאלי נשאר רחב.', L: 'מאירים לעין השמאלית: הימני מצטמצם, אז העין השמאלית "רואה" את האור. אבל האישון השמאלי לא מקבל את הפקודה.' },
+  };
+
+  function targets(room) {
+    const p = mystery ? hidden : patient;
+    let drive = 0;
+    for (const k of ['R', 'L']) {
+      let lit = 0;
+      if (flash) lit = clamp(1 - (Math.hypot(flash.x - EYES[k].x, flash.y - EYES[k].y) - 40) / 70, 0, 1);
+      const light = room * 0.6 + lit * 1.2;
+      if (!(p === 'optic' && k === 'R')) drive += light;
+    }
+    const t = 2 + 5.8 * Math.exp(-1.3 * drive);
+    return { R: t, L: p === 'cn3' ? 7.6 : t };
+  }
+
+  function frame(now) {
+    requestAnimationFrame(frame);
+    const dt = Math.min(0.1, (now - last) / 1000);
+    last = now;
+    if (!isVisible()) return;
+    const room = roomIn.value / 100;
+    history.push({ t: now, v: targets(room) });
+    while (history.length > 1 && history[1].t <= now - LATENCY * 1000) history.shift();
+    const tgt = history[0].v;
+    for (const k of ['R', 'L']) {
+      const tau = tgt[k] < mm[k] ? TAU_IN : TAU_OUT;
+      mm[k] += (tgt[k] - mm[k]) * (1 - Math.exp(-dt / tau));
+      pupils[k].setAttribute('r', (mm[k] * 5.5).toFixed(2));
+      reads[k].textContent = mm[k].toFixed(1) + ' mm';
+    }
+    dark.setAttribute('opacity', (0.55 * (1 - room)).toFixed(2));
+  }
+  requestAnimationFrame(frame);
+
+  function point(e) {
+    flash = svgPoint(svg, e);
+    torch.style.display = '';
+    torch.setAttribute('transform', `translate(${flash.x},${flash.y})`);
+    const near = ['R', 'L'].find(k => Math.hypot(flash.x - EYES[k].x, flash.y - EYES[k].y) < 60) || null;
+    if (near !== litEye) {
+      litEye = near;
+      if (near && !mystery) say(msg, TIPS[patient][near]);
+    }
+  }
+  function off() { flash = null; litEye = null; torch.style.display = 'none'; }
+  svg.addEventListener('pointermove', e => { if (e.pointerType === 'mouse' || e.buttons) point(e); });
+  svg.addEventListener('pointerdown', point);
+  svg.addEventListener('pointerup', e => { if (e.pointerType !== 'mouse') off(); });
+  svg.addEventListener('pointerleave', off);
+  svg.addEventListener('pointercancel', off);
+
+  const INTRO = {
+    ok: 'מטופל תקין. האירו לכל עין בנפרד ושימו לב לשני האישונים.',
+    optic: 'עצב הראייה הימני פגוע: העין הימנית לא מעבירה למוח הודעה על אור. האירו לכל עין בנפרד.',
+    cn3: 'העצב שמכווץ את האישון השמאלי פגוע (עצב גולגולתי 3). האירו לכל עין בנפרד.',
+  };
+  seg($('eye-patient'), d => {
+    patient = d.p; mystery = false;
+    svg.closest('.rx-stage').classList.remove('mystery');
+    say(msg, INTRO[patient]);
+  });
+  $('eye-mystery').addEventListener('click', () => {
+    mystery = true;
+    hidden = ['ok', 'optic', 'cn3'][Math.floor(Math.random() * 3)];
+    svg.closest('.rx-stage').classList.add('mystery');
+    clearSeg($('eye-patient'));
+    say(msg, '🕵️ מטופל מסתורי. האירו לכל עין בנפרד, הסתכלו על שני האישונים, ונחשו מה הבעיה.');
+  });
+  $('eye-guess').querySelectorAll('button').forEach(b => b.addEventListener('click', () => {
+    if (b.dataset.guess === hidden) {
+      say(msg, 'נכון! ' + INTRO[hidden], 'good');
+      mystery = false; patient = hidden;
+      svg.closest('.rx-stage').classList.remove('mystery');
+      $('eye-patient').querySelector(`[data-p="${hidden}"]`).classList.add('active');
+    } else {
+      say(msg, 'לא בדיוק. האירו שוב לכל עין בנפרד והשוו את שני האישונים בכל פעם.', 'bad');
+    }
+  }));
+}
+
+// ─────────────────────── Baby reflexes ───────────────────────
+function initGrasp() {
+  const svg = $('grasp-svg'), hand = $('grasp-hand'), finger = $('adult-finger'), msg = $('grasp-msg');
+  const fingers = [...svg.querySelectorAll('.finger:not(.thumb)')], thumb = svg.querySelector('.thumb');
+  const PALM = { x0: 124, x1: 236, y0: 158, y1: 252 };
+  let gripped = false, gripY = 0, gripTimer = 0, releaseTimer = 0;
+
+  function grip(on) {
+    gripped = on;
+    fingers.forEach(f => { f.style.transform = on ? 'scaleY(-0.55)' : ''; });
+    thumb.style.transform = on ? 'rotate(40deg)' : 'rotate(-35deg)';
+    if (!on) {
+      hand.removeAttribute('transform');
+      finger.setAttribute('transform', 'translate(330,70)');
+    }
+  }
+
+  function move(e) {
+    clearTimeout(releaseTimer);
+    const p = svgPoint(svg, e);
+    if (gripped) {
+      if (p.x < 90 || p.x > 280) { grip(false); say(msg, 'שחררתם בכוח. נסו שוב!'); return; }
+      const dy = clamp(p.y - gripY, -80, 0);
+      hand.setAttribute('transform', `translate(0,${dy})`);
+      finger.setAttribute('transform', `translate(${p.x - 6},${gripY})`);
+      if (dy < -45) say(msg, '💪 וואו, איזו אחיזה! התינוק כמעט נתלה על האצבע.', 'good');
+      return;
+    }
+    finger.setAttribute('transform', `translate(${p.x - 6},${p.y})`);
+    const inPalm = p.x > PALM.x0 && p.x < PALM.x1 && p.y > PALM.y0 && p.y < PALM.y1;
+    if (inPalm && !gripTimer) {
+      gripTimer = setTimeout(() => {
+        gripTimer = 0;
+        gripY = p.y;
+        grip(true);
+        say(msg, '✊ תפס! עכשיו גררו למעלה ותראו כמה האחיזה חזקה.');
+      }, 140);
+    } else if (!inPalm && gripTimer) {
+      clearTimeout(gripTimer); gripTimer = 0;
+    }
+  }
+  function leave() {
+    clearTimeout(gripTimer); gripTimer = 0;
+    releaseTimer = setTimeout(() => {
+      if (gripped) say(msg, 'האצבעות נפתחו. רוצים שוב? הכניסו את האצבע לכף היד.');
+      grip(false);
+    }, 700);
+  }
+  svg.addEventListener('pointermove', e => { if (e.pointerType === 'mouse' || e.buttons) move(e); });
+  svg.addEventListener('pointerdown', e => { svg.setPointerCapture?.(e.pointerId); move(e); });
+  svg.addEventListener('pointerup', e => { if (e.pointerType !== 'mouse') leave(); });
+  svg.addEventListener('pointerleave', e => { if (e.pointerType === 'mouse') leave(); });
+}
+
+function initStepping() {
+  const svg = $('step-svg'), baby = $('step-baby'), btn = $('step-btn');
+  let down = false, timer = 0;
+  btn.addEventListener('click', () => {
+    down = !down;
+    clearTimeout(timer);
+    baby.style.transform = `translateY(${down ? 6 : -50}px)`;
+    btn.textContent = down ? '⬆️ הרימו את התינוק' : '⬇️ הניחו את כפות הרגליים על הרצפה';
+    if (down) timer = setTimeout(() => svg.classList.add('stepping'), 550);
+    else svg.classList.remove('stepping');
+  });
+}
+
+function initMoro() {
+  const svg = $('moro-svg');
+  let timer = 0;
+  $('moro-btn').addEventListener('click', () => {
+    clearTimeout(timer);
+    svg.classList.remove('moro', 'shake');
+    void svg.getBoundingClientRect(); // restart the CSS animations
+    svg.classList.add('moro', 'shake');
+    timer = setTimeout(() => svg.classList.remove('moro', 'shake'), 1900);
+  });
+}
+
+function initBabinski() {
+  const svg = $('babinski-svg'), stick = $('stick'), msg = $('babinski-msg');
+  const big = $('toe-big'), small = $('toe-small'), fan = $('toe-fan');
+  let who = 'baby', busy = false, relax = 0;
+  const RESULT = {
+    baby: ['הבוהן עלתה למעלה והאצבעות נפרשו כמו מניפה. אצל תינוק זה תקין: המסלולים מהמוח עדיין מתבגרים.', 'good'],
+    adult: ['האצבעות התכופפו למטה. זו התגובה התקינה של מבוגר.', 'good'],
+    damage: ['הבוהן עלתה למעלה! אצל מבוגר זה "סימן בבינסקי": ייתכן שיש פגיעה במסלול שיורד מהמוח לחוט השדרה.', 'bad'],
+  };
+
+  function setToes(state) {
+    const up = state === 'up', downward = state === 'down';
+    big.style.transform = up ? 'rotate(-38deg)' : downward ? 'rotate(22deg)' : '';
+    small.style.transform = up ? 'rotate(-10deg)' : downward ? 'rotate(22deg)' : '';
+    fan.setAttribute('opacity', up ? 1 : 0);
+  }
+
+  function stroke() {
+    if (busy) return;
+    busy = true;
+    clearTimeout(relax);
+    setToes('rest');
+    stick.style.display = '';
+    const t0 = performance.now();
+    (function frame(now) {
+      const f = clamp((now - t0) / 1000, 0, 1), e = ease(f);
+      stick.setAttribute('transform', `translate(${100 + 190 * e},${190 - 8 * e})`);
+      if (f < 1) return requestAnimationFrame(frame);
+      stick.style.display = 'none';
+      setToes(who === 'adult' ? 'down' : 'up');
+      say(msg, ...RESULT[who]);
+      busy = false;
+      relax = setTimeout(() => setToes('rest'), 3000);
+    })(t0);
+  }
+  $('babinski-btn').addEventListener('click', stroke);
+  svg.addEventListener('click', stroke);
+  seg($('babinski-who'), d => {
+    who = d.who;
+    setToes('rest');
+    say(msg, { baby: 'תינוק בן כמה חודשים. גרדו את הסוליה.', adult: 'מבוגר בריא. גרדו את הסוליה.', damage: 'מבוגר אחרי פגיעה במוח או בחוט השדרה. גרדו את הסוליה.' }[who]);
+  });
+}
+
+function initTimeline() {
+  const ROWS = [
+    ['הליכה', 2], ['חיפוש הפטמה', 4], ['מורו', 5], ['אחיזה ביד', 6], ['אחיזה בכף הרגל', 12], ['בבינסקי', 18],
+  ];
+  $('timeline').innerHTML = ROWS.map(([name, m]) => `
+    <div class="tl-row" title="נעלם בערך בגיל ${m} חודשים">
+      <span>${name}</span>
+      <div class="tl-track"><div class="tl-bar" style="width:${(m / 24) * 100}%"></div></div>
+    </div>`).join('');
+}
+
+// ─────────────────────── Reaction-time game ───────────────────────
+function initGame() {
+  const pad = $('rt-pad'), msg = $('rt-msg'), bars = $('rt-bars');
+  const TRIES = 5;
+  const REF = [
+    { name: 'רפלקס הברך', ms: 30, cls: 'reflex' },
+    { name: 'מצמוץ כשנוגעים בעין', ms: 40, cls: 'reflex' },
+    { name: 'אישון לאור (רפלקס איטי)', ms: 220, cls: 'reflex' },
+  ];
+  let state = 'idle', timer = 0, goAt = 0, times = [];
+
+  function drawBars() {
+    const avg = times.length ? times.reduce((a, b) => a + b, 0) / times.length : null;
+    const rows = [...REF, { name: times.length >= TRIES ? 'אתם (ממוצע)' : 'אתם', ms: avg, cls: 'you' }];
+    const max = Math.max(500, avg || 0);
+    bars.innerHTML = rows.map(r => `
+      <div class="rt-bar ${r.cls}">
+        <span>${r.name}</span>
+        <div class="track"><div class="fill" style="width:${r.ms ? (r.ms / max) * 100 : 0}%"></div></div>
+        <span class="val">${r.ms ? Math.round(r.ms) + ' ms' : '–'}</span>
+      </div>`).join('');
+  }
+
+  function show(cls, html) { pad.className = 'rt-pad ' + cls; pad.innerHTML = html; }
+
+  function press() {
+    if (state === 'idle' || state === 'result' || state === 'early') {
+      if (times.length >= TRIES) times = [];
+      state = 'wait';
+      show('wait', 'חכו לירוק…<small>אל תלחצו עדיין</small>');
+      timer = setTimeout(() => {
+        state = 'go';
+        goAt = performance.now();
+        show('go', 'עכשיו!');
+      }, 1500 + Math.random() * 2500);
+    } else if (state === 'wait') {
+      clearTimeout(timer);
+      state = 'early';
+      show('early', 'מוקדם מדי! 😅<small>לחצו כדי לנסות שוב</small>');
+    } else if (state === 'go') {
+      const rt = performance.now() - goAt;
+      times.push(rt);
+      state = 'result';
+      const done = times.length >= TRIES;
+      show('', `${Math.round(rt)} ms<small>${done ? 'סיימתם! לחצו לסבב חדש' : 'לחצו לניסיון הבא'}</small>`);
+      const best = Math.min(...times);
+      if (done) {
+        const avg = times.reduce((a, b) => a + b, 0) / times.length;
+        say(msg, `הממוצע שלכם: ${Math.round(avg)} ms. הכי מהיר: ${Math.round(best)} ms. רפלקס הברך מהיר מכם פי ${Math.round(avg / 30)}, כי הוא לא עובר דרך המוח.`, 'good');
+      } else {
+        say(msg, `ניסיון ${times.length} מתוך ${TRIES}: ${times.map(t => Math.round(t)).join(' · ')}`);
+      }
+      drawBars();
+    }
+  }
+
+  pad.addEventListener('pointerdown', e => { e.preventDefault(); press(); });
+  document.addEventListener('keydown', e => {
+    if (!isVisible() || e.code !== 'Space' || e.repeat) return;
+    const r = pad.getBoundingClientRect();
+    if (r.bottom < 0 || r.top > innerHeight) return; // only while the pad is on screen
+    e.preventDefault();
+    press();
+  });
+  drawBars();
+
+  const ruler = $('ruler'), out = $('ruler-out');
+  const showRuler = () => {
+    const cm = +ruler.value;
+    out.textContent = `${cm} cm → ${Math.round(Math.sqrt((2 * cm / 100) / 9.81) * 1000)} ms`;
+  };
+  ruler.addEventListener('input', showRuler);
+  showRuler();
+}
+
+// ─────────────────────── Quiz ───────────────────────
+const QUIZ = [
+  { q: 'עיטוש כשמשהו מדגדג באף', a: true, why: 'רפלקס. גזע המוח מפעיל אותו כדי לנקות את האף, ואי אפשר באמת לעצור אותו באמצע.' },
+  { q: 'לרכוב על אופניים בלי לחשוב', a: false, why: 'לא רפלקס. זו מיומנות נלמדת שנהייתה אוטומטית. המוח הגדול והמוח הקטן עובדים קשה.' },
+  { q: 'למצמץ כשכדור עף לכיוון הפנים', a: true, why: 'רפלקס הגנה. העפעף נסגר לפני שהספקתם להחליט.' },
+  { q: 'לענות לטלפון כשהוא מצלצל', a: false, why: 'לא רפלקס. שומעים, מזהים ומחליטים, גם אם זה מהיר.' },
+  { q: 'עור ברווז כשקר', a: true, why: 'רפלקס של מערכת העצבים האוטונומית: שרירים זעירים מרימים את השערות.' },
+  { q: 'הכלב של פבלוב מריר כשהוא שומע פעמון', a: true, why: 'כן, אבל מיוחד: "רפלקס מותנה". הכלב למד לקשר את הפעמון לאוכל. רפלקסים רגילים מולדים, ואת זה הוא למד.' },
+  { q: 'שיעול כשמשהו נכנס לקנה הנשימה', a: true, why: 'רפלקס שמגן על הריאות. אפשר גם להשתעל בכוונה, אבל זה כבר לא רפלקס.' },
+  { q: 'לבעוט בכדור שמגיע אליכם במשחק', a: false, why: 'לא רפלקס. רואים, מחשבים ומחליטים. אימון הופך את זה למהיר, אבל זה לא רפלקס.' },
+  { q: 'הפה מתמלא רוק כשאוכל נוגע בלשון', a: true, why: 'רפלקס מולד. הבלוטות מתחילות לעבוד מיד כשמשהו טעים נוגע בלשון.' },
+];
+function initQuiz() {
+  const box = $('quiz'), score = $('quiz-score');
+  let right = 0, answered = 0;
+  box.innerHTML = QUIZ.map((it, i) => `
+    <div class="q-card" data-i="${i}">
+      <div class="q">${it.q}</div>
+      <div class="ans">
+        <button class="small-btn" data-a="1">⚡ רפלקס</button>
+        <button class="small-btn" data-a="0">🧠 לא רפלקס</button>
+      </div>
+      <div class="why"></div>
+    </div>`).join('');
+  box.querySelectorAll('.q-card').forEach(card => {
+    const it = QUIZ[+card.dataset.i];
+    card.querySelectorAll('button').forEach(b => b.addEventListener('click', () => {
+      const ok = (b.dataset.a === '1') === it.a;
+      b.classList.add('picked');
+      card.classList.add('done', ok ? 'right' : 'wrong');
+      card.querySelector('.why').textContent = (ok ? '✅ ' : '❌ ') + it.why;
+      answered++; if (ok) right++;
+      score.textContent = `${right} / ${answered}` + (answered === QUIZ.length ? (right === QUIZ.length ? ' 🏆 מושלם!' : ' סיימתם!') : '');
+    }));
+  });
+}
+
+// ─────────────────────── Init ───────────────────────
+export function initReflexes() {
+  document.querySelectorAll('.rx-nav [data-go]').forEach(b =>
+    b.addEventListener('click', () => $(b.dataset.go).scrollIntoView({ behavior: 'smooth', block: 'start' })));
+  initArc();
+  initKnee();
+  initPupils();
+  initGrasp();
+  initStepping();
+  initMoro();
+  initBabinski();
+  initTimeline();
+  initGame();
+  initQuiz();
+}
