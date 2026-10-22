@@ -500,7 +500,7 @@ function initRooting() {
       head.style.transform = `translateX(${side * 10}px) rotate(${side * 9}deg)`;
       face.style.transform = `translateX(${side * 16}px)`;
       mouth.style.transform = 'scaleY(3.2)';
-      say(msg, 'התינוק סובב את הראש לכיוון המגע ופתח את הפה. הוא "מחפש" את הפטמה כדי לינוק.', 'good');
+      say(msg, 'התינוק סובב את הראש לכיוון המגע ופתח את הפה. הוא "מחפש" אוכל.', 'good');
     });
     later(2600, reset);
   }
@@ -512,7 +512,7 @@ function initRooting() {
 
 function initTimeline() {
   const ROWS = [
-    ['הליכה', 2], ['חיפוש הפטמה', 4], ['מורו', 5], ['אחיזה ביד', 6], ['הסייף', 6], ['אחיזה בכף הרגל', 12], ['בבינסקי', 18],
+    ['הליכה', 2], ['חיפוש אוכל', 4], ['מורו', 5], ['אחיזה ביד', 6], ['הסייף', 6], ['אחיזה בכף הרגל', 12], ['בבינסקי', 18],
   ];
   $('timeline').innerHTML = ROWS.map(([name, m]) => `
     <div class="tl-row" title="נעלם בערך בגיל ${m} חודשים">
