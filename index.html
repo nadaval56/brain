@@ -433,12 +433,42 @@
     --sens: #2b7bff; --motor: #ef4444; --up: #a855f7;
   }
   body.dark .rx { --skin-line: #8a5a3c; }
-  .rx-nav { display: flex; flex-wrap: wrap; gap: 8px; }
-  .rx-nav button {
-    border: 1px solid var(--border); background: var(--surface); color: var(--text-2);
-    font-size: 14px; font-weight: 500; padding: 7px 14px; border-radius: 999px; cursor: pointer;
+  .rx-tabs {
+    display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none;
+    background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 6px;
+    box-shadow: var(--shadow);
   }
-  .rx-nav button:hover { border-color: var(--accent); color: var(--accent); }
+  .rx-tabs::-webkit-scrollbar { display: none; }
+  .rx-tabs button {
+    flex: 1 0 auto; border: none; background: transparent; color: var(--text-2); white-space: nowrap;
+    font-size: 15px; font-weight: 600; padding: 10px 16px; border-radius: 10px; cursor: pointer;
+  }
+  .rx-tabs button:hover { background: var(--surface-2); color: var(--text); }
+  .rx-tabs button.active { background: var(--accent); color: var(--on-accent); }
+  .rx-page { display: flex; flex-direction: column; gap: 22px; }
+  .rx-page[hidden] { display: none; }
+  .rx-pager { display: flex; justify-content: space-between; gap: 10px; }
+  .rx-pager button { max-width: 48%; }
+  .rx-note { font-size: 13px !important; color: var(--muted) !important; line-height: 1.5 !important; }
+  .lbl-fig svg { display: block; width: 100%; height: auto; background: #fff; }
+  .rx .lbl-fig .lbl rect { fill: #fff; }
+  .rx .lbl-fig .lbl text { font-family: var(--ui-font); font-size: inherit; font-weight: 700; fill: #0f172a; text-anchor: middle; }
+  .rx .lbl-fig .lbl text.plain { fill: #64748b; font-weight: 600; }
+  .lab-table { width: 100%; border-collapse: separate; border-spacing: 4px; font-size: 13px; }
+  .lab-table th { font-weight: 600; color: var(--muted); text-align: center; padding: 2px; }
+  .lab-table th:first-child { text-align: start; }
+  .lab-table td:first-child { font-weight: 600; color: var(--text-2); white-space: nowrap; }
+  .lab-cell {
+    width: 100%; height: 38px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface);
+    font-size: 14px; font-weight: 600; color: var(--text); cursor: pointer; direction: ltr;
+  }
+  .lab-cell:hover { border-color: var(--accent); }
+  .lab-cell.sel { border: 2px solid var(--accent); background: var(--accent-soft); }
+  .lab-avg { font-family: var(--mono); text-align: center; color: var(--accent); font-weight: 600; }
+  .gauge { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-around; gap: 6px; background: #b07a46; border-radius: 12px; padding: 10px; }
+  .gauge button { direction: ltr; display: flex; flex-direction: column; align-items: center; gap: 4px; border: none; background: none; cursor: pointer; color: #fff; font-size: 11px; font-family: var(--mono); padding: 4px; border-radius: 8px; }
+  .gauge button:hover { background: rgba(255,255,255,0.15); }
+  .gauge i { display: block; border-radius: 50%; background: #070707; box-shadow: 0 0 0 3px rgba(0,0,0,0.15); }
   .rx-block {
     background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
     box-shadow: var(--shadow); padding: 22px; scroll-margin-top: 84px;
@@ -585,17 +615,33 @@
   .rt-bar.reflex .fill { background: var(--motor); } .rt-bar.you .fill { background: var(--accent); }
   .rt-bar .val { font-family: var(--mono); direction: ltr; text-align: left; }
 
-  /* quiz */
-  .quiz { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 12px; }
-  .q-card { background: var(--surface-2); border: 1px solid var(--border); border-radius: 12px; padding: 14px; display: flex; flex-direction: column; gap: 10px; }
-  .q-card .q { font-size: 16px; font-weight: 600; color: var(--text); }
-  .q-card .ans { display: flex; gap: 8px; }
-  .q-card .ans button { flex: 1; }
-  .q-card .why { font-size: 13px; line-height: 1.55; color: var(--text-2); display: none; }
-  .q-card.done .why { display: block; }
-  .q-card.right { border-color: #16a34a; } .q-card.wrong { border-color: #dc2626; }
-  .q-card.done .ans button { pointer-events: none; opacity: 0.5; }
-  .q-card.done .ans button.picked { opacity: 1; }
+  /* quiz: flip cards */
+  .quiz { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 14px; }
+  .flip { perspective: 1000px; height: 250px; }
+  .flip-inner { position: relative; height: 100%; transition: transform 0.6s cubic-bezier(.3,.9,.4,1); transform-style: preserve-3d; }
+  .flip.flipped .flip-inner { transform: rotateY(180deg); }
+  .face {
+    position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden;
+    border-radius: 14px; padding: 16px; display: flex; flex-direction: column; gap: 10px;
+    background: var(--surface-2); border: 1px solid var(--border);
+  }
+  .face.front { align-items: center; justify-content: center; text-align: center; }
+  .class-mode .face.front { cursor: pointer; }
+  .face .emoji { font-size: 44px; line-height: 1; }
+  .face .q { font-size: 17px; font-weight: 700; color: var(--text); line-height: 1.4; }
+  .face .ans { display: flex; gap: 8px; width: 100%; margin-top: 4px; }
+  .face .ans button { flex: 1; justify-content: center; }
+  .class-mode .face .ans { display: none; }
+  .face .tap { font-size: 12px; color: var(--muted); display: none; }
+  .class-mode .face .tap { display: block; }
+  .face.back { transform: rotateY(180deg); justify-content: space-between; }
+  .face.back.yes { background: color-mix(in srgb, #16a34a 12%, var(--surface)); border-color: #16a34a; }
+  .face.back.no { background: color-mix(in srgb, #7c3aed 12%, var(--surface)); border-color: #7c3aed; }
+  .face .verdict { font-size: 18px; font-weight: 800; color: var(--text); }
+  .face .mark { font-size: 13px; font-weight: 700; }
+  .face .mark.right { color: #16a34a; } .face .mark.wrong { color: #dc2626; }
+  .face .why { font-size: 14px; line-height: 1.55; color: var(--text-2); flex: 1; overflow-y: auto; }
+  .face .back-btn { align-self: flex-start; }
 
   @media (max-width: 900px) {
     .rx { padding: 18px 14px 30px; }
@@ -603,6 +649,8 @@
     .baby-grid { grid-template-columns: 1fr; }
     .tl-row, .tl-axis { grid-template-columns: 92px 1fr; }
     .rt-bar { grid-template-columns: 104px 1fr 56px; }
+    .rx-tabs button { font-size: 14px; padding: 9px 12px; }
+    #rx-what .rx-stage, #rx-knee .rx-stage, #rx-pupil .rx-stage { order: -1; }
   }
 
   @media (max-width: 1000px) {
@@ -796,14 +844,15 @@
     </div>
   </div>
 
-  <nav class="rx-nav" aria-label="ניווט בעמוד">
-    <button data-go="rx-what">⚡ מה זה רפלקס?</button>
-    <button data-go="rx-knee">🦵 רפלקס הברך</button>
-    <button data-go="rx-pupil">👁️ האישונים</button>
-    <button data-go="rx-baby">👶 רפלקסים של תינוקות</button>
-    <button data-go="rx-game">⏱️ משחק: רפלקס מול תגובה</button>
-    <button data-go="rx-quiz">❓ רפלקס או לא?</button>
+  <nav class="rx-tabs" id="rx-tabs" aria-label="חלקי הנושא">
+    <button data-page="what">⚡ מה זה רפלקס?</button>
+    <button data-page="knee">🦵 רפלקס הברך</button>
+    <button data-page="pupil">👁️ האישון</button>
+    <button data-page="baby">👶 תינוקות</button>
+    <button data-page="quiz">🃏 רפלקס או לא?</button>
   </nav>
+
+  <div class="rx-page" data-page="what">
 
   <!-- ───── What is a reflex ───── -->
   <section class="rx-block" id="rx-what">
@@ -820,6 +869,21 @@
       <div class="rx-steps">
         <span>קולטן חש</span><i>←</i><span style="color:var(--sens)">עצב תחושה</span><i>←</i><span>חוט השדרה</span><i>←</i><span style="color:var(--motor)">עצב תנועה</span><i>←</i><span>שריר זז</span>
       </div>
+      <figure class="rx-fig lbl-fig">
+        <svg viewBox="0 0 549 272" role="img" aria-label="קשת רפלקס: סיכה בכף הרגל, עצב תחושה, חוט השדרה, עצב תנועה ושריר">
+          <image href="assets/reflexes/withdrawal-arc.jpg" width="549" height="272"/>
+          <g class="lbl" style="font-size:13px">
+            <rect x="8" y="14" width="106" height="21"/><text x="61" y="30">חוט השדרה</text>
+            <rect x="122" y="14" width="58" height="21"/><text x="151" y="30">סינפסה</text>
+            <rect x="198" y="14" width="96" height="21"/><text x="246" y="30">עצב תחושה</text>
+            <rect x="470" y="86" width="79" height="22"/><text x="509" y="102">סיכה בכף</text>
+            <rect x="90" y="236" width="84" height="22"/><text x="132" y="252">תא עצב מקשר</text>
+            <rect x="190" y="236" width="90" height="22"/><text x="235" y="252">עצב תנועה</text>
+            <rect x="408" y="236" width="58" height="22"/><text x="437" y="252">שריר</text>
+          </g>
+        </svg>
+        <figcaption>רפלקס נסיגה אצל בעל חיים שדרך על סיכה. החצים מראים את כיוון ההודעה: מהכף לחוט השדרה, דרך תא עצב מקשר, וחזרה לשריר שמרים את הרגל. Ruth Lawson, Otago Polytechnic, ויקישיתוף, CC BY 3.0. התוויות תורגמו לעברית.</figcaption>
+      </figure>
       <div class="rx-tip"><b>נסו:</b> לחצו על "געו בכיריים" וצפו בהילוך איטי. היד כבר בורחת לפני שהמוח בכלל יודע שכואב. ה"אאוץ'!" מגיע אחר כך.</div>
     </div>
     <div class="rx-stage">
@@ -872,12 +936,53 @@
     </div>
   </section>
 
+  <!-- ───── Reaction game ───── -->
+  <section class="rx-block" id="rx-game">
+    <div class="rx-text">
+      <h2>משחק: רפלקס מול תגובה</h2>
+      <p>כשאתם לוחצים על כפתור כי ראיתם צבע, זה <b>לא</b> רפלקס. זאת תגובה רצונית: העין שולחת תמונה למוח, המוח מזהה, מחליט ושולח פקודה לאצבע. זה לוקח הרבה יותר זמן.</p>
+      <p>לחצו על הלוח כשהוא נהיה <b style="color:#16a34a">ירוק</b> (או מקש רווח). 5 ניסיונות, ונשווה את הממוצע שלכם לרפלקסים.</p>
+      <div class="rt-pad" id="rt-pad" tabindex="0" role="button">לחצו כדי להתחיל<small>חכו לירוק, ואז מהר!</small></div>
+      <div class="rx-msg" id="rt-msg" style="margin-top:10px">ניסיונות: –</div>
+    </div>
+    <div class="rx-stage">
+      <h4 style="margin:0">כמה זמן לוקח? (אלפיות שנייה)</h4>
+      <div class="rt-bars" id="rt-bars"></div>
+      <details open>
+        <summary>📏 בלי מחשב: מבחן הסרגל</summary>
+        <p>חבר מחזיק סרגל אנכי, ואתם מחזיקים אצבעות פתוחות סביב ה־0, בלי לגעת. החבר משחרר בלי להזהיר, ואתם תופסים. כמה סנטימטרים הסרגל נפל?</p>
+        <div class="rx-row">
+          <input type="range" id="ruler" min="2" max="40" value="15" aria-label="ס״מ שהסרגל נפל">
+          <span class="rx-clock" id="ruler-out" style="font-size:16px;min-width:auto"></span>
+        </div>
+        <p style="font-size:13px;color:var(--muted)">החישוב: גוף נופל עובר d = ½·g·t², אז t = √(2d/g).</p>
+      </details>
+    </div>
+  </section>
+
+  </div>
+
+  <div class="rx-page" data-page="knee" hidden>
   <!-- ───── Knee ───── -->
   <section class="rx-block" id="rx-knee">
     <div class="rx-text">
       <h2>רפלקס הברך <small>Patellar reflex</small></h2>
       <p>מכה קטנה בגיד שמתחת לפיקת הברך מותחת לרגע את שריר הירך הקדמי. השריר "חושב" שהוא נמתח מדי, ומתכווץ מיד. הרגל בועטת קדימה.</p>
       <p>זה הרפלקס הכי פשוט שיש: רק <b>שני תאי עצב</b>, תחושה ותנועה, עם חיבור אחד בחוט השדרה.</p>
+      <figure class="rx-fig lbl-fig">
+        <svg viewBox="0 110 906 482" role="img" aria-label="מסלול רפלקס הברך: מכה בגיד, חיישן מתיחה בשריר, עצב תחושה לחוט השדרה ועצב תנועה חזרה לשריר">
+          <image href="assets/reflexes/knee-arc.svg" width="906" height="592"/>
+          <g class="lbl" style="font-size:21px">
+            <rect x="60" y="160" width="145" height="54"/><text x="132" y="182">שריר הירך</text><text x="132" y="206">הקדמי</text>
+            <rect x="355" y="145" width="235" height="52"/><text x="472" y="168">גוף תא עצב</text><text x="472" y="192">התחושה</text>
+            <rect x="305" y="436" width="215" height="32"/><text x="412" y="460">חיישן מתיחה בשריר</text>
+            <rect x="395" y="478" width="190" height="30"/><text x="490" y="501">גוף תא עצב התנועה</text>
+            <rect x="750" y="476" width="95" height="32"/><text x="792" y="500">סינפסה</text>
+            <text x="705" y="200" class="plain">חוט השדרה (חתך)</text>
+          </g>
+        </svg>
+        <figcaption>המסלול המלא: הפטיש מותח את השריר, חיישן המתיחה שולח הודעה בעצב התחושה (אדום) לחוט השדרה, ושם היא עוברת ישר לעצב התנועה (כחול) שמכווץ את השריר. Юкатан, ויקישיתוף, CC BY-SA 3.0. התוויות תורגמו לעברית.</figcaption>
+      </figure>
 
       <h4>איך בודקים?</h4>
       <ol>
@@ -985,12 +1090,59 @@
     </div>
   </section>
 
+  <!-- ───── Knee: classroom lab ───── -->
+  <section class="rx-block" id="rx-knee-lab">
+    <div class="rx-text">
+      <h2>התנסות בכיתה: רפלקס הברך <small>בזוגות</small></h2>
+      <p>עובדים בזוגות: נבדק ובודק. אין פטיש? אפשר להקיש בעדינות עם צד כף היד (כמו "מכת קראטה" קטנה) או עם סרגל פלסטיק.</p>
+      <ol>
+        <li><b>הכנה:</b> הנבדק יושב על שולחן. הרגליים תלויות באוויר ורפויות.</li>
+        <li><b>מוצאים את המקום:</b> ממששים מתחת לפיקת הברך. יש שם "חבל" רך: זה הגיד.</li>
+        <li><b>ניסוי א׳, רגיל:</b> הנבדק מסתכל הצידה ומדבר עם מישהו. מקישים 3 פעמים ומדרגים כל בעיטה.</li>
+        <li><b>ניסוי ב׳, מתנגדים:</b> הנבדק מסתכל על הברך ומנסה בכל הכוח <b>לא</b> לבעוט. עוד 3 הקשות.</li>
+        <li><b>ניסוי ג׳, ינדרשיק:</b> הנבדק משלב אצבעות כמו ווים. הבודק סופר "1, 2, 3, משוך!", הנבדק מושך חזק לצדדים, והבודק מקיש. עוד 3 הקשות.</li>
+      </ol>
+      <div class="rx-tip"><b>בטיחות:</b> מקישים בעדינות! הרפלקס מופעל ממכה קלה ומדויקת, לא ממכה חזקה. לא בודקים מי שכואבת לו הברך.</div>
+      <details>
+        <summary>💬 שאלות לדיון</summary>
+        <ul>
+          <li>הצלחתם לעצור את הבעיטה לגמרי? למה זה כל כך קשה?</li>
+          <li>בתרגיל ינדרשיק בכלל לא נוגעים ברגל. למה הבעיטה מתחזקת?</li>
+          <li>הנבדק הרגיש את המכה לפני שהרגל זזה, או אחרי?</li>
+          <li>הבעיטה זהה בשתי הרגליים? ואצל כל התלמידים?</li>
+        </ul>
+      </details>
+    </div>
+    <div class="rx-stage">
+      <h4 style="margin:0">📋 טבלת תוצאות</h4>
+      <p class="rx-note">לחצו על משבצת כדי לדרג את הבעיטה: 0 = כלום, 1 = קצת, 2 = רגיל, 3 = חזק. לחיצה נוספת מחליפה ערך.</p>
+      <div id="knee-lab"></div>
+      <div class="rt-bars" id="knee-lab-bars"></div>
+      <div class="rx-msg" id="knee-lab-msg">מלאו את הטבלה ותראו מה השתנה בין הניסויים.</div>
+      <div class="rx-row"><button class="small-btn" id="knee-lab-reset">🗑️ ניקוי הטבלה</button></div>
+    </div>
+  </section>
+  </div>
+
+  <div class="rx-page" data-page="pupil" hidden>
   <!-- ───── Pupils ───── -->
   <section class="rx-block" id="rx-pupil">
     <div class="rx-text">
       <h2>רפלקס האישון <small>Pupillary light reflex</small></h2>
       <p>האישון הוא החור השחור באמצע העין. כשיש הרבה אור הוא <b>מצטמצם</b> כדי להגן על הרשתית, וכשחשוך הוא <b>מתרחב</b> כדי לאסוף יותר אור.</p>
       <p>הקסם: מספיק להאיר לתוך עין <b>אחת</b>, ושני האישונים מצטמצמים יחד. המסלול עובר דרך <b>גזע המוח</b>, ומשם הפקודה יוצאת לשתי העיניים.</p>
+      <figure class="rx-fig lbl-fig" style="max-width:380px;margin-inline:auto">
+        <svg viewBox="0 0 512 695" role="img" aria-label="מסלול רפלקס האישון: אור נכנס לעין אחת, עצב הראייה מוביל לגזע המוח, ומשם עצב גולגולתי 3 לשתי העיניים">
+          <image href="assets/reflexes/pupil-pathway.png" width="512" height="695"/>
+          <g class="lbl" style="font-size:19px">
+            <rect x="38" y="146" width="94" height="98"/><text x="85" y="180">עצב</text><text x="85" y="204">גולגולתי 3</text>
+            <rect x="0" y="406" width="104" height="66"/><text x="52" y="434">גנגליון</text><text x="52" y="458">ריסני</text>
+            <rect x="260" y="386" width="92" height="62"/><text x="306" y="413">עצב</text><text x="306" y="437">הראייה</text>
+            <rect x="168" y="640" width="160" height="38"/><text x="248" y="666">מקור אור</text>
+          </g>
+        </svg>
+        <figcaption>אור נכנס רק לעין הימנית (למטה מימין). באדום: ההודעה על האור עולה בעצב הראייה לגזע המוח, ושם מתפצלת לשני הצדדים. בכחול: הפקודה "להצטמצם" יורדת לשתי העיניים. Broadway DC, Community Eye Health Journal, ויקישיתוף, CC BY 2.0. התוויות תורגמו לעברית.</figcaption>
+      </figure>
       <h4>איך בודקים?</h4>
       <ol>
         <li>מחשיכים קצת את החדר. הנבדק מסתכל על נקודה רחוקה.</li>
@@ -1081,6 +1233,38 @@
     </div>
   </section>
 
+  <!-- ───── Pupil: classroom lab ───── -->
+  <section class="rx-block" id="rx-pupil-lab">
+    <div class="rx-text">
+      <h2>התנסות בכיתה: האישונים <small>בזוגות, בלי פנס</small></h2>
+      <p>עובדים בזוגות, בחדר עם אור רגיל. הבודק מסתכל מקרוב על העיניים של הנבדק (או שהנבדק מסתכל על עצמו במראה).</p>
+      <ol>
+        <li><b>ניסוי א׳, יד על העין:</b> הנבדק מכסה עין אחת בכף היד ל־15 שניות, ומשאיר אותה פקוחה מתחת ליד. ברגע שהיד יורדת, הבודק מסתכל על העין הזו. האישון רחב, ואז מצטמצם תוך שנייה.</li>
+        <li><b>ניסוי ב׳, האישון השני:</b> שוב מכסים עין אחת, אבל הבודק מסתכל רק על העין <b>הפתוחה</b>. כשהיד יורדת מהעין השנייה, גם האישון בעין הפתוחה מצטמצם קצת. זו התגובה המוצלבת!</li>
+        <li><b>ניסוי ג׳, רחוק וקרוב:</b> הנבדק מסתכל על הקיר הרחוק, ואז על אצבע במרחק 15 ס״מ מהאף. האישונים מצטמצמים גם כשמסתכלים קרוב, והעיניים "מתפזלות" קצת פנימה.</li>
+      </ol>
+      <div class="rx-tip"><b>בטיחות:</b> לא צריך פנס. אם בכל זאת משתמשים בפנס של טלפון: מהצד, לשנייה אחת. אף פעם לא מכוונים לייזר לעין.</div>
+      <details>
+        <summary>💬 שאלות לדיון</summary>
+        <ul>
+          <li>מה קרה מהר יותר: הצטמצמות האישון באור, או ההתרחבות מתחת ליד?</li>
+          <li>למה זה שימושי ששני האישונים מגיבים יחד?</li>
+          <li>למה בהתחלה קשה לראות כשנכנסים לחדר חשוך?</li>
+        </ul>
+      </details>
+    </div>
+    <div class="rx-stage">
+      <h4 style="margin:0">📏 מד אישונים</h4>
+      <p class="rx-note">בחרו משבצת בטבלה, ואז לחצו על העיגול שהכי דומה לאישון. הגודל על המסך הוא בערך בלבד.</p>
+      <div class="gauge" id="pupil-gauge"></div>
+      <div id="pupil-lab"></div>
+      <div class="rx-msg" id="pupil-lab-msg">בחרו משבצת כדי להתחיל.</div>
+      <div class="rx-row"><button class="small-btn" id="pupil-lab-reset">🗑️ ניקוי הטבלה</button></div>
+    </div>
+  </section>
+  </div>
+
+  <div class="rx-page" data-page="baby" hidden>
   <!-- ───── Babies ───── -->
   <section class="rx-block wide" id="rx-baby">
     <div class="rx-text">
@@ -1228,45 +1412,39 @@
     </div>
   </section>
 
-  <!-- ───── Reaction game ───── -->
-  <section class="rx-block" id="rx-game">
-    <div class="rx-text">
-      <h2>משחק: רפלקס מול תגובה</h2>
-      <p>כשאתם לוחצים על כפתור כי ראיתם צבע, זה <b>לא</b> רפלקס. זאת תגובה רצונית: העין שולחת תמונה למוח, המוח מזהה, מחליט ושולח פקודה לאצבע. זה לוקח הרבה יותר זמן.</p>
-      <p>לחצו על הלוח כשהוא נהיה <b style="color:#16a34a">ירוק</b> (או מקש רווח). 5 ניסיונות, ונשווה את הממוצע שלכם לרפלקסים.</p>
-      <div class="rt-pad" id="rt-pad" tabindex="0" role="button">לחצו כדי להתחיל<small>חכו לירוק, ואז מהר!</small></div>
-      <div class="rx-msg" id="rt-msg" style="margin-top:10px">ניסיונות: –</div>
-    </div>
-    <div class="rx-stage">
-      <h4 style="margin:0">כמה זמן לוקח? (אלפיות שנייה)</h4>
-      <div class="rt-bars" id="rt-bars"></div>
-      <details open>
-        <summary>📏 בלי מחשב: מבחן הסרגל</summary>
-        <p>חבר מחזיק סרגל אנכי, ואתם מחזיקים אצבעות פתוחות סביב ה־0, בלי לגעת. החבר משחרר בלי להזהיר, ואתם תופסים. כמה סנטימטרים הסרגל נפל?</p>
-        <div class="rx-row">
-          <input type="range" id="ruler" min="2" max="40" value="15" aria-label="ס״מ שהסרגל נפל">
-          <span class="rx-clock" id="ruler-out" style="font-size:16px;min-width:auto"></span>
-        </div>
-        <p style="font-size:13px;color:var(--muted)">החישוב: גוף נופל עובר d = ½·g·t², אז t = √(2d/g).</p>
-      </details>
-    </div>
-  </section>
+  </div>
 
-  <!-- ───── Quiz ───── -->
+  <div class="rx-page" data-page="quiz" hidden>
+  <!-- ───── Quiz: flip cards ───── -->
   <section class="rx-block wide" id="rx-quiz">
     <div class="rx-text">
       <h2>רפלקס או לא? <small id="quiz-score"></small></h2>
-      <p>לכל מקרה: האם זה רפלקס, או משהו שהמוח החליט או למד לעשות?</p>
+      <p>לכל כרטיס: האם זה רפלקס (מולד, אוטומטי, מהיר), או משהו שהמוח מחליט או למד לעשות? ענו, והכרטיס יתהפך עם ההסבר.</p>
+      <div class="rx-row" style="margin-top:10px">
+        <div class="seg" id="quiz-mode">
+          <button data-mode="play" class="active">🎮 משחק</button>
+          <button data-mode="class">🧑‍🏫 מצב כיתה</button>
+        </div>
+        <button class="small-btn" id="quiz-shuffle">🔀 ערבוב והתחלה מחדש</button>
+      </div>
+      <p class="rx-note" id="quiz-mode-note">במצב משחק עונים בכפתורים וצוברים נקודות.</p>
     </div>
     <div class="quiz" id="quiz"></div>
   </section>
+  </div>
+
+  <div class="rx-pager" id="rx-pager"></div>
 
   <div class="credit">
     תמונות מוויקישיתוף: <a href="https://commons.wikimedia.org/wiki/File:Greifreflex.JPG" target="_blank" rel="noopener">אחיזה</a> (Mattes, נחלת הכלל) ·
     <a href="https://commons.wikimedia.org/wiki/File:Moro_Reflex.JPG" target="_blank" rel="noopener">מורו</a> (tawamie, CC BY-SA 3.0) ·
     <a href="https://commons.wikimedia.org/wiki/File:Pupillary_light_reflex.jpg" target="_blank" rel="noopener">אישונים</a> (Rapidreflex, CC BY-SA 4.0) ·
     <a href="https://commons.wikimedia.org/wiki/File:Reflex_hammer.jpg" target="_blank" rel="noopener">פטיש רפלקסים</a> (Samir, CC BY-SA 3.0) ·
-    <a href="https://commons.wikimedia.org/wiki/File:Knee-jerk._Wellcome_L0014111.jpg" target="_blank" rel="noopener">רפלקס הברך, איור היסטורי</a> (Wellcome Collection, CC BY 4.0).
+    <a href="https://commons.wikimedia.org/wiki/File:Knee-jerk._Wellcome_L0014111.jpg" target="_blank" rel="noopener">רפלקס הברך, איור היסטורי</a> (Wellcome Collection, CC BY 4.0) ·
+    <a href="https://commons.wikimedia.org/wiki/File:Patellar_reflex-ru.svg" target="_blank" rel="noopener">מסלול רפלקס הברך</a> (Юкатан, CC BY-SA 3.0) ·
+    <a href="https://commons.wikimedia.org/wiki/File:Pupil_reflex_pathway.png" target="_blank" rel="noopener">מסלול רפלקס האישון</a> (Broadway DC, CC BY 2.0) ·
+    <a href="https://commons.wikimedia.org/wiki/File:Anatomy_and_physiology_of_animals_A_reflex_arc.jpg" target="_blank" rel="noopener">קשת רפלקס</a> (Ruth Lawson, Otago Polytechnic, CC BY 3.0).
+    בשלושת התרשימים האחרונים התוויות תורגמו לעברית.
     שאר האיורים וההנפשות צוירו במיוחד לעמוד הזה. המספרים בעמוד הם הערכות לצורך המחשה.
   </div>
 </main>
@@ -1460,7 +1638,8 @@ function showSection(name) {
     document.getElementById('sec-tab-' + s).classList.toggle('active', name === s);
   }
   document.getElementById('section-stroop-hint').hidden = name !== 'stroop';
-  history.replaceState(null, '', HASHES[name]);
+  const keep = name === 'reflex' && location.hash.startsWith('#reflexes');
+  history.replaceState(null, '', keep ? location.hash : HASHES[name]);
   if (name !== 'stroop' && running) doStartStop();
   if (name === 'brain' && !brainLoaded) {
     brainLoaded = true;
@@ -1479,7 +1658,7 @@ function showSection(name) {
 
 function sectionFromHash() {
   if (location.hash === '#brain') return 'brain';
-  if (location.hash === '#reflexes') return 'reflex';
+  if (location.hash.startsWith('#reflexes')) return 'reflex';
   return 'stroop';
 }
 
