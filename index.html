@@ -1625,6 +1625,8 @@ function toggleFullscreen() {
 }
 
 // ─────────────────────── Sections ───────────────────────
+// Bump when brain.js or reflexes.js change, so browsers never pair a new page with a cached old script
+const ASSET_VERSION = '2026-10-22b';
 const SECTIONS = ['stroop', 'brain', 'reflex'];
 const HASHES = { stroop: '#', brain: '#brain', reflex: '#reflexes' };
 let section = 'stroop';
@@ -1643,7 +1645,7 @@ function showSection(name) {
   if (name !== 'stroop' && running) doStartStop();
   if (name === 'brain' && !brainLoaded) {
     brainLoaded = true;
-    import('./brain.js')
+    import('./brain.js?v=' + ASSET_VERSION)
       .then(m => m.initBrain())
       .catch(err => {
         console.error(err);
@@ -1652,7 +1654,7 @@ function showSection(name) {
   }
   if (name === 'reflex' && !reflexLoaded) {
     reflexLoaded = true;
-    import('./reflexes.js').then(m => m.initReflexes()).catch(err => console.error(err));
+    import('./reflexes.js?v=' + ASSET_VERSION).then(m => m.initReflexes()).catch(err => console.error(err));
   }
 }
 
