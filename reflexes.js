@@ -413,7 +413,8 @@ function initStepping() {
   btn.addEventListener('click', () => {
     down = !down;
     clearTimeout(timer);
-    baby.style.transform = `translateY(${down ? 6 : -50}px)`;
+    baby.style.transform = `translateY(${down ? 10 : -50}px)`;
+    svg.classList.toggle('down', down);
     btn.textContent = down ? '⬆️ הרימו את התינוק' : '⬇️ הניחו את כפות הרגליים על הרצפה';
     if (down) timer = setTimeout(() => svg.classList.add('stepping'), 550);
     else svg.classList.remove('stepping');
@@ -434,7 +435,7 @@ function initMoro() {
 
 function initBabinski() {
   const svg = $('babinski-svg'), stick = $('stick'), msg = $('babinski-msg');
-  const big = $('toe-big'), small = $('toe-small'), fan = $('toe-fan');
+  const big = $('toe-big'), small = $('toe-small'), fan = $('toe-fan'), trail = $('bab-trail');
   let who = 'baby', busy = false, relax = 0;
   const RESULT = {
     baby: ['הבוהן עלתה למעלה והאצבעות נפרשו כמו מניפה. אצל תינוק זה תקין: המסלולים מהמוח עדיין מתבגרים.', 'good'],
@@ -458,13 +459,15 @@ function initBabinski() {
     const t0 = performance.now();
     (function frame(now) {
       const f = clamp((now - t0) / 1000, 0, 1), e = ease(f);
-      stick.setAttribute('transform', `translate(${100 + 190 * e},${190 - 8 * e})`);
+      const sx = 100 + 190 * e, sy = 190 - 8 * e;
+      stick.setAttribute('transform', `translate(${sx},${sy})`);
+      trail.setAttribute('x2', sx); trail.setAttribute('y2', sy + 2);
       if (f < 1) return requestAnimationFrame(frame);
       stick.style.display = 'none';
       setToes(who === 'adult' ? 'down' : 'up');
       say(msg, ...RESULT[who]);
       busy = false;
-      relax = setTimeout(() => setToes('rest'), 3000);
+      relax = setTimeout(() => { setToes('rest'); trail.setAttribute('x2', 100); trail.setAttribute('y2', 192); }, 3000);
     })(t0);
   }
   $('babinski-btn').addEventListener('click', stroke);
@@ -476,9 +479,40 @@ function initBabinski() {
   });
 }
 
+function initRooting() {
+  const svg = $('root-svg'), head = $('root-head'), face = $('root-face'), mouth = $('root-mouth');
+  const finger = $('root-finger'), msg = $('root-msg');
+  let timers = [];
+  const later = (ms, fn) => timers.push(setTimeout(fn, ms));
+
+  function reset() {
+    head.style.transform = ''; face.style.transform = ''; mouth.style.transform = '';
+    finger.style.display = 'none';
+  }
+  function touch(side) {
+    timers.forEach(clearTimeout); timers = [];
+    reset();
+    // The finger points at the stroked cheek from outside the face
+    finger.setAttribute('transform', `translate(${180 + side * 48},158) scale(${side},1)`);
+    finger.style.display = '';
+    say(msg, 'מלטפים את הלחי…');
+    later(300, () => {
+      head.style.transform = `translateX(${side * 10}px) rotate(${side * 9}deg)`;
+      face.style.transform = `translateX(${side * 16}px)`;
+      mouth.style.transform = 'scaleY(3.2)';
+      say(msg, 'התינוק סובב את הראש לכיוון המגע ופתח את הפה. הוא "מחפש" את הפטמה כדי לינוק.', 'good');
+    });
+    later(2600, reset);
+  }
+  svg.addEventListener('click', e => {
+    const hit = e.target.closest('.root-hit');
+    if (hit) touch(+hit.dataset.side);
+  });
+}
+
 function initTimeline() {
   const ROWS = [
-    ['הליכה', 2], ['חיפוש הפטמה', 4], ['מורו', 5], ['אחיזה ביד', 6], ['אחיזה בכף הרגל', 12], ['בבינסקי', 18],
+    ['הליכה', 2], ['חיפוש הפטמה', 4], ['מורו', 5], ['אחיזה ביד', 6], ['הסייף', 6], ['אחיזה בכף הרגל', 12], ['בבינסקי', 18],
   ];
   $('timeline').innerHTML = ROWS.map(([name, m]) => `
     <div class="tl-row" title="נעלם בערך בגיל ${m} חודשים">
@@ -743,6 +777,7 @@ export function initReflexes() {
   initStepping();
   initMoro();
   initBabinski();
+  initRooting();
   initTimeline();
   initGame();
   initKneeLab();

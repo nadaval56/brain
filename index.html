@@ -567,7 +567,23 @@
   .baby-card h3 { font-size: 17px; font-weight: 700; color: var(--text); }
   .baby-card h3 small { font-size: 12px; font-weight: 600; color: var(--accent); margin-inline-start: 6px; }
   .baby-card p { font-size: 14px; line-height: 1.6; }
-  .baby-card svg.scene { background: var(--surface); border-radius: 10px; border: 1px solid var(--border); }
+  .baby-card svg.scene { border-radius: 10px; border: 1px solid var(--border); overflow: hidden; }
+  .bb-shadow { filter: drop-shadow(0 5px 6px rgba(90, 50, 20, 0.18)); }
+  .rx .photo-fig .tag rect { fill: rgba(15, 23, 42, 0.74); }
+  .rx .photo-fig .tag text { font-family: var(--ui-font); font-size: inherit; font-weight: 700; fill: #fff; text-anchor: middle; }
+  .photo-fig .arrow { fill: none; stroke: #fff; stroke-width: 3; stroke-linecap: round; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.6)); }
+  .photo-fig .arrow.wide { stroke-width: 6; }
+  .photo-fig .dot { fill: #22b8cf; stroke: #fff; stroke-width: 3; }
+  .photo-fig .dot.big { stroke-width: 5; }
+  .step-shadow { opacity: 0.06; transform-box: fill-box; transform-origin: center; transform: scale(0.55); transition: all 0.6s ease; }
+  .down .step-shadow { opacity: 0.16; transform: scale(1); }
+  .moro-hand { transform-box: fill-box; transform-origin: center; }
+  .moro .moro-hand { animation: spread 1.8s ease-out; }
+  @keyframes spread { 20%, 45% { transform: scale(1.35); } }
+  #root-head, #root-face { transition: transform 0.45s cubic-bezier(.4,1.4,.6,1); }
+  #root-mouth { transform-box: fill-box; transform-origin: center; transition: transform 0.3s; }
+  .root-hit { cursor: pointer; }
+  #babinski-svg { cursor: pointer; }
   .finger { transform-box: view-box; transition: transform 0.35s cubic-bezier(.5,1.6,.6,1); }
   .leg-thigh, .leg-shin { transform-box: view-box; }
   .stepping .leg-a .leg-thigh { animation: thigh 1.1s ease-in-out infinite; }
@@ -1272,70 +1288,122 @@
       <p>תינוקות נולדים עם "ערכת רפלקסים" מוכנה מראש: לאחוז, לחפש את השד, לינוק, "ללכת". כשהמוח הגדול מתבגר הוא מתחיל <b>לרסן</b> אותם, והם נעלמים בגיל צפוי. לכן רופאי ילדים בודקים אותם: רפלקס שחסר בזמן, או רפלקס ש"נתקע" יותר מדי זמן, הוא סימן לבדוק את התפתחות מערכת העצבים.</p>
     </div>
 
+    <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+      <defs>
+        <linearGradient id="bb-skin" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FAD9BC"/><stop offset="1" stop-color="#EDB28C"/></linearGradient>
+        <linearGradient id="bb-finger" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#EBAE88"/><stop offset="0.45" stop-color="#FADCC1"/><stop offset="1" stop-color="#F0BD98"/></linearGradient>
+        <radialGradient id="bb-palm" cx="0.5" cy="0.45" r="0.6"><stop offset="0" stop-color="#FBDEC6"/><stop offset="1" stop-color="#ECAE87"/></radialGradient>
+        <radialGradient id="bb-head" cx="0.4" cy="0.35" r="0.75"><stop offset="0" stop-color="#FCE2CA"/><stop offset="1" stop-color="#EAAB84"/></radialGradient>
+        <linearGradient id="bb-adult" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#DDA77E"/><stop offset="1" stop-color="#BE8459"/></linearGradient>
+        <linearGradient id="bb-onesie" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#C4DFF9"/><stop offset="1" stop-color="#93BDEC"/></linearGradient>
+        <pattern id="bb-dots" width="24" height="24" patternUnits="userSpaceOnUse"><circle cx="6" cy="6" r="3" fill="#F2C566" opacity="0.55"/><circle cx="18" cy="18" r="3" fill="#F2C566" opacity="0.55"/></pattern>
+      </defs>
+    </svg>
+
     <div class="baby-grid">
       <div class="baby-card">
         <h3>✊ רפלקס האחיזה <small>עד גיל 5–6 חודשים</small></h3>
         <svg class="scene" id="grasp-svg" viewBox="0 0 360 300" role="img" aria-label="כף יד של תינוק ואצבע של מבוגר">
-          <g id="grasp-hand">
-            <rect x="138" y="232" width="84" height="90" rx="30" fill="var(--skin)" stroke="var(--skin-line)" stroke-width="1.5"/>
-            <rect x="128" y="276" width="104" height="40" rx="10" fill="#bfdbfe"/>
-            <rect x="118" y="150" width="124" height="110" rx="46" fill="var(--skin)" stroke="var(--skin-line)" stroke-width="1.5"/>
-            <path d="M138,196 Q180,214 226,190 M146,226 Q180,236 214,222" fill="none" stroke="var(--skin-2)" stroke-width="2.5" stroke-linecap="round"/>
+          <rect width="360" height="300" fill="#FFF5EC"/>
+          <circle cx="180" cy="178" r="120" fill="#FDE5D0"/>
+          <g id="grasp-hand" class="bb-shadow">
+            <rect x="146" y="226" width="68" height="70" rx="26" fill="url(#bb-skin)"/>
+            <rect x="126" y="266" width="108" height="44" rx="12" fill="#9CC3EE"/>
+            <path d="M126,277 H234 M126,285 H234" stroke="#80ADE2" stroke-width="2"/>
+            <path d="M124,198 C120,160 140,146 180,146 C222,146 240,160 236,198 C234,238 214,260 180,260 C146,260 126,238 124,198 Z" fill="url(#bb-palm)"/>
+            <path d="M140,202 Q180,216 222,194 M150,230 Q182,240 212,224" fill="none" stroke="#D99872" stroke-width="2" stroke-linecap="round" opacity="0.7"/>
             <g id="adult-finger" transform="translate(330,70)">
-              <rect x="0" y="-18" width="320" height="36" rx="18" fill="var(--adult)" stroke="#8a5a3c" stroke-width="1.5"/>
-              <path d="M18,-10 Q12,0 18,10" fill="none" stroke="#8a5a3c" stroke-width="1.5"/>
+              <rect x="0" y="-19" width="320" height="38" rx="19" fill="url(#bb-adult)"/>
+              <rect x="5" y="-12" width="24" height="24" rx="9" fill="#F1D3BE" opacity="0.85"/>
+              <path d="M62,-12 q-4,12 0,24 M70,-12 q-4,12 0,24" fill="none" stroke="#A86F47" stroke-width="1.4" opacity="0.6"/>
             </g>
             <g id="grasp-fingers">
-              <rect class="finger" x="123" y="96" width="26" height="74" rx="13" fill="var(--skin)" stroke="var(--skin-line)" stroke-width="1.5" style="transform-origin:136px 160px"/>
-              <rect class="finger" x="153" y="86" width="26" height="84" rx="13" fill="var(--skin)" stroke="var(--skin-line)" stroke-width="1.5" style="transform-origin:166px 160px"/>
-              <rect class="finger" x="183" y="90" width="26" height="80" rx="13" fill="var(--skin)" stroke="var(--skin-line)" stroke-width="1.5" style="transform-origin:196px 160px"/>
-              <rect class="finger" x="213" y="104" width="26" height="66" rx="13" fill="var(--skin)" stroke="var(--skin-line)" stroke-width="1.5" style="transform-origin:226px 160px"/>
-              <rect class="finger thumb" x="99" y="170" width="26" height="66" rx="13" fill="var(--skin)" stroke="var(--skin-line)" stroke-width="1.5" style="transform-origin:112px 232px; transform: rotate(-35deg)"/>
+              <g class="finger" style="transform-origin:136px 160px">
+                <rect x="123" y="96" width="26" height="76" rx="13" fill="url(#bb-finger)"/>
+                <path d="M128,120 q8,3 16,0 M128,141 q8,3 16,0" fill="none" stroke="#D99872" stroke-width="1.5" stroke-linecap="round"/>
+                <ellipse cx="136" cy="106" rx="7.5" ry="6.5" fill="#FCE6D8"/>
+              </g>
+              <g class="finger" style="transform-origin:166px 160px">
+                <rect x="153" y="86" width="26" height="86" rx="13" fill="url(#bb-finger)"/>
+                <path d="M158,114 q8,3 16,0 M158,138 q8,3 16,0" fill="none" stroke="#D99872" stroke-width="1.5" stroke-linecap="round"/>
+                <ellipse cx="166" cy="96" rx="7.5" ry="6.5" fill="#FCE6D8"/>
+              </g>
+              <g class="finger" style="transform-origin:196px 160px">
+                <rect x="183" y="90" width="26" height="82" rx="13" fill="url(#bb-finger)"/>
+                <path d="M188,117 q8,3 16,0 M188,139 q8,3 16,0" fill="none" stroke="#D99872" stroke-width="1.5" stroke-linecap="round"/>
+                <ellipse cx="196" cy="100" rx="7.5" ry="6.5" fill="#FCE6D8"/>
+              </g>
+              <g class="finger" style="transform-origin:226px 160px">
+                <rect x="213" y="104" width="26" height="68" rx="13" fill="url(#bb-finger)"/>
+                <path d="M218,125 q8,3 16,0 M218,143 q8,3 16,0" fill="none" stroke="#D99872" stroke-width="1.5" stroke-linecap="round"/>
+                <ellipse cx="226" cy="114" rx="7.5" ry="6.5" fill="#FCE6D8"/>
+              </g>
+              <g class="finger thumb" style="transform-origin:112px 232px; transform: rotate(-35deg)">
+                <rect x="99" y="170" width="26" height="66" rx="13" fill="url(#bb-finger)"/>
+                <path d="M104,204 q8,3 16,0" fill="none" stroke="#D99872" stroke-width="1.5" stroke-linecap="round"/>
+                <ellipse cx="112" cy="180" rx="7.5" ry="6.5" fill="#FCE6D8"/>
+              </g>
             </g>
           </g>
         </svg>
         <div class="rx-msg" id="grasp-msg">הכניסו את "האצבע" לכף היד של התינוק. אחרי שנתפסה, נסו להרים.</div>
-        <p><b>איך בודקים:</b> מניחים אצבע בכף היד של התינוק ולוחצים קלות. <b>תקין:</b> האצבעות נסגרות חזק סביב האצבע. האחיזה חזקה כל כך שאפשר כמעט להרים איתה את התינוק (לא מנסים בבית!). יש גם אחיזה דומה בכף הרגל, שנעלמת רק בגיל שנה בערך.</p>
-        <figure class="rx-fig" style="margin-top:0">
-          <img src="assets/reflexes/grasp.jpg" alt="תינוק אוחז חזק באצבע של מבוגר" loading="lazy" style="max-height:260px;object-fit:cover">
-          <figcaption>אחיזה אמיתית. Mattes, ויקישיתוף, נחלת הכלל</figcaption>
+        <figure class="rx-fig lbl-fig photo-fig">
+          <svg viewBox="0 0 960 640" role="img" aria-label="יד של תינוק אוחזת חזק באצבע של מבוגר">
+            <image href="assets/reflexes/grasp-bw.jpg" width="960" height="640"/>
+            <g class="tag" style="font-size:30px"><rect x="40" y="556" width="420" height="56" rx="16"/><text x="250" y="594">אצבעות קטנות, אחיזה חזקה</text></g>
+          </svg>
+          <figcaption>Rlunaro, ויקישיתוף, CC BY-SA 4.0</figcaption>
         </figure>
+        <p><b>איך בודקים:</b> מניחים אצבע בכף היד של התינוק ולוחצים קלות. <b>תקין:</b> האצבעות נסגרות חזק סביב האצבע, כל כך חזק שכמעט אפשר להרים כך את התינוק (לא מנסים בבית!). יש גם אחיזה דומה בכף הרגל, שנעלמת רק בגיל שנה בערך.</p>
       </div>
 
       <div class="baby-card">
         <h3>🚶 רפלקס ההליכה <small>עד גיל חודשיים בערך</small></h3>
         <svg class="scene" id="step-svg" viewBox="0 0 360 320" role="img" aria-label="תינוק מוחזק מעל הרצפה">
-          <line class="floor" x1="0" y1="300" x2="360" y2="300"/>
+          <rect width="360" height="320" fill="#EEF5FF"/>
+          <circle cx="304" cy="58" r="28" fill="#FFE7A1" opacity="0.8"/>
+          <rect x="0" y="298" width="360" height="22" fill="#E8D3B6"/>
+          <line class="floor" x1="0" y1="298" x2="360" y2="298" style="stroke:#C9A57D"/>
+          <ellipse class="step-shadow" cx="194" cy="300" rx="36" ry="5" fill="#5b3b1c"/>
           <g class="step-baby" id="step-baby" style="transform: translateY(-50px)">
-            <line x1="164" y1="118" x2="84" y2="-20" stroke="var(--adult)" stroke-width="22" stroke-linecap="round"/>
+            <path d="M50,-30 Q96,64 150,106" fill="none" stroke="#5B7FCB" stroke-width="26" stroke-linecap="round"/>
+            <ellipse cx="156" cy="118" rx="15" ry="12" fill="url(#bb-adult)"/>
             <g class="leg-b">
               <g class="leg-thigh" style="transform-origin:182px 196px">
-                <line x1="182" y1="196" x2="190" y2="240" stroke="var(--skin-2)" stroke-width="18" stroke-linecap="round"/>
+                <line x1="182" y1="196" x2="190" y2="240" stroke="#E2A57E" stroke-width="20" stroke-linecap="round"/>
                 <g class="leg-shin" style="transform-origin:190px 240px">
-                  <line x1="190" y1="240" x2="184" y2="280" stroke="var(--skin-2)" stroke-width="15" stroke-linecap="round"/>
-                  <line x1="184" y1="285" x2="204" y2="287" stroke="var(--skin-2)" stroke-width="11" stroke-linecap="round"/>
+                  <line x1="190" y1="240" x2="185" y2="276" stroke="#E2A57E" stroke-width="16" stroke-linecap="round"/>
+                  <path d="M177,286 q0,-10 10,-10 q14,0 22,5 q5,5 -2,8 l-26,1 q-5,0 -4,-4 z" fill="#E2A57E"/>
                 </g>
               </g>
             </g>
-            <rect x="158" y="104" width="50" height="100" rx="24" fill="var(--skin)" stroke="var(--skin-line)" stroke-width="1.5"/>
-            <rect x="156" y="166" width="54" height="42" rx="16" fill="#fff" stroke="#cbd5e1" stroke-width="1.5"/>
+            <path d="M158,104 C154,140 154,172 160,198 C170,216 198,216 208,198 C213,172 213,140 208,104 C196,94 170,94 158,104 Z" fill="url(#bb-onesie)"/>
+            <path d="M166,104 q17,10 34,0" fill="none" stroke="#7FAAE0" stroke-width="3" stroke-linecap="round"/>
+            <circle cx="184" cy="138" r="2.6" fill="#fff"/><circle cx="184" cy="158" r="2.6" fill="#fff"/><circle cx="184" cy="178" r="2.6" fill="#fff"/>
             <g class="leg-a">
               <g class="leg-thigh" style="transform-origin:182px 196px">
-                <line x1="182" y1="196" x2="190" y2="240" stroke="var(--skin)" stroke-width="18" stroke-linecap="round"/>
+                <line x1="182" y1="196" x2="190" y2="240" stroke="#F3C49F" stroke-width="20" stroke-linecap="round"/>
                 <g class="leg-shin" style="transform-origin:190px 240px">
-                  <line x1="190" y1="240" x2="184" y2="280" stroke="var(--skin)" stroke-width="15" stroke-linecap="round"/>
-                  <line x1="184" y1="285" x2="204" y2="287" stroke="var(--skin)" stroke-width="11" stroke-linecap="round"/>
+                  <line x1="190" y1="240" x2="185" y2="276" stroke="#F3C49F" stroke-width="16" stroke-linecap="round"/>
+                  <path d="M177,286 q0,-10 10,-10 q14,0 22,5 q5,5 -2,8 l-26,1 q-5,0 -4,-4 z" fill="#F3C49F"/>
                 </g>
               </g>
             </g>
-            <line x1="184" y1="122" x2="200" y2="166" stroke="var(--skin)" stroke-width="12" stroke-linecap="round"/>
-            <circle cx="184" cy="70" r="34" fill="var(--skin)" stroke="var(--skin-line)" stroke-width="1.5"/>
-            <path d="M172,38 q10,-12 18,0" fill="none" stroke="#7c5a3c" stroke-width="3" stroke-linecap="round"/>
-            <circle cx="172" cy="74" r="7" fill="var(--skin-2)"/>
-            <circle cx="204" cy="66" r="3.5" fill="#1f2937"/>
-            <path d="M200,86 q6,5 12,-1" fill="none" stroke="#9a3412" stroke-width="2.5" stroke-linecap="round"/>
-            <ellipse cx="204" cy="120" rx="14" ry="10" fill="var(--adult)"/>
-            <line x1="204" y1="118" x2="290" y2="-20" stroke="var(--adult)" stroke-width="22" stroke-linecap="round"/>
+            <line x1="186" y1="122" x2="202" y2="164" stroke="#F3C49F" stroke-width="13" stroke-linecap="round"/>
+            <circle cx="204" cy="170" r="8" fill="url(#bb-skin)"/>
+            <ellipse cx="172" cy="76" rx="8" ry="10" fill="#EBAE88"/>
+            <circle cx="188" cy="68" r="38" fill="url(#bb-head)"/>
+            <ellipse cx="174" cy="76" rx="6" ry="8" fill="#EBAE88"/>
+            <path d="M178,72 q-4,4 0,8" fill="none" stroke="#D99872" stroke-width="2" stroke-linecap="round"/>
+            <path d="M160,46 q10,-22 34,-22 q20,0 30,14" fill="none" stroke="#8B5E3C" stroke-width="4" stroke-linecap="round"/>
+            <path d="M190,28 q8,-8 2,-16" fill="none" stroke="#8B5E3C" stroke-width="3" stroke-linecap="round"/>
+            <path d="M204,62 q6,-6 12,0" fill="none" stroke="#3B2A20" stroke-width="2.6" stroke-linecap="round"/>
+            <ellipse cx="210" cy="82" rx="9" ry="6" fill="#F6A39A" opacity="0.55"/>
+            <path d="M224,68 q5,4 0,8" fill="none" stroke="#D99872" stroke-width="2" stroke-linecap="round"/>
+            <path d="M208,92 q7,5 13,-1" fill="none" stroke="#B4533C" stroke-width="2.5" stroke-linecap="round"/>
+            <path d="M320,-30 Q280,70 216,108" fill="none" stroke="#6E92DE" stroke-width="26" stroke-linecap="round"/>
+            <ellipse cx="206" cy="120" rx="16" ry="12" fill="url(#bb-adult)"/>
+            <path d="M195,115 h20 M195,122 h20" stroke="#A86F47" stroke-width="1.4" opacity="0.5"/>
           </g>
         </svg>
         <div class="rx-row"><button class="small-btn" id="step-btn">⬇️ הניחו את כפות הרגליים על הרצפה</button></div>
@@ -1346,28 +1414,48 @@
       <div class="baby-card">
         <h3>😱 רפלקס מורו (הבהלה) <small>עד גיל 4–6 חודשים</small></h3>
         <svg class="scene" id="moro-svg" viewBox="0 0 360 260" role="img" aria-label="תינוק שוכב על הגב">
-          <rect x="60" y="20" width="240" height="230" rx="30" fill="#fde68a" opacity="0.45"/>
-          <g class="moro-leg l" style="transform-origin:168px 196px"><line x1="168" y1="196" x2="158" y2="244" stroke="var(--skin)" stroke-width="18" stroke-linecap="round"/></g>
-          <g class="moro-leg r" style="transform-origin:192px 196px"><line x1="192" y1="196" x2="202" y2="244" stroke="var(--skin)" stroke-width="18" stroke-linecap="round"/></g>
-          <g class="moro-arm l" style="transform-origin:150px 118px"><line x1="150" y1="118" x2="136" y2="174" stroke="var(--skin)" stroke-width="14" stroke-linecap="round"/><circle cx="134" cy="184" r="10" fill="var(--skin)" stroke="var(--skin-line)"/></g>
-          <g class="moro-arm r" style="transform-origin:210px 118px"><line x1="210" y1="118" x2="224" y2="174" stroke="var(--skin)" stroke-width="14" stroke-linecap="round"/><circle cx="226" cy="184" r="10" fill="var(--skin)" stroke="var(--skin-line)"/></g>
-          <ellipse cx="180" cy="152" rx="38" ry="56" fill="#bfdbfe" stroke="#93c5fd" stroke-width="2"/>
-          <circle cx="180" cy="74" r="34" fill="var(--skin)" stroke="var(--skin-line)" stroke-width="1.5"/>
-          <g class="moro-closed" fill="none" stroke="#1f2937" stroke-width="2.5" stroke-linecap="round">
-            <path d="M162,72 q6,5 12,0 M186,72 q6,5 12,0"/><path d="M174,90 q6,4 12,0"/>
+          <rect width="360" height="260" fill="#FFF8E8"/>
+          <rect x="46" y="12" width="268" height="240" rx="30" fill="#FDE8BA"/>
+          <rect x="46" y="12" width="268" height="240" rx="30" fill="url(#bb-dots)"/>
+          <g class="moro-leg l" style="transform-origin:168px 198px"><line x1="168" y1="198" x2="156" y2="238" stroke="#F3C49F" stroke-width="20" stroke-linecap="round"/><ellipse cx="154" cy="246" rx="9" ry="7" fill="#F3C49F"/></g>
+          <g class="moro-leg r" style="transform-origin:192px 198px"><line x1="192" y1="198" x2="204" y2="238" stroke="#F3C49F" stroke-width="20" stroke-linecap="round"/><ellipse cx="206" cy="246" rx="9" ry="7" fill="#F3C49F"/></g>
+          <g class="moro-arm l" style="transform-origin:148px 118px">
+            <line x1="148" y1="118" x2="134" y2="170" stroke="#F3C49F" stroke-width="15" stroke-linecap="round"/>
+            <g class="moro-hand"><ellipse cx="124" cy="190" rx="3" ry="5" fill="#F3C49F"/><ellipse cx="130" cy="193" rx="3" ry="5" fill="#F3C49F"/><ellipse cx="137" cy="192" rx="3" ry="5" fill="#F3C49F"/><ellipse cx="142" cy="187" rx="3" ry="5" fill="#F3C49F"/><circle cx="132" cy="181" r="10" fill="url(#bb-skin)"/></g>
+          </g>
+          <g class="moro-arm r" style="transform-origin:212px 118px">
+            <line x1="212" y1="118" x2="226" y2="170" stroke="#F3C49F" stroke-width="15" stroke-linecap="round"/>
+            <g class="moro-hand"><ellipse cx="218" cy="187" rx="3" ry="5" fill="#F3C49F"/><ellipse cx="223" cy="192" rx="3" ry="5" fill="#F3C49F"/><ellipse cx="230" cy="193" rx="3" ry="5" fill="#F3C49F"/><ellipse cx="236" cy="190" rx="3" ry="5" fill="#F3C49F"/><circle cx="228" cy="181" r="10" fill="url(#bb-skin)"/></g>
+          </g>
+          <ellipse cx="180" cy="152" rx="40" ry="58" fill="url(#bb-onesie)"/>
+          <path d="M160,102 q20,12 40,0" fill="none" stroke="#7FAAE0" stroke-width="3" stroke-linecap="round"/>
+          <polygon points="180,138 183,146 192,146 185,151 188,160 180,155 172,160 175,151 168,146 177,146" fill="#fff" opacity="0.75"/>
+          <circle cx="145" cy="76" r="9" fill="#EBAE88"/><circle cx="215" cy="76" r="9" fill="#EBAE88"/>
+          <circle cx="180" cy="72" r="36" fill="url(#bb-head)"/>
+          <path d="M168,40 q12,-12 24,0" fill="none" stroke="#8B5E3C" stroke-width="3" stroke-linecap="round"/>
+          <ellipse cx="160" cy="86" rx="7" ry="5" fill="#F6A39A" opacity="0.5"/><ellipse cx="200" cy="86" rx="7" ry="5" fill="#F6A39A" opacity="0.5"/>
+          <g class="moro-closed" fill="none" stroke="#3B2A20" stroke-width="2.6" stroke-linecap="round">
+            <path d="M160,70 q7,6 14,0 M186,70 q7,6 14,0"/><path d="M172,92 q8,6 16,0"/>
           </g>
           <g class="moro-open">
-            <circle cx="168" cy="70" r="6" fill="#fff" stroke="#1f2937" stroke-width="2"/><circle cx="168" cy="70" r="3" fill="#1f2937"/>
-            <circle cx="192" cy="70" r="6" fill="#fff" stroke="#1f2937" stroke-width="2"/><circle cx="192" cy="70" r="3" fill="#1f2937"/>
-            <ellipse cx="180" cy="92" rx="7" ry="6" fill="#9a3412"/>
+            <path d="M158,58 q8,-6 16,0 M186,58 q8,-6 16,0" fill="none" stroke="#8B5E3C" stroke-width="2.5" stroke-linecap="round"/>
+            <circle cx="167" cy="70" r="6.5" fill="#fff" stroke="#3B2A20" stroke-width="1.6"/><circle cx="167" cy="70" r="3.3" fill="#3B2A20"/>
+            <circle cx="193" cy="70" r="6.5" fill="#fff" stroke="#3B2A20" stroke-width="1.6"/><circle cx="193" cy="70" r="3.3" fill="#3B2A20"/>
+            <ellipse cx="180" cy="94" rx="8" ry="7" fill="#9A3412"/>
+            <path d="M152,80 q-3,6 0,9 q3,-3 0,-9 z" fill="#7DD3FC"/>
           </g>
         </svg>
         <div class="rx-row"><button class="small-btn" id="moro-btn">💥 בום! רעש פתאומי</button></div>
-        <p><b>איך בודקים:</b> הרופא תומך בראש ובגב של התינוק ונותן לראש "ליפול" כמה סנטימטרים אחורה לתוך היד שלו. <b>תקין:</b> הידיים נפתחות לצדדים, האצבעות נפרשות, ואז הידיים חוזרות פנימה כמו חיבוק. לפעמים זה נגמר בבכי. תגובה חלשה רק בצד אחד יכולה לרמז על פגיעה בכתף או ביד.</p>
-        <figure class="rx-fig" style="margin-top:0">
-          <img src="assets/reflexes/moro.jpg" alt="תינוק שוכב בעריסה עם ידיים פרושות לצדדים" loading="lazy">
-          <figcaption>תינוק באמצע רפלקס מורו. tawamie, ויקישיתוף, CC BY-SA 3.0</figcaption>
+        <figure class="rx-fig lbl-fig photo-fig">
+          <svg viewBox="0 0 500 375" role="img" aria-label="תינוק שוכב בעריסה עם ידיים פרושות לצדדים">
+            <image href="assets/reflexes/moro.jpg" width="500" height="375"/>
+            <g class="tag" style="font-size:19px"><rect x="250" y="24" width="230" height="40" rx="12"/><text x="365" y="51">הידיים נפתחות לצדדים</text></g>
+            <path class="arrow" d="M330,64 L390,140"/><circle class="dot" cx="392" cy="144" r="6"/>
+            <path class="arrow" d="M300,64 L400,286"/><circle class="dot" cx="402" cy="290" r="6"/>
+          </svg>
+          <figcaption>tawamie, ויקישיתוף, CC BY-SA 3.0</figcaption>
         </figure>
+        <p><b>איך בודקים:</b> הרופא תומך בראש ובגב של התינוק ונותן לראש "ליפול" כמה סנטימטרים אחורה לתוך היד שלו. <b>תקין:</b> הידיים נפתחות לצדדים, האצבעות נפרשות, ואז הידיים חוזרות פנימה כמו חיבוק. לפעמים זה נגמר בבכי. תגובה חלשה רק בצד אחד יכולה לרמז על פגיעה בכתף או ביד.</p>
       </div>
 
       <div class="baby-card">
@@ -1380,19 +1468,23 @@
           </div>
         </div>
         <svg class="scene" id="babinski-svg" viewBox="0 0 400 230" role="img" aria-label="כף רגל במבט מהצד">
-          <line x1="112" y1="-10" x2="120" y2="110" stroke="var(--skin)" stroke-width="54" stroke-linecap="round"/>
-          <path d="M84,112 Q58,176 102,182 L296,178 Q314,176 314,162 Q310,142 280,136 Q206,122 156,104 L132,92 Z" fill="var(--skin)" stroke="var(--skin-line)" stroke-width="1.5"/>
+          <rect width="400" height="230" fill="#F5F3FF"/>
+          <path d="M88,-10 L150,-10 L152,92 Q150,112 134,118 L102,118 Q88,108 88,92 Z" fill="url(#bb-skin)"/>
+          <path d="M84,104 Q56,148 72,174 Q82,188 110,186 L294,182 Q316,180 316,164 Q314,146 290,138 Q238,126 196,112 Q166,102 150,92 Z" fill="url(#bb-skin)"/>
+          <path d="M104,184 Q200,176 292,180" fill="none" stroke="#E3A57F" stroke-width="3" opacity="0.6" stroke-linecap="round"/>
+          <ellipse cx="136" cy="108" rx="9" ry="6" fill="#E9AB84" opacity="0.5"/>
           <g id="toe-fan" opacity="0">
-            <ellipse cx="324" cy="176" rx="17" ry="8" fill="var(--skin-2)" stroke="var(--skin-line)" transform="rotate(18 306 172)"/>
-            <ellipse cx="326" cy="170" rx="17" ry="8" fill="var(--skin-2)" stroke="var(--skin-line)" transform="rotate(6 306 168)"/>
+            <ellipse cx="324" cy="178" rx="17" ry="8" fill="#EBB28C" transform="rotate(18 306 172)"/>
+            <ellipse cx="326" cy="171" rx="17" ry="8" fill="#EBB28C" transform="rotate(6 306 168)"/>
           </g>
           <g class="toe" id="toe-small" style="transform-origin:302px 164px">
-            <ellipse cx="324" cy="168" rx="20" ry="9" fill="var(--skin-2)" stroke="var(--skin-line)"/>
+            <ellipse cx="322" cy="170" rx="19" ry="9" fill="#EDB58F"/>
           </g>
           <g class="toe" id="toe-big" style="transform-origin:302px 154px">
-            <rect x="298" y="141" width="52" height="25" rx="12.5" fill="var(--skin)" stroke="var(--skin-line)" stroke-width="1.5"/>
-            <rect x="334" y="142" width="13" height="8" rx="3" fill="var(--bone)"/>
+            <rect x="298" y="140" width="52" height="26" rx="13" fill="url(#bb-skin)"/>
+            <rect x="334" y="141" width="13" height="9" rx="4" fill="#FCE6D8"/>
           </g>
+          <line id="bab-trail" x1="100" y1="192" x2="100" y2="192" stroke="#0e7490" stroke-width="3" stroke-dasharray="5 6" stroke-linecap="round"/>
           <g id="stick" transform="translate(100,190)" style="display:none">
             <line x1="0" y1="0" x2="-30" y2="44" stroke="#64748b" stroke-width="5" stroke-linecap="round"/>
             <circle r="4" fill="#334155"/>
@@ -1401,7 +1493,77 @@
         </svg>
         <div class="rx-row"><button class="small-btn" id="babinski-btn">✏️ גרדו את הסוליה</button></div>
         <div class="rx-msg" id="babinski-msg">בחרו את הנבדק וגרדו את הסוליה.</div>
+        <div class="rx-figs">
+          <figure class="rx-fig lbl-fig">
+            <svg viewBox="0 0 407 358" role="img" aria-label="איור: גירוד הסוליה. למעלה אצבעות מתכופפות, למטה הבוהן עולה">
+              <image href="assets/reflexes/babinski-drawing.png" width="407" height="358"/>
+              <g class="lbl" style="font-size:15px">
+                <rect x="196" y="144" width="211" height="26"/><text x="300" y="163">מבוגר: האצבעות מתכופפות</text>
+                <rect x="196" y="312" width="211" height="28"/><text x="300" y="332">סימן בבינסקי: הבוהן עולה</text>
+                <text x="44" y="205" class="plain">כיוון הגירוד</text>
+              </g>
+            </svg>
+            <figcaption>Malki ו־Roxbury-de, ויקישיתוף, CC BY-SA 3.0. התוויות תורגמו לעברית.</figcaption>
+          </figure>
+          <figure class="rx-fig lbl-fig photo-fig">
+            <svg viewBox="0 0 640 480" role="img" aria-label="כף רגל של תינוקת: הבוהן מורמת והאצבעות פרושות">
+              <image href="assets/reflexes/babinski-newborn.jpg" width="640" height="480"/>
+              <g class="tag" style="font-size:30px"><rect x="20" y="392" width="280" height="64" rx="16"/><text x="160" y="434">בוהן למעלה</text></g>
+              <path class="arrow" d="M240,392 L470,200"/><circle class="dot" cx="476" cy="194" r="9"/>
+            </svg>
+            <figcaption>תינוקת בת חודש. Medicus of Borg, ויקישיתוף, CC BY-SA 3.0</figcaption>
+          </figure>
+        </div>
         <p><b>איך בודקים:</b> מעבירים חפץ לא חד (למשל קצה הידית של פטיש הרפלקסים) לאורך הצד החיצוני של הסוליה, מהעקב אל האצבעות. <b>אצל מבוגר:</b> האצבעות מתכופפות למטה. <b>אצל תינוק:</b> הבוהן עולה למעלה והאצבעות נפרשות כמו מניפה. אם זה קורה אצל מבוגר, זה סימן לפגיעה במסלול שיורד מהמוח לחוט השדרה.</p>
+      </div>
+
+      <div class="baby-card">
+        <h3>👄 רפלקס החיפוש <small>עד גיל 4 חודשים</small></h3>
+        <svg class="scene" id="root-svg" viewBox="0 0 360 260" role="img" aria-label="פנים של תינוק. לחיצה על לחי מדגימה את רפלקס החיפוש">
+          <rect width="360" height="260" fill="#F4F1FF"/>
+          <ellipse cx="180" cy="246" rx="160" ry="34" fill="#E3DAFA"/>
+          <path d="M96,262 Q180,196 264,262 Z" fill="url(#bb-onesie)"/>
+          <g id="root-head" class="bb-shadow" style="transform-origin:180px 210px">
+            <circle cx="106" cy="134" r="14" fill="#EBAE88"/><circle cx="254" cy="134" r="14" fill="#EBAE88"/>
+            <circle cx="180" cy="128" r="76" fill="url(#bb-head)"/>
+            <path d="M150,60 q14,-20 30,-6 q10,-16 26,2" fill="none" stroke="#8B5E3C" stroke-width="4" stroke-linecap="round"/>
+            <g id="root-face">
+              <path d="M140,120 q12,9 24,0 M196,120 q12,9 24,0" fill="none" stroke="#3B2A20" stroke-width="3" stroke-linecap="round"/>
+              <ellipse cx="136" cy="152" rx="15" ry="10" fill="#F6A39A" opacity="0.5"/><ellipse cx="224" cy="152" rx="15" ry="10" fill="#F6A39A" opacity="0.5"/>
+              <path d="M175,140 q5,7 10,0" fill="none" stroke="#D99872" stroke-width="2.5" stroke-linecap="round"/>
+              <ellipse id="root-mouth" cx="180" cy="170" rx="10" ry="3" fill="#B4533C"/>
+            </g>
+          </g>
+          <g id="root-finger" style="display:none">
+            <rect x="0" y="-16" width="200" height="32" rx="16" fill="url(#bb-adult)"/>
+            <rect x="4" y="-10" width="20" height="20" rx="8" fill="#F1D3BE" opacity="0.85"/>
+          </g>
+          <circle class="root-hit" data-side="-1" cx="136" cy="152" r="38" fill="transparent"/>
+          <circle class="root-hit" data-side="1" cx="224" cy="152" r="38" fill="transparent"/>
+          <text x="180" y="24" text-anchor="middle" class="small">לחצו על אחת הלחיים כדי ללטף אותה</text>
+        </svg>
+        <div class="rx-msg" id="root-msg">לטפו לחי אחת של התינוק וצפו בתגובה.</div>
+        <p><b>איך בודקים:</b> מלטפים בעדינות את הלחי או את זווית הפה. <b>תקין:</b> התינוק מסובב את הראש לכיוון המגע ופותח את הפה. כך הוא מוצא את השד או את הבקבוק, עוד לפני שהוא רואה טוב. אחרי הרפלקס הזה בא <b>רפלקס היניקה</b>: כשמשהו נוגע בחך, התינוק מתחיל לינוק.</p>
+      </div>
+
+      <div class="baby-card">
+        <h3>🤺 רפלקס הסייף <small>עד גיל 6 חודשים בערך</small></h3>
+        <figure class="rx-fig lbl-fig photo-fig" style="margin-top:0">
+          <svg viewBox="0 0 960 815" role="img" aria-label="תינוק שוכב על הגב, הראש פונה לצד, היד בצד הפנים מתוחה והיד השנייה כפופה">
+            <image href="assets/reflexes/atnr.jpg" width="960" height="815"/>
+            <g class="tag" style="font-size:34px">
+              <rect x="640" y="40" width="290" height="64" rx="18"/><text x="785" y="84">הראש פונה לצד</text>
+              <rect x="560" y="560" width="370" height="64" rx="18"/><text x="745" y="604">היד בצד הפנים נמתחת</text>
+              <rect x="30" y="590" width="330" height="64" rx="18"/><text x="195" y="634">היד השנייה מתכופפת</text>
+            </g>
+            <path class="arrow wide" d="M660,104 L590,200"/><circle class="dot big" cx="586" cy="208" r="12"/>
+            <path class="arrow wide" d="M745,560 L745,330"/><circle class="dot big" cx="745" cy="322" r="12"/>
+            <path class="arrow wide" d="M195,590 L190,420"/><circle class="dot big" cx="190" cy="410" r="12"/>
+          </svg>
+          <figcaption>תינוק בן חודשיים. Mjlissner, ויקישיתוף, CC0</figcaption>
+        </figure>
+        <p>שמו המקצועי: <b>רפלקס הצוואר הטוני הא־סימטרי</b> (ATNR).</p>
+        <p><b>איך בודקים:</b> התינוק שוכב על הגב, ומסובבים בעדינות את הראש שלו לצד אחד. <b>תקין:</b> היד (ולפעמים הרגל) בצד שאליו פונות הפנים נמתחת, והיד בצד השני מתכופפת ליד הראש, כמו סייף בעמידת קרב. ייתכן שהרפלקס עוזר לתינוק להתחיל לחבר בין מה שהעיניים רואות לבין היד.</p>
       </div>
     </div>
 
@@ -1436,7 +1598,7 @@
   <div class="rx-pager" id="rx-pager"></div>
 
   <div class="credit">
-    תמונות מוויקישיתוף: <a href="https://commons.wikimedia.org/wiki/File:Greifreflex.JPG" target="_blank" rel="noopener">אחיזה</a> (Mattes, נחלת הכלל) ·
+    תמונות מוויקישיתוף: <a href="https://commons.wikimedia.org/wiki/File:Grasp_reflex_baby.jpg" target="_blank" rel="noopener">אחיזה</a> (Rlunaro, CC BY-SA 4.0) · <a href="https://commons.wikimedia.org/wiki/File:Asymmetrical_tonic_neck_reflex_(ATNR)_at_Two_Months.jpg" target="_blank" rel="noopener">רפלקס הסייף</a> (Mjlissner, CC0) · <a href="https://commons.wikimedia.org/wiki/File:Babinski-newborn.jpg" target="_blank" rel="noopener">בבינסקי בתינוקת</a> (Medicus of Borg, CC BY-SA 3.0) · <a href="https://commons.wikimedia.org/wiki/File:Babinski%27s_sign_(de).png" target="_blank" rel="noopener">איור בבינסקי</a> (Malki, Roxbury-de, CC BY-SA 3.0) ·
     <a href="https://commons.wikimedia.org/wiki/File:Moro_Reflex.JPG" target="_blank" rel="noopener">מורו</a> (tawamie, CC BY-SA 3.0) ·
     <a href="https://commons.wikimedia.org/wiki/File:Pupillary_light_reflex.jpg" target="_blank" rel="noopener">אישונים</a> (Rapidreflex, CC BY-SA 4.0) ·
     <a href="https://commons.wikimedia.org/wiki/File:Reflex_hammer.jpg" target="_blank" rel="noopener">פטיש רפלקסים</a> (Samir, CC BY-SA 3.0) ·
@@ -1444,7 +1606,7 @@
     <a href="https://commons.wikimedia.org/wiki/File:Patellar_reflex-ru.svg" target="_blank" rel="noopener">מסלול רפלקס הברך</a> (Юкатан, CC BY-SA 3.0) ·
     <a href="https://commons.wikimedia.org/wiki/File:Pupil_reflex_pathway.png" target="_blank" rel="noopener">מסלול רפלקס האישון</a> (Broadway DC, CC BY 2.0) ·
     <a href="https://commons.wikimedia.org/wiki/File:Anatomy_and_physiology_of_animals_A_reflex_arc.jpg" target="_blank" rel="noopener">קשת רפלקס</a> (Ruth Lawson, Otago Polytechnic, CC BY 3.0).
-    בשלושת התרשימים האחרונים התוויות תורגמו לעברית.
+    בתרשימים התוויות תורגמו לעברית, ולתמונות נוספו הסברים.
     שאר האיורים וההנפשות צוירו במיוחד לעמוד הזה. המספרים בעמוד הם הערכות לצורך המחשה.
   </div>
 </main>
@@ -1626,7 +1788,7 @@ function toggleFullscreen() {
 
 // ─────────────────────── Sections ───────────────────────
 // Bump when brain.js or reflexes.js change, so browsers never pair a new page with a cached old script
-const ASSET_VERSION = '2026-10-22b';
+const ASSET_VERSION = '2026-10-22c';
 const SECTIONS = ['stroop', 'brain', 'reflex'];
 const HASHES = { stroop: '#', brain: '#brain', reflex: '#reflexes' };
 let section = 'stroop';
