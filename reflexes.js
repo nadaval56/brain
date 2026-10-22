@@ -26,6 +26,41 @@ function say(el, text, kind = '') {
 }
 
 const isVisible = () => !$('section-reflex').hidden;
+// True when the element's sub-page is the one on screen
+const onScreen = el => isVisible() && !el.closest('.rx-page').hidden;
+
+function store(key, value) {
+  try {
+    if (value === undefined) return JSON.parse(localStorage.getItem(key));
+    localStorage.setItem(key, JSON.stringify(value));
+  } catch (e) { /* storage blocked */ }
+  return null;
+}
+
+// ─────────────────────── Sub-pages ───────────────────────
+const PAGES = ['what', 'knee', 'pupil', 'baby', 'quiz'];
+function initPages() {
+  const tabs = $('rx-tabs'), pager = $('rx-pager');
+  const pages = [...document.querySelectorAll('.rx-page')];
+  const label = p => tabs.querySelector(`[data-page="${p}"]`).textContent;
+  const fromHash = () => (PAGES.includes(location.hash.split('/')[1]) ? location.hash.split('/')[1] : 'what');
+
+  function show(p, scroll) {
+    pages.forEach(el => { el.hidden = el.dataset.page !== p; });
+    tabs.querySelectorAll('button').forEach(b => b.classList.toggle('active', b.dataset.page === p));
+    tabs.querySelector('.active').scrollIntoView({ inline: 'nearest', block: 'nearest' });
+    const i = PAGES.indexOf(p), prev = PAGES[i - 1], next = PAGES[i + 1];
+    pager.innerHTML =
+      (prev ? `<button class="small-btn" data-page="${prev}">→ ${label(prev)}</button>` : '<span></span>') +
+      (next ? `<button class="small-btn" data-page="${next}">${label(next)} ←</button>` : '<span></span>');
+    if (location.hash !== '#reflexes/' + p) history.replaceState(null, '', '#reflexes/' + p);
+    if (scroll) window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+  tabs.addEventListener('click', e => { const b = e.target.closest('[data-page]'); if (b) show(b.dataset.page, true); });
+  pager.addEventListener('click', e => { const b = e.target.closest('[data-page]'); if (b) show(b.dataset.page, true); });
+  window.addEventListener('hashchange', () => { if (location.hash.startsWith('#reflexes')) show(fromHash()); });
+  show(fromHash());
+}
 
 // ─────────────────────── Reflex arc (hot stove) ───────────────────────
 function initArc() {
@@ -257,7 +292,7 @@ function initPupils() {
     requestAnimationFrame(frame);
     const dt = Math.min(0.1, (now - last) / 1000);
     last = now;
-    if (!isVisible()) return;
+    if (!onScreen(svg)) return;
     const room = roomIn.value / 100;
     history.push({ t: now, v: targets(room) });
     while (history.length > 1 && history[1].t <= now - LATENCY * 1000) history.shift();
@@ -510,7 +545,7 @@ function initGame() {
 
   pad.addEventListener('pointerdown', e => { e.preventDefault(); press(); });
   document.addEventListener('keydown', e => {
-    if (!isVisible() || e.code !== 'Space' || e.repeat) return;
+    if (!onScreen(pad) || e.code !== 'Space' || e.repeat) return;
     const r = pad.getBoundingClientRect();
     if (r.bottom < 0 || r.top > innerHeight) return; // only while the pad is on screen
     e.preventDefault();
@@ -527,47 +562,180 @@ function initGame() {
   showRuler();
 }
 
-// ─────────────────────── Quiz ───────────────────────
+// ─────────────────────── Classroom labs ───────────────────────
+function initKneeLab() {
+  const box = $('knee-lab'), bars = $('knee-lab-bars'), msg = $('knee-lab-msg');
+  const ROWS = [['normal', 'א׳ רגיל'], ['resist', 'ב׳ מתנגדים'], ['jend', 'ג׳ ינדרשיק']];
+  const KEY = 'rx-knee-lab';
+  let data = store(KEY) || {};
+  const avg = k => {
+    const v = (data[k] || []).filter(x => x != null);
+    return v.length ? v.reduce((a, b) => a + b, 0) / v.length : null;
+  };
+
+  function draw() {
+    box.innerHTML = `<table class="lab-table"><tr><th>ניסוי</th><th>1</th><th>2</th><th>3</th><th>ממוצע</th></tr>` +
+      ROWS.map(([k, name]) => `<tr><td>${name}</td>` +
+        [0, 1, 2].map(i => `<td><button class="lab-cell" data-k="${k}" data-i="${i}">${data[k]?.[i] ?? '–'}</button></td>`).join('') +
+        `<td class="lab-avg">${avg(k) == null ? '–' : avg(k).toFixed(1)}</td></tr>`).join('') + '</table>';
+    bars.innerHTML = ROWS.map(([k, name]) => `
+      <div class="rt-bar ${k === 'jend' ? 'reflex' : 'you'}">
+        <span>${name}</span>
+        <div class="track"><div class="fill" style="width:${((avg(k) || 0) / 3) * 100}%"></div></div>
+        <span class="val">${avg(k) == null ? '–' : avg(k).toFixed(1)}</span>
+      </div>`).join('');
+    const [n, r, j] = ROWS.map(([k]) => avg(k));
+    if (n == null || r == null || j == null) say(msg, 'מלאו את שלושת הניסויים ותראו מה השתנה.');
+    else if (r < n && j > r) say(msg, `כמו בספר: כשהנבדק התנגד הבעיטה ירדה ל־${r.toFixed(1)}, ועם ינדרשיק עלתה ל־${j.toFixed(1)}.`, 'good');
+    else say(msg, 'התוצאות לא כמו בספר? זה קורה! נסו שוב, ושימו לב שהנבדק באמת רפוי בניסוי א׳ ומושך חזק בניסוי ג׳.');
+  }
+  box.addEventListener('click', e => {
+    const b = e.target.closest('.lab-cell');
+    if (!b) return;
+    const row = data[b.dataset.k] || (data[b.dataset.k] = [null, null, null]);
+    const v = row[b.dataset.i];
+    row[b.dataset.i] = v == null ? 0 : v >= 3 ? null : v + 1;
+    store(KEY, data);
+    draw();
+  });
+  $('knee-lab-reset').addEventListener('click', () => { data = {}; store(KEY, data); draw(); });
+  draw();
+}
+
+function initPupilLab() {
+  const box = $('pupil-lab'), gauge = $('pupil-gauge'), msg = $('pupil-lab-msg');
+  const ROWS = [['cover', 'א׳ יד על העין', 'מתחת ליד', 'אחרי שנייה'], ['other', 'ב׳ העין השנייה', 'לפני', 'אחרי'], ['near', 'ג׳ רחוק וקרוב', 'רחוק', 'קרוב']];
+  const KEY = 'rx-pupil-lab';
+  let data = store(KEY) || {}, sel = null;
+
+  gauge.innerHTML = [2, 3, 4, 5, 6, 7, 8].map(mm =>
+    `<button data-mm="${mm}" aria-label="${mm} מילימטר"><i style="width:${mm}mm;height:${mm}mm"></i>${mm} mm</button>`).join('');
+
+  function draw() {
+    box.innerHTML = '<table class="lab-table">' + ROWS.map(([k, name, a, b]) => `
+      <tr><td>${name}</td>
+        <td><button class="lab-cell${sel === k + '0' ? ' sel' : ''}" data-c="${k}0">${data[k + '0'] ? data[k + '0'] + ' mm' : a}</button></td>
+        <td><button class="lab-cell${sel === k + '1' ? ' sel' : ''}" data-c="${k}1">${data[k + '1'] ? data[k + '1'] + ' mm' : b}</button></td>
+      </tr>`).join('') + '</table>';
+  }
+  box.addEventListener('click', e => {
+    const b = e.target.closest('.lab-cell');
+    if (!b) return;
+    sel = b.dataset.c;
+    draw();
+    say(msg, 'עכשיו לחצו על העיגול שהכי דומה לאישון.');
+  });
+  gauge.addEventListener('click', e => {
+    const b = e.target.closest('[data-mm]');
+    if (!b) return;
+    if (!sel) { say(msg, 'קודם בחרו משבצת בטבלה.'); return; }
+    data[sel] = +b.dataset.mm;
+    store(KEY, data);
+    const k = sel.slice(0, -1), row = ROWS.find(r => r[0] === k);
+    const a = data[k + '0'], c = data[k + '1'];
+    if (sel.endsWith('0')) { sel = k + '1'; say(msg, `נרשם. עכשיו "${row[3]}".`); }
+    else {
+      sel = null;
+      say(msg, a && c ? (c < a ? `${row[1]}: האישון הצטמצם מ־${a} ל־${c} מ״מ. 👍` : `${row[1]}: האישון לא הצטמצם (${a} → ${c} מ״מ). נסו שוב, ובדקו מקרוב.`) : 'נרשם.', a && c && c < a ? 'good' : '');
+    }
+    draw();
+  });
+  $('pupil-lab-reset').addEventListener('click', () => { data = {}; sel = null; store(KEY, data); draw(); say(msg, 'בחרו משבצת כדי להתחיל.'); });
+  draw();
+}
+
+// ─────────────────────── Quiz: flip cards ───────────────────────
 const QUIZ = [
-  { q: 'עיטוש כשמשהו מדגדג באף', a: true, why: 'רפלקס. גזע המוח מפעיל אותו כדי לנקות את האף, ואי אפשר באמת לעצור אותו באמצע.' },
-  { q: 'לרכוב על אופניים בלי לחשוב', a: false, why: 'לא רפלקס. זו מיומנות נלמדת שנהייתה אוטומטית. המוח הגדול והמוח הקטן עובדים קשה.' },
-  { q: 'למצמץ כשכדור עף לכיוון הפנים', a: true, why: 'רפלקס הגנה. העפעף נסגר לפני שהספקתם להחליט.' },
-  { q: 'לענות לטלפון כשהוא מצלצל', a: false, why: 'לא רפלקס. שומעים, מזהים ומחליטים, גם אם זה מהיר.' },
-  { q: 'עור ברווז כשקר', a: true, why: 'רפלקס של מערכת העצבים האוטונומית: שרירים זעירים מרימים את השערות.' },
-  { q: 'הכלב של פבלוב מריר כשהוא שומע פעמון', a: true, why: 'כן, אבל מיוחד: "רפלקס מותנה". הכלב למד לקשר את הפעמון לאוכל. רפלקסים רגילים מולדים, ואת זה הוא למד.' },
-  { q: 'שיעול כשמשהו נכנס לקנה הנשימה', a: true, why: 'רפלקס שמגן על הריאות. אפשר גם להשתעל בכוונה, אבל זה כבר לא רפלקס.' },
-  { q: 'לבעוט בכדור שמגיע אליכם במשחק', a: false, why: 'לא רפלקס. רואים, מחשבים ומחליטים. אימון הופך את זה למהיר, אבל זה לא רפלקס.' },
-  { q: 'הפה מתמלא רוק כשאוכל נוגע בלשון', a: true, why: 'רפלקס מולד. הבלוטות מתחילות לעבוד מיד כשמשהו טעים נוגע בלשון.' },
+  { e: '🤧', q: 'עיטוש כשמשהו מדגדג באף', a: true, why: 'גזע המוח מפעיל את העיטוש כדי לנקות את האף, ואי אפשר באמת לעצור אותו באמצע.' },
+  { e: '🚲', q: 'לרכוב על אופניים בלי לחשוב', a: false, why: 'מיומנות נלמדת שנהייתה אוטומטית. המוח הגדול והמוח הקטן עובדים קשה.' },
+  { e: '⚾', q: 'למצמץ כשכדור עף לכיוון הפנים', a: true, why: 'רפלקס הגנה. העפעף נסגר לפני שהספקתם להחליט.' },
+  { e: '📱', q: 'לענות לטלפון כשהוא מצלצל', a: false, why: 'שומעים, מזהים ומחליטים, גם אם זה קורה מהר.' },
+  { e: '🥶', q: 'עור ברווז כשקר', a: true, why: 'רפלקס של מערכת העצבים האוטונומית: שרירים זעירים מרימים את השערות.' },
+  { e: '🐶', q: 'הכלב של פבלוב מריר כשהוא שומע פעמון', a: true, why: 'כן, אבל מיוחד: "רפלקס מותנה". הכלב למד לקשר את הפעמון לאוכל. רפלקס רגיל הוא מולד, ואת זה הוא למד.' },
+  { e: '😷', q: 'שיעול כשמשהו נכנס לקנה הנשימה', a: true, why: 'רפלקס שמגן על הריאות. אפשר גם להשתעל בכוונה, אבל זה כבר לא רפלקס.' },
+  { e: '⚽', q: 'לבעוט בכדור שמגיע אליכם במשחק', a: false, why: 'רואים, מחשבים ומחליטים. אימון הופך את זה למהיר, אבל זה לא רפלקס.' },
+  { e: '👅', q: 'הפה מתמלא רוק כשאוכל נוגע בלשון', a: true, why: 'רפלקס מולד: הבלוטות מתחילות לעבוד מיד כשמשהו נוגע בלשון.' },
+  { e: '🧅', q: 'דמעות כשחותכים בצל', a: true, why: 'חומר מגרה מהבצל מגיע לעין, ובלוטות הדמעות שוטפות אותה אוטומטית.' },
+  { e: '⌨️', q: 'להקליד סיסמה בלי להסתכל על המקלדת', a: false, why: '"זיכרון שריר": תנועה שתרגלתם הרבה פעמים. היא נלמדה, ולכן היא לא רפלקס.' },
+  { e: '😱', q: 'לקפוץ כשמישהו מבהיל אתכם מאחור', a: true, why: 'רפלקס הבהלה. קרוב משפחה בוגר של רפלקס מורו של תינוקות.' },
+  { e: '☀️', q: 'האישונים מצטמצמים כשיוצאים לשמש', a: true, why: 'רפלקס האישון. בדקו בעמוד "האישון" איך הוא עובד.' },
+  { e: '✋', q: 'להרים יד כשהמורה שואלת שאלה', a: false, why: 'החלטה: שומעים, יודעים את התשובה ובוחרים להרים יד.' },
 ];
 function initQuiz() {
-  const box = $('quiz'), score = $('quiz-score');
-  let right = 0, answered = 0;
-  box.innerHTML = QUIZ.map((it, i) => `
-    <div class="q-card" data-i="${i}">
-      <div class="q">${it.q}</div>
-      <div class="ans">
-        <button class="small-btn" data-a="1">⚡ רפלקס</button>
-        <button class="small-btn" data-a="0">🧠 לא רפלקס</button>
-      </div>
-      <div class="why"></div>
-    </div>`).join('');
-  box.querySelectorAll('.q-card').forEach(card => {
+  const box = $('quiz'), score = $('quiz-score'), note = $('quiz-mode-note');
+  let mode = 'play', right = 0, answered = 0, order = [];
+
+  function deal() {
+    order = QUIZ.map((_, i) => i).sort(() => Math.random() - 0.5);
+    right = 0; answered = 0;
+    score.textContent = '';
+    box.innerHTML = order.map(i => {
+      const it = QUIZ[i];
+      return `
+      <div class="flip" data-i="${i}">
+        <div class="flip-inner">
+          <div class="face front" role="button" tabindex="0">
+            <div class="emoji">${it.e}</div>
+            <div class="q">${it.q}</div>
+            <div class="ans">
+              <button class="small-btn" data-a="1">⚡ רפלקס</button>
+              <button class="small-btn" data-a="0">🧠 לא רפלקס</button>
+            </div>
+            <div class="tap">לחצו כדי להפוך</div>
+          </div>
+          <div class="face back ${it.a ? 'yes' : 'no'}">
+            <div class="mark"></div>
+            <div class="verdict">${it.a ? '⚡ כן, זה רפלקס' : '🧠 לא רפלקס'}</div>
+            <div class="why">${it.why}</div>
+            <button class="small-btn back-btn">↩ הפכו חזרה</button>
+          </div>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  box.addEventListener('click', e => {
+    const card = e.target.closest('.flip');
+    if (!card) return;
     const it = QUIZ[+card.dataset.i];
-    card.querySelectorAll('button').forEach(b => b.addEventListener('click', () => {
-      const ok = (b.dataset.a === '1') === it.a;
-      b.classList.add('picked');
-      card.classList.add('done', ok ? 'right' : 'wrong');
-      card.querySelector('.why').textContent = (ok ? '✅ ' : '❌ ') + it.why;
+    if (e.target.closest('.back-btn')) { card.classList.remove('flipped'); return; }
+    const pick = e.target.closest('[data-a]');
+    if (mode === 'play' && pick && !card.dataset.done) {
+      const ok = (pick.dataset.a === '1') === it.a;
+      card.dataset.done = 1;
+      const mark = card.querySelector('.mark');
+      mark.textContent = ok ? '✅ צדקתם!' : '❌ לא הפעם';
+      mark.className = 'mark ' + (ok ? 'right' : 'wrong');
       answered++; if (ok) right++;
       score.textContent = `${right} / ${answered}` + (answered === QUIZ.length ? (right === QUIZ.length ? ' 🏆 מושלם!' : ' סיימתם!') : '');
-    }));
+      card.classList.add('flipped');
+    } else if (mode === 'class' && e.target.closest('.front')) {
+      card.classList.add('flipped');
+    } else if (card.dataset.done && e.target.closest('.front')) {
+      card.classList.add('flipped');
+    }
   });
+  box.addEventListener('keydown', e => {
+    if ((e.key === 'Enter' || e.key === ' ') && mode === 'class' && e.target.classList.contains('front')) {
+      e.preventDefault();
+      e.target.closest('.flip').classList.add('flipped');
+    }
+  });
+  seg($('quiz-mode'), d => {
+    mode = d.mode;
+    box.classList.toggle('class-mode', mode === 'class');
+    note.textContent = mode === 'class'
+      ? 'במצב כיתה אין כפתורים: הכיתה מצביעה, ואז לוחצים על הכרטיס כדי לגלות את התשובה.'
+      : 'במצב משחק עונים בכפתורים וצוברים נקודות.';
+    deal();
+  });
+  $('quiz-shuffle').addEventListener('click', deal);
+  deal();
 }
 
 // ─────────────────────── Init ───────────────────────
 export function initReflexes() {
-  document.querySelectorAll('.rx-nav [data-go]').forEach(b =>
-    b.addEventListener('click', () => $(b.dataset.go).scrollIntoView({ behavior: 'smooth', block: 'start' })));
+  initPages();
   initArc();
   initKnee();
   initPupils();
@@ -577,5 +745,7 @@ export function initReflexes() {
   initBabinski();
   initTimeline();
   initGame();
+  initKneeLab();
+  initPupilLab();
   initQuiz();
 }
