@@ -41,7 +41,7 @@ function store(key, value) {
 const PAGES = ['what', 'knee', 'pupil', 'baby', 'quiz'];
 function initPages() {
   const tabs = $('rx-tabs'), pager = $('rx-pager');
-  const pages = [...document.querySelectorAll('.rx-page')];
+  const pages = [...$('section-reflex').querySelectorAll('.rx-page')];
   const label = p => tabs.querySelector(`[data-page="${p}"]`).textContent;
   const fromHash = () => (PAGES.includes(location.hash.split('/')[1]) ? location.hash.split('/')[1] : 'what');
 
