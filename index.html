@@ -676,29 +676,24 @@
   .vs-white, .vs-board { border-radius: 10px; border: 1px solid var(--border); }
   .vs-board { max-height: 70vh; }
   .vs-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 28px; align-items: start; }
-  .vs-hold {
-    flex: 1; min-width: 200px; height: 52px; border-radius: 12px; border: 2px dashed var(--border-strong);
-    background: var(--surface); color: var(--text-2); font-size: 16px; font-weight: 700; cursor: pointer;
-    touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none;
-  }
-  .vs-hold:disabled { opacity: 0.45; cursor: default; }
-  .vs-hold.active { background: #e11d48; border: 2px solid #e11d48; color: #fff; }
-  .vs-form { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 12px; }
-  .vs-form label { display: flex; flex-direction: column; gap: 4px; font-size: 13px; font-weight: 600; color: var(--muted); }
-  .vs-form input, #fov-table input { font-family: var(--mono); font-size: 15px; text-align: center; color: var(--text); background: var(--surface); }
-  .vs-form input { height: 38px; border: 1px solid var(--border); border-radius: 8px; }
-  .vs-form input:focus, #fov-table input:focus { outline: 2px solid var(--accent); outline-offset: 0; }
-  #fov-table input { cursor: text; }
+  .vs-ill-list { display: flex; flex-direction: column; gap: 18px; }
+  .vs-ill-list svg.scene, .vs-ill-list canvas { max-width: calc(72vh * 2); margin: 0 auto; width: 100%; }
+  .vs-ill-list canvas { height: auto; display: block; border-radius: 10px; border: 1px solid var(--border); }
+  .vs-ill-list .baby-card p, .vs-ill-list details { max-width: 860px; }
+  .vs-legend { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 13px; color: var(--text-2); }
+  .vs-legend i { display: inline-block; width: 18px; height: 4px; border-radius: 2px; background: var(--c); margin-inline-end: 6px; vertical-align: middle; }
+  .vs-legend i.box { width: 12px; height: 12px; border-radius: 3px; border: 1px solid #eab308; }
+  .vs-wide-note { display: none; }
+  @media (max-width: 760px) { .vs-wide-note { display: block; margin-top: 8px; } }
   .vs-key { display: inline-block; width: 11px; height: 11px; border-radius: 3px; background: var(--c); margin-inline-end: 6px; vertical-align: -1px; }
   .vs-answers { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; min-height: 36px; }
   .vs-answers .small-btn { min-width: 76px; justify-content: center; }
   .vs-answers .small-btn:disabled { opacity: 0.5; cursor: default; }
   .vs-ills .baby-card ol { padding-inline-start: 20px; }
   .vs-ills .baby-card li { font-size: 14px; line-height: 1.6; }
-  .vs-ills canvas { width: 100%; height: auto; display: block; border-radius: 10px; border: 1px solid var(--border); }
   .vs-scramble { font-size: 17px !important; line-height: 1.8 !important; color: var(--text) !important; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; user-select: text; }
   @media (max-width: 900px) {
-    .vs-cols, .vs-form { grid-template-columns: 1fr; }
+    .vs-cols { grid-template-columns: 1fr; }
     #vs-video .rx-stage { order: -1; }
   }
   @media (max-width: 480px) {
@@ -1663,7 +1658,6 @@
 
   <nav class="rx-tabs" id="vs-tabs" aria-label="חלקי הנושא">
     <button data-page="blind">🎬 הכתם העיוור</button>
-    <button data-page="test">🎯 מצאו את הכתם שלכם</button>
     <button data-page="field">👀 ראייה היקפית</button>
     <button data-page="illusions">🌀 אשליות</button>
     <button data-page="more">🧩 המוח משלים</button>
@@ -1675,26 +1669,32 @@
   <section class="rx-block" id="vs-video">
     <div class="rx-text">
       <h2>הכתם העיוור <small>Blind spot</small></h2>
-      <p>בכל עין יש מקום אחד שבו <b>אנחנו לא רואים כלום</b>. ובכל זאת, אף פעם לא ראיתם "חור" בעולם. הסרטון מראה איך מוצאים את המקום הזה, ואיך המוח מסתיר אותו מאיתנו.</p>
+      <p>בכל עין יש אזור שלא משמש לראייה: <b>הדיסק האופטי</b>, המכונה גם "הכתם העיוור". אליו מתנקזים עצבי הראייה מכל הרשתית בדרכם אל המוח, ולכן אין בו תאים קולטי אור. בדרך כלל המוח משלים את החלק החסר בעזרת <b>העין השנייה</b>, ולכן אנחנו לא מרגישים בו. בעזרת הסרטון תוכלו להרגיש את החור הזה לכמה שניות.</p>
       <h4>📋 לפני שמתחילים</h4>
       <ul>
         <li>פתחו את הסרטון <b>במסך מלא</b> (⛶ בפינת הנגן) ושבו מול המסך, בגובה העיניים.</li>
-        <li>הכינו יד פנויה כדי לכסות עין, ודאגו שיהיה מקום להתקרב למסך ולהתרחק ממנו.</li>
+        <li>בסרטון יש אנימציה פשוטה: <b>איש שמתקדם לכיוון בית</b>.</li>
       </ul>
-      <h4>▶️ בזמן הסרטון</h4>
-      <ol>
-        <li><b>צפו בהסבר:</b> האור מכל עצם בעולם נופל על נקודה אחרת ברשתית. האור מהבית נופל על המרכז, והאור מהאיש נופל בדיוק על המקום שבו עצב הראייה יוצא מהעין.</li>
-        <li><b>כשמגיעים להדגמה, עצרו את הסרטון</b> (⏸) כדי שיהיה לכם זמן.</li>
-        <li><b>כסו עין אחת</b> בכף היד (לא ללחוץ על העין).</li>
-        <li><b>נעצו מבט בסימן שהסרטון מבקש</b>, ואל תזיזו את העין ממנו גם כשמתחשק "להציץ".</li>
-        <li><b>התקרבו לאט למסך, ואז התרחקו לאט.</b> במרחק מסוים העצם השני <b>ייעלם</b>. התקרבו עוד קצת, והוא יחזור.</li>
-        <li>לא קרה כלום? נסו לכסות את <b>העין השנייה</b>: העצם שנעלם צריך להיות בצד של העין הפקוחה.</li>
-      </ol>
-      <h4>💬 אחרי הסרטון</h4>
+      <h4>👀 שלב 1: שתי עיניים פקוחות</h4>
       <ul>
-        <li>מה ראיתם <b>במקום</b> העצם שנעלם? חור שחור, או רקע לבן?</li>
-        <li>אם במקום הזה אין שום מידע, <b>מי צייר את הרקע הלבן?</b></li>
+        <li>צפו בסרטון כרגיל. האיש מתקדם לאורך כל הדרך עד הבית.</li>
+      </ul>
+      <h4>🙈 שלב 2: עין אחת</h4>
+      <ol>
+        <li>הסרטון יבקש: <b>"כעת, צפו שנית, אך הפעם כסו את עין שמאל ומקדו את עין ימין בבית"</b>.</li>
+        <li>כסו את <b>עין שמאל</b> בכף היד (בלי ללחוץ על העין).</li>
+        <li>הסתכלו <b>רק על הבית</b> עם עין ימין. את האיש תראו "בזווית העין" מתקדם כמו קודם.</li>
+        <li>בנקודה מסוימת בדרך האיש <b>ייעלם</b> לכמה שניות, ואז יחזור. על המסך הוא ממשיך ללכת כל הזמן, אבל אתם לא תראו אותו.</li>
+        <li>אל תזיזו את העין מהבית! מי שמציץ אל האיש, לא יראה אותו נעלם.</li>
+      </ol>
+      <h4>💡 מה קרה כאן?</h4>
+      <p>בסוף הסרטון רואים את ההסבר: בנקודה מסוימת תמונת הבית נופלת על <b>המקולה</b> (מרכז הראייה החד), ותמונת האיש נופלת בדיוק על <b>הכתם העיוור</b>.</p>
+      <h4>💬 שאלות לדיון</h4>
+      <ul>
+        <li>מה ראיתם במקום שבו היה האיש? חור שחור, או את הרקע הלבן?</li>
+        <li>אם באזור הזה אין אף תא קולט אור, <b>מי "צייר" שם רקע?</b></li>
         <li>למה בחיים הרגילים אף פעם לא שמים לב לכתם? (רמז: יש לנו שתי עיניים.)</li>
+        <li>לא בטוחים שזה לא תרגיל? צפו שוב בשתי עיניים, ותראו שהאיש ממשיך להתקדם לאורך כל הסרטון 🙂</li>
       </ul>
     </div>
     <div class="rx-stage">
@@ -1703,8 +1703,8 @@
           allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen"
           referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
       </div>
-      <p class="rx-note">הסרטון לא נטען? <a href="https://youtu.be/QSLmnMoUvj0" target="_blank" rel="noopener">פתחו אותו ביוטיוב</a>. אפשר גם לעשות את אותו ניסוי ישר על המסך בלשונית <a href="#vision/test">🎯 מצאו את הכתם שלכם</a>.</p>
-      <div class="rx-tip"><b>הרעיון החשוב:</b> כשהעצם נעלם, לא רואים חור. המוח לוקח את מה שיש מסביב (הרקע) ו"מורח" אותו לתוך החור. זאת <b>השלמה</b> (filling-in), והיא תחזור בכל הנושא.</div>
+      <p class="rx-note">הסרטון לא נטען? <a href="https://youtu.be/QSLmnMoUvj0" target="_blank" rel="noopener">פתחו אותו ביוטיוב</a>.</p>
+      <div class="rx-tip"><b>הרעיון החשוב:</b> כשהאיש נעלם, לא רואים חור. בדרך כלל המוח משלים את החסר בעזרת העין השנייה. כשהיא מכוסה, הוא לוקח את מה שיש מסביב (הרקע) ו"מורח" אותו לתוך החור. זאת <b>השלמה</b> (filling-in), והיא תחזור בכל הנושא.</div>
     </div>
   </section>
 
@@ -1749,123 +1749,13 @@
           <text x="470" y="30" text-anchor="middle" style="fill:#0f172a;font-weight:600">רשתית</text>
           <path d="M470,36 L470,52" stroke="#0f172a" stroke-width="1.5"/>
           <text x="566" y="126" text-anchor="middle" style="fill:#0f172a;font-weight:600">מרכז הראייה</text>
-          <text x="566" y="142" text-anchor="middle" style="fill:#64748b;font-size:12px">(גומה מרכזית)</text>
+          <text x="566" y="142" text-anchor="middle" style="fill:#64748b;font-size:12px">(מקולה)</text>
           <text x="470" y="282" text-anchor="middle" style="fill:#b45309;font-weight:800">הכתם העיוור</text>
           <path d="M490,268 L508,206" stroke="#b45309" stroke-width="2"/>
           <text x="560" y="256" text-anchor="middle" style="fill:#0f172a;font-weight:600">עצב הראייה ← למוח</text>
         </g>
       </svg>
       <div class="rx-msg">עין ימין במבט מלמעלה. האור מהעצם שבצד (סגול) נופל בדיוק על המקום שבו עצב הראייה יוצא. שם אין תאי חישה, אז את העצם הזה העין לא רואה.</div>
-    </div>
-  </section>
-  </div>
-
-  <div class="rx-page" data-page="test" hidden>
-
-  <!-- ───── On-screen blind spot test ───── -->
-  <section class="rx-block wide" id="vs-bs">
-    <div class="rx-text">
-      <h2>מצאו את הכתם העיוור שלכם</h2>
-      <div class="vs-cols">
-        <ol>
-          <li>בחרו איזו עין בודקים. <b>כסו את העין השנייה</b> ביד.</li>
-          <li>שבו קרוב למסך ו<b>הסתכלו רק על ✚</b> (או על הבית).</li>
-          <li>התרחקו לאט מהמסך, ואז התקרבו לאט. בערך כשהמרחק מהמסך דומה למרחק בין שני הסימנים כפול 3, העצם השני <b>ייעלם</b>.</li>
-        </ol>
-        <div>
-          <p>כל ניסוי מראה משהו אחר: בחלקם נעלם משהו, ובחלקם המוח <b>ממציא</b> משהו שלא קיים.</p>
-          <div class="rx-tip" style="margin-top:6px"><b>חשוב:</b> אסור להזיז את העין מה־✚. ברגע שמציצים, העצם חוזר.</div>
-        </div>
-      </div>
-    </div>
-    <div class="rx-stage">
-      <div class="rx-row">
-        <span class="lbl">עין</span>
-        <div class="seg" id="bs-eye">
-          <button data-eye="R" class="active">👁️ ימין (מכסים שמאל)</button>
-          <button data-eye="L">👁️ שמאל (מכסים ימין)</button>
-        </div>
-        <span class="lbl">ניסוי</span>
-        <div class="seg" id="bs-mode">
-          <button data-mode="dot" class="active">🔴 נקודה</button>
-          <button data-mode="house">🏠 בית ואיש</button>
-          <button data-mode="line">➖ קו שבור</button>
-          <button data-mode="stripes">🦓 פסים</button>
-          <button data-mode="color">🟩 צבע</button>
-        </div>
-      </div>
-      <svg class="scene vs-board" id="bs-svg" viewBox="0 0 820 300" role="img" aria-label="מבחן הכתם העיוור">
-        <defs>
-          <pattern id="bs-stripes" width="22" height="22" patternUnits="userSpaceOnUse" patternTransform="rotate(35)"><rect width="11" height="22" fill="#0f172a"/></pattern>
-        </defs>
-        <rect width="820" height="300" fill="#fff"/>
-        <g id="bs-flip">
-          <g data-mode="stripes" style="display:none"><rect x="300" y="20" width="500" height="260" fill="url(#bs-stripes)"/><circle cx="570" cy="165" r="30" fill="#fff"/></g>
-          <g data-mode="color" style="display:none"><rect x="300" y="20" width="500" height="260" rx="20" fill="#22c55e"/><circle cx="570" cy="165" r="30" fill="#fff"/></g>
-          <g data-mode="line" style="display:none"><path d="M290,165 H538 M602,165 H810" stroke="#2563eb" stroke-width="12" stroke-linecap="round"/></g>
-          <g data-mode="dot"><circle cx="570" cy="165" r="20" fill="#e11d48"/></g>
-          <g data-mode="house" style="display:none">
-            <g transform="translate(570,165)" fill="#0f172a"><circle cx="0" cy="-30" r="12"/><rect x="-12" y="-16" width="24" height="34" rx="8"/><rect x="-11" y="16" width="9" height="28" rx="3"/><rect x="2" y="16" width="9" height="28" rx="3"/></g>
-          </g>
-          <g class="bs-fix"><path d="M120,138 V162 M108,150 H132" stroke="#0f172a" stroke-width="5"/></g>
-          <g data-mode="house" style="display:none">
-            <rect x="70" y="120" width="100" height="85" fill="#e2e8f0" stroke="#334155" stroke-width="3"/>
-            <path d="M58,124 L120,72 L182,124 Z" fill="#dc2626"/>
-            <rect x="92" y="160" width="26" height="45" fill="#2563eb"/>
-          </g>
-        </g>
-      </svg>
-      <div class="rx-msg" id="bs-msg"></div>
-    </div>
-  </section>
-
-  <!-- ───── Blind spot mapper ───── -->
-  <section class="rx-block wide" id="vs-map">
-    <div class="rx-text">
-      <h2>מפת הכתם העיוור <small>ניסוי של כדקה</small></h2>
-      <p>נקודה אדומה תעבור לאט, שורה אחרי שורה. <b>כסו עין</b> (אותה עין כמו למעלה), הסתכלו רק על ה־✚, ו<b>החזיקו את הכפתור לחוץ (או מקש רווח) כל עוד הנקודה נעלמה</b>. כשהיא חוזרת, עזבו. בסוף תופיע הצורה של הכתם שלכם.</p>
-    </div>
-    <div class="rx-stage">
-      <svg class="scene vs-board" id="map-svg" viewBox="0 0 820 440" role="img" aria-label="מיפוי הכתם העיוור">
-        <rect width="820" height="440" fill="#fff"/>
-        <g id="map-flip">
-          <g id="map-result"></g>
-          <path d="M110,148 V172 M98,160 H122" stroke="#0f172a" stroke-width="5"/>
-          <circle id="map-dot" r="9" fill="#e11d48" style="display:none"/>
-        </g>
-      </svg>
-      <div class="rx-row">
-        <button class="btn btn-main" id="map-go">▶ התחלה</button>
-        <button class="vs-hold" id="map-hold" disabled>👆 לחוץ = לא רואה</button>
-        <span class="lbl" id="map-row"></span>
-      </div>
-      <div class="rx-msg" id="map-msg">מוכנים? כסו עין, הסתכלו על ה־✚ ולחצו "התחלה".</div>
-    </div>
-  </section>
-
-  <!-- ───── Paper activity + calculator ───── -->
-  <section class="rx-block" id="vs-paper">
-    <div class="rx-text">
-      <h2>✏️ על דף: כמה גדול הכתם?</h2>
-      <p>בעבודה בזוגות, עם דף לבן, עיפרון וסרגל.</p>
-      <ol>
-        <li>ציירו ✚ קטן בצד שמאל של הדף. הדביקו את הדף לקיר או לשולחן.</li>
-        <li>מכסים את <b>עין שמאל</b> ומניחים את הסנטר כך שהעין הימנית במרחק <b>30 ס״מ</b> מה־✚, בדיוק מולו (בן הזוג מודד עם סרגל).</li>
-        <li>מסתכלים רק על ה־✚. בן הזוג מזיז לאט עט עם קצה שחור מה־✚ ימינה על הדף. כשהקצה נעלם אומרים "עכשיו!" והוא מסמן נקודה. ממשיכים עד שהקצה חוזר, ושוב מסמנים.</li>
-        <li>חוזרים על זה מכמה כיוונים (מלמעלה, מלמטה, באלכסון), ומחברים את הנקודות. זה הכתם שלכם!</li>
-        <li>מודדים בסרגל ומכניסים למחשבון.</li>
-      </ol>
-    </div>
-    <div class="rx-stage">
-      <h4 style="margin:0">מחשבון זוויות</h4>
-      <div class="vs-form">
-        <label>מרחק העין מהדף <input type="number" id="calc-d" min="5" max="200" step="0.5" value="30"> ס״מ</label>
-        <label>מה־✚ עד מרכז הכתם <input type="number" id="calc-a" min="0" max="100" step="0.1" value="8"> ס״מ</label>
-        <label>רוחב הכתם <input type="number" id="calc-w" min="0" max="50" step="0.1" value="2.9"> ס״מ</label>
-        <label>גובה הכתם <input type="number" id="calc-h" min="0" max="50" step="0.1" value="3.9"> ס״מ</label>
-      </div>
-      <div class="rx-msg" id="calc-out"></div>
-      <p class="rx-note">החישוב: זווית = arctan(גודל ÷ מרחק). אצל רוב האנשים מרכז הכתם נמצא בערך 15° מנקודת המבט, ורוחבו בערך 5°–6°. הזווית לא תלויה במרחק מהדף: אם תתרחקו פי 2, גם הכתם על הדף יגדל פי 2.</p>
     </div>
   </section>
   </div>
@@ -1887,49 +1777,20 @@
     </div>
     <div class="rx-stage">
       <svg class="scene" id="density-svg" viewBox="0 0 600 300" role="img" aria-label="צפיפות המדוכים והקנים לאורך הרשתית"></svg>
-      <div class="rx-msg">כמה תאי חישה יש בכל מקום ברשתית (המחשה). המדוכים (צבע ופרטים) צפופים רק במרכז. הקנים (תנועה ואור חלש) ממלאים את השוליים. בכתם העיוור אין אף אחד מהם.</div>
-    </div>
-  </section>
-
-  <!-- ───── Field of view measurement ───── -->
-  <section class="rx-block" id="vs-perimeter">
-    <div class="rx-text">
-      <h2>📐 מודדים את שדה הראייה <small>בזוגות</small></h2>
-      <p><b>צריך:</b> מד זווית גדול (אפשר <a href="#" id="print-protractor">להדפיס מכאן</a>, או לצייר חצי עיגול גדול על בריסטול), עט, ושלושה כרטיסים: כרטיס בצבע חזק, כרטיס עם אות גדולה, וכרטיס עם צורה.</p>
-      <ol>
-        <li>הנבדק יושב, ושם את הסנטר בדיוק במרכז מד הזווית, כשה־0° מולו.</li>
-        <li>הוא <b>מסתכל רק קדימה</b>, על נקודה קבועה בקיר (או על האף של מי שעומד מולו). לא מזיזים עיניים!</li>
-        <li><b>תנועה:</b> הבודק מחזיק עט בגובה העיניים, במרחק כ־50 ס״מ, ומתחיל <b>מאחורי</b> הראש בצד ימין. הוא מזיז אותו לאט קדימה לאורך הקשת ומנענע אותו קלות. הנבדק אומר "עכשיו!" כשהוא רואה תנועה. רושמים את הזווית.</li>
-        <li><b>צבע:</b> אותו דבר עם כרטיס צבעוני (בלי שהנבדק יודע איזה צבע). רושמים את הזווית שבה הוא <b>אומר נכון</b> את הצבע.</li>
-        <li><b>אות:</b> אותו דבר עם כרטיס האות. רושמים כשהוא <b>קורא</b> אותה נכון.</li>
-        <li>חוזרים על הכול בצד שמאל, ומכניסים את התוצאות לטבלה.</li>
-      </ol>
-      <details>
-        <summary>🔁 הרחבה: עין אחת, ומשקפיים</summary>
-        <p>כסו עין אחת ומדדו שוב "תנועה" בשני הצדדים. בצד של העין המכוסה השדה קטן הרבה יותר. מה מסתיר? <b>האף!</b> נסו גם עם משקפיים ובלי: המסגרת "חותכת" את השדה.</p>
-      </details>
-    </div>
-    <div class="rx-stage">
-      <table class="lab-table" id="fov-table">
-        <tr><th></th><th>➡️ ימין</th><th>⬅️ שמאל</th></tr>
-        <tr><td><span class="vs-key" style="--c:#0e7490"></span>תנועה</td><td><input class="lab-cell" type="number" min="0" max="120" data-k="move" data-s="R"></td><td><input class="lab-cell" type="number" min="0" max="120" data-k="move" data-s="L"></td></tr>
-        <tr><td><span class="vs-key" style="--c:#d97706"></span>צבע</td><td><input class="lab-cell" type="number" min="0" max="120" data-k="color" data-s="R"></td><td><input class="lab-cell" type="number" min="0" max="120" data-k="color" data-s="L"></td></tr>
-        <tr><td><span class="vs-key" style="--c:#7c3aed"></span>אות</td><td><input class="lab-cell" type="number" min="0" max="120" data-k="letter" data-s="R"></td><td><input class="lab-cell" type="number" min="0" max="120" data-k="letter" data-s="L"></td></tr>
-      </table>
-      <svg class="scene" id="fov-svg" viewBox="0 0 600 330" role="img" aria-label="שדה הראייה שנמדד, במבט מלמעלה"></svg>
-      <div class="rx-row">
-        <button class="small-btn" id="fov-typical">📊 הראו תוצאות טיפוסיות</button>
-        <button class="small-btn" id="fov-clear">🧹 ניקוי</button>
+      <div class="vs-legend">
+        <span><i style="--c:#d97706"></i><b>מדוכים</b>: צבע ופרטים</span>
+        <span><i style="--c:#7c3aed"></i><b>קנים</b>: תנועה ואור חלש</span>
+        <span><i class="box" style="--c:#fde68a"></i><b>כתם עיוור</b>: אין תאים בכלל</span>
       </div>
-      <div class="rx-msg" id="fov-msg">הכניסו זוויות במעלות (0° = ישר קדימה, 90° = בדיוק בצד).</div>
+      <div class="rx-msg">הגרף מראה כמה תאי חישה יש בכל מקום ברשתית (המחשה). הציר התחתון: כמה מעלות רחוק ממרכז הראייה. המדוכים צפופים רק במרכז, והקנים ממלאים את השוליים.</div>
     </div>
   </section>
 
   <!-- ───── Confrontation test ───── -->
   <section class="rx-block" id="vs-confront">
     <div class="rx-text">
-      <h2>🩺 בדיקת העימות <small>כמו אצל הרופא</small></h2>
-      <p>רופאים ואופטומטריסטים בודקים שדה ראייה גם בלי מכשירים. הם משווים את השדה של המטופל ל<b>שדה שלהם</b>. נסו בזוגות:</p>
+      <h2>🩺 בדיקת השוואה מול חבר <small>כמו אצל הרופא</small></h2>
+      <p>רופאים ואופטומטריסטים בודקים שדה ראייה גם בלי מכשירים: הבודק יושב מול הנבדק ו<b>משווה</b> את שדה הראייה שלו לשדה של עצמו. באנגלית היא נקראת Confrontation test, "בדיקה פנים מול פנים". נסו בזוגות:</p>
       <ol>
         <li>עמדו או שבו זה מול זה, במרחק של כמטר, עם העיניים באותו גובה.</li>
         <li>הנבדק מכסה את <b>עין ימין</b>, והבודק מכסה את <b>עין שמאל</b> (העין שמולה). שניכם מסתכלים זה לזה בעין הפקוחה.</li>
@@ -1997,22 +1858,14 @@
     <div class="rx-text">
       <h2>אשליות של ראייה היקפית</h2>
       <p>בשוליים המוח מקבל <b>מעט מידע ומטושטש</b>, אז הוא מנחש ומשלים. ברוב הזמן הניחוש מצוין. באשליות האלה הוא <b>טועה</b>: מוחק דברים שקיימים, וממציא דברים שלא קיימים. בכל אשליה: קודם נסו, ורק אחר כך פתחו את ההסבר.</p>
+      <p class="vs-wide-note">📱 רוב האשליות צריכות <b>מסך רחב</b>, כדי שהשוליים יגיעו באמת לראייה ההיקפית. בטלפון סובבו אותו לרוחב והתקרבו, או נסו במחשב ובמקרן.</p>
     </div>
   </section>
 
-  <div class="baby-grid vs-ills">
+  <div class="vs-ill-list">
     <article class="baby-card">
       <h3>🫧 הכתמים הנעלמים <small>אפקט טרוקסלר, 1804</small></h3>
-      <svg class="scene" viewBox="0 0 400 300" role="img" aria-label="כתמים צבעוניים מטושטשים סביב נקודה">
-        <defs><filter id="ill-blur-l" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="16"/></filter></defs>
-        <rect width="400" height="300" fill="#d4d4d8"/>
-        <g filter="url(#ill-blur-l)">
-          <circle cx="200" cy="40" r="34" fill="#f472b6"/><circle cx="315" cy="95" r="34" fill="#60a5fa"/>
-          <circle cx="300" cy="225" r="34" fill="#facc15"/><circle cx="100" cy="225" r="34" fill="#4ade80"/>
-          <circle cx="85" cy="95" r="34" fill="#c084fc"/><circle cx="200" cy="265" r="30" fill="#fb923c"/>
-        </g>
-        <circle cx="200" cy="150" r="4" fill="#0f172a"/>
-      </svg>
+      <svg class="scene" id="troxler-svg" viewBox="0 0 800 400" role="img" aria-label="כתמים צבעוניים מטושטשים סביב נקודה"></svg>
       <p><b>מה עושים:</b> הסתכלו על הנקודה השחורה במרכז, בלי להזיז את העיניים, 20–30 שניות.</p>
       <details><summary>מה קרה?</summary>
         <p>הכתמים נעלמו והכול נהיה אפור. תאי עצב מפסיקים "לדווח" על משהו שלא משתנה, ובשוליים הכתם המטושטש כמעט לא משתנה. ברגע שהדיווח נעלם, המוח <b>משלים את הרקע האפור</b>, בדיוק כמו בכתם העיוור. מצמצו או הזיזו את העין, והכתמים חוזרים.</p>
@@ -2021,7 +1874,7 @@
 
     <article class="baby-card">
       <h3>💚 הנקודה הירוקה <small>Lilac chaser</small></h3>
-      <svg class="scene" id="lilac-svg" viewBox="0 0 400 300" role="img" aria-label="מעגל עיגולים ורודים, כל פעם אחד חסר"></svg>
+      <svg class="scene" id="lilac-svg" viewBox="0 0 800 400" role="img" aria-label="מעגל עיגולים ורודים, כל פעם אחד חסר"></svg>
       <p><b>מה עושים:</b> הסתכלו רק על ה־✚ במרכז, 20 שניות. מה הצבע של הנקודה שרצה במעגל?</p>
       <details><summary>מה קרה?</summary>
         <p>אין שום נקודה ירוקה! יש רק עיגולים ורודים שאחד מהם חסר בכל רגע. שלושה דברים קורים יחד: (1) במקום שבו הוורוד נעלם רואים <b>צבע משלים</b> (ירוק), כי התאים לוורוד "עייפים". (2) המוח מחבר את ה"חורים" לנקודה אחת <b>שזזה</b>. (3) אחרי כמה שניות הוורודים נעלמים (אפקט טרוקסלר), ונשארת רק נקודה ירוקה שאינה קיימת.</p>
@@ -2030,7 +1883,7 @@
 
     <article class="baby-card">
       <h3>⚫ הנקודות המהבהבות <small>הרשת המנצנצת</small></h3>
-      <svg class="scene" id="scint-svg" viewBox="0 0 400 300" role="img" aria-label="רשת אפורה על רקע שחור עם עיגולים לבנים בצמתים"></svg>
+      <svg class="scene" id="scint-svg" viewBox="0 0 800 400" role="img" aria-label="רשת אפורה על רקע שחור עם עיגולים לבנים בצמתים"></svg>
       <p><b>מה עושים:</b> הסתכלו על הרשת והזיזו את העיניים לאט. כמה נקודות שחורות יש בה?</p>
       <details><summary>מה קרה?</summary>
         <p>אין אף נקודה שחורה. כל העיגולים לבנים. אבל בשוליים העיגולים נראים שחורים ו"מהבהבים", ומה שמסתכלים עליו ישירות נשאר לבן. בשוליים כל תא עצב "אוסף" אור מאזור גדול ומשווה אותו לסביבה, והחישוב הזה <b>טועה</b> בצמתים. במרכז האזורים קטנים, ולכן שם הטעות לא קורית.</p>
@@ -2039,7 +1892,7 @@
 
     <article class="baby-card">
       <h3>🔢 כמה נקודות? <small>אשליית ההיעלמות של נינו</small></h3>
-      <svg class="scene" id="ninio-svg" viewBox="0 0 400 300" role="img" aria-label="רשת קווים אפורים עם 12 נקודות שחורות"></svg>
+      <svg class="scene" id="ninio-svg" viewBox="0 0 800 400" role="img" aria-label="רשת קווים אפורים עם 12 נקודות שחורות"></svg>
       <p><b>מה עושים:</b> ברשת יש בדיוק 12 נקודות שחורות. נסו לראות את כולן <b>בבת אחת</b>.</p>
       <details><summary>מה קרה?</summary>
         <p>כמעט אי אפשר. רואים רק את הנקודות שקרובות למקום שמסתכלים עליו, והשאר "נבלעות". הקווים האפורים הם דוגמה חזקה, והמוח מניח שגם בשוליים <b>הדוגמה ממשיכה</b>, כי כך זה בדרך כלל. הוא משלים קווים, ומוחק את הנקודות.</p>
@@ -2048,7 +1901,7 @@
 
     <article class="baby-card">
       <h3>🔲 הרשת שמתקנת את עצמה <small>Healing grid</small></h3>
-      <svg class="scene" id="heal-svg" viewBox="0 0 400 300" role="img" aria-label="רשת ריבועים: מסודרת במרכז ומבולגנת בשוליים"></svg>
+      <svg class="scene" id="heal-svg" viewBox="0 0 800 400" role="img" aria-label="רשת ריבועים: מסודרת במרכז ומבולגנת בשוליים"></svg>
       <p><b>מה עושים:</b> שימו לב: במרכז הריבועים מסודרים, ובשוליים מבולגנים. עכשיו הסתכלו על המרכז, בלי לזוז, 30–40 שניות.</p>
       <details><summary>מה קרה?</summary>
         <p>השוליים "מתקנים את עצמם" ונראים מסודרים כמו המרכז. המוח לוקח את מה שהוא רואה בבירור במרכז, ו<b>מעתיק</b> את זה לשוליים שבהם המידע חלש. השלמה לפי ניחוש, והניחוש הפעם שגוי.</p>
@@ -2057,7 +1910,7 @@
 
     <article class="baby-card">
       <h3>🌀 גלגלים שמסתובבים <small>Peripheral drift</small></h3>
-      <canvas id="drift-canvas" width="800" height="600" aria-label="גלגלים עם דוגמת שחור, אפור ולבן"></canvas>
+      <canvas id="drift-canvas" width="1200" height="600" aria-label="גלגלים עם דוגמת שחור, אפור ולבן"></canvas>
       <p><b>מה עושים:</b> הסתכלו על התמונה והזיזו את המבט מגלגל לגלגל. אפשר גם למצמץ.</p>
       <details><summary>מה קרה?</summary>
         <p>הגלגלים נראים מסתובבים, אבל זו תמונה קבועה לגמרי! הגלגל שמסתכלים עליו ישירות דווקא עוצר. תאי העצב מגיבים מהר יותר לאזורים בהירים ומשתהים באזורים כהים. הסדר שחור ← אפור כהה ← לבן ← אפור בהיר יוצר "אות תנועה" מזויף, והוא חזק במיוחד בשוליים, איפה שהמוח ממילא רגיש בעיקר לתנועה.</p>
@@ -2362,7 +2215,7 @@ function toggleFullscreen() {
 
 // ─────────────────────── Sections ───────────────────────
 // Bump when brain.js, reflexes.js or vision.js change, so browsers never pair a new page with a cached old script
-const ASSET_VERSION = '2026-10-28a';
+const ASSET_VERSION = '2026-10-29a';
 const SECTIONS = ['stroop', 'brain', 'reflex', 'vision'];
 const HASHES = { stroop: '#', brain: '#brain', reflex: '#reflexes', vision: '#vision' };
 let section = 'stroop';

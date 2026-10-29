@@ -1,13 +1,9 @@
-// Vision section: blind spot (video, on-screen tests, mapper), peripheral vision
-// (field of view lab, flash test), peripheral illusions and filling-in demos.
+// Vision section: blind spot (video), peripheral vision (receptor density,
+// flash test), peripheral illusions and filling-in demos.
 // Loaded the first time the tab opens.
 
 const $ = id => document.getElementById(id);
 const SVG_NS = 'http://www.w3.org/2000/svg';
-const deg = r => (r * 180) / Math.PI;
-// Isolate "12.5°" as left-to-right so the degree sign stays after the number in Hebrew text
-const dg = v => `\u2066${v}°\u2069`;
-
 function el(tag, attrs = {}, parent) {
   const n = document.createElementNS(SVG_NS, tag);
   for (const [k, v] of Object.entries(attrs)) n.setAttribute(k, v);
@@ -28,14 +24,6 @@ function say(box, text, kind = '') {
   box.className = 'rx-msg' + (kind ? ' ' + kind : '');
 }
 
-function store(key, value) {
-  try {
-    if (value === undefined) return JSON.parse(localStorage.getItem(key));
-    localStorage.setItem(key, JSON.stringify(value));
-  } catch (e) { /* storage blocked */ }
-  return null;
-}
-
 const shuffle = a => {
   for (let i = a.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
@@ -49,7 +37,7 @@ const isVisible = () => !$('section-vision').hidden;
 const onScreen = node => isVisible() && !node.closest('.rx-page').hidden;
 
 // ─────────────────────── Sub-pages ───────────────────────
-const PAGES = ['blind', 'test', 'field', 'illusions', 'more'];
+const PAGES = ['blind', 'field', 'illusions', 'more'];
 function initPages() {
   const tabs = $('vs-tabs'), pager = $('vs-pager');
   const pages = [...$('section-vision').querySelectorAll('.rx-page')];
@@ -71,154 +59,6 @@ function initPages() {
   pager.addEventListener('click', e => { const b = e.target.closest('[data-page]'); if (b) show(b.dataset.page, true); });
   window.addEventListener('hashchange', () => { if (location.hash.startsWith('#vision')) show(fromHash(), true); });
   show(fromHash());
-}
-
-// ─────────────────────── Eye choice (shared by test and mapper) ───────────────────────
-// Drawn for the right eye (fixation on the left, blind spot to the right);
-// the left eye gets a mirror image.
-let eye = 'R';
-const eyeListeners = [];
-function setFlip(g, width) {
-  g.setAttribute('transform', eye === 'L' ? `translate(${width},0) scale(-1,1)` : '');
-}
-
-// ─────────────────────── Blind spot test ───────────────────────
-const BS_TEXT = {
-  dot: 'הסתכלו על ✚ והתקרבו או התרחקו לאט. במרחק מסוים העיגול האדום נעלם, ובמקומו רואים לבן.',
-  house: 'כמו בסרטון: הסתכלו על הבית. במרחק הנכון האיש נעלם, והמוח "מצייר" במקומו רקע לבן.',
-  line: 'בקו יש רווח. כשהרווח נופל על הכתם העיוור, הקו נראה שלם! המוח השלים קו שלא קיים.',
-  stripes: 'בתוך הפסים יש עיגול לבן. כשהוא בכתם העיוור, הפסים "ממשיכים" לתוכו והעיגול נעלם.',
-  color: 'בתוך הירוק יש עיגול לבן. בכתם העיוור הוא נצבע בירוק: המוח מורח את הצבע שמסביב.',
-};
-function initBlindTest() {
-  const flip = $('bs-flip'), msg = $('bs-msg');
-  let mode = 'dot';
-  function draw() {
-    flip.querySelectorAll('[data-mode]').forEach(g => { g.style.display = g.dataset.mode === mode ? '' : 'none'; });
-    flip.querySelector('.bs-fix').style.display = mode === 'house' ? 'none' : '';
-    setFlip(flip, 820);
-    const cover = eye === 'R' ? 'שמאל' : 'ימין';
-    say(msg, `מכסים עין ${cover}. ` + BS_TEXT[mode]);
-  }
-  seg($('bs-mode'), d => { mode = d.mode; draw(); });
-  seg($('bs-eye'), d => { eye = d.eye; eyeListeners.forEach(f => f()); });
-  eyeListeners.push(draw);
-  draw();
-}
-
-// ─────────────────────── Blind spot mapper ───────────────────────
-function initMapper() {
-  const flip = $('map-flip'), dot = $('map-dot'), result = $('map-result');
-  const go = $('map-go'), hold = $('map-hold'), rowOut = $('map-row'), msg = $('map-msg');
-  const X0 = 280, X1 = 800, SPEED = 175; // px per second
-  const ROWS = [];
-  for (let y = 60; y <= 420; y += 24) ROWS.push(y);
-  const ROW_MS = ((X1 - X0) / SPEED) * 1000;
-
-  let running = false, held = false, row = 0, t0 = 0, raf = 0, segStart = null;
-  let marks = []; // {y, x0, x1}
-
-  const dotX = now => X0 + Math.min(1, Math.max(0, now - t0) / ROW_MS) * (X1 - X0);
-
-  function press(on) {
-    if (!running || on === held) return;
-    held = on;
-    hold.classList.toggle('active', on);
-    const x = dotX(performance.now());
-    if (on) segStart = x;
-    else { marks.push({ y: ROWS[row], x0: segStart, x1: x }); segStart = null; }
-  }
-
-  function endRow(now) {
-    if (held) { marks.push({ y: ROWS[row], x0: segStart, x1: X1 }); segStart = X0; }
-    row++;
-    if (row >= ROWS.length) return finish();
-    t0 = now + 500; // short pause between rows
-  }
-
-  function frame(now) {
-    if (!running) return;
-    if (!onScreen(go)) { stop('הניסוי נעצר. לחצו "התחלה" כדי לנסות שוב.'); return; }
-    if (now - t0 >= ROW_MS) endRow(now);
-    if (!running) return;
-    const visible = now >= t0;
-    dot.style.display = visible ? '' : 'none';
-    dot.setAttribute('cx', dotX(Math.max(now, t0)));
-    dot.setAttribute('cy', ROWS[row]);
-    rowOut.textContent = `שורה ${row + 1} מתוך ${ROWS.length}`;
-    raf = requestAnimationFrame(frame);
-  }
-
-  function stop(text) {
-    running = false; held = false;
-    cancelAnimationFrame(raf);
-    hold.disabled = true; hold.classList.remove('active');
-    dot.style.display = 'none';
-    go.textContent = '▶ התחלה';
-    rowOut.textContent = '';
-    if (text) say(msg, text);
-  }
-
-  function finish() {
-    stop();
-    result.innerHTML = '';
-    const real = marks.filter(m => m.x1 - m.x0 > 6);
-    if (!real.length) {
-      say(msg, 'לא סימנתם אף אזור. נסו שוב: אולי המרחק מהמסך לא מתאים? כדאי קודם למצוא אותו עם העיגול האדום למעלה.', 'bad');
-      return;
-    }
-    for (const m of real) el('rect', { x: m.x0, y: m.y - 12, width: m.x1 - m.x0, height: 24, rx: 10, fill: '#e11d48', opacity: 0.55 }, result);
-    const xs = real.flatMap(m => [m.x0, m.x1]), ys = real.map(m => m.y);
-    const minX = Math.min(...xs), maxX = Math.max(...xs), minY = Math.min(...ys) - 12, maxY = Math.max(...ys) + 12;
-    el('rect', { x: minX - 6, y: minY - 6, width: maxX - minX + 12, height: maxY - minY + 12, rx: 18, fill: 'none', stroke: '#0f172a', 'stroke-width': 2, 'stroke-dasharray': '6 5' }, result);
-    const cx = (minX + maxX) / 2;
-    const t = el('text', { x: cx, y: Math.max(24, minY - 16), 'text-anchor': 'middle', style: 'font-size:18px;font-weight:700;fill:#0f172a' }, result);
-    t.textContent = 'הכתם העיוור שלכם';
-    if (eye === 'L') t.setAttribute('transform', `translate(${2 * cx},0) scale(-1,1)`);
-    const ratio = (cx - 110) / (maxX - minX);
-    say(msg, `זאת הצורה של הכתם (${real.length} סימונים). המרחק מה־✚ למרכז הכתם גדול פי ${ratio.toFixed(1)} מרוחב הכתם. אצל רוב האנשים בערך פי 3. שימו לב שבזמן הניסוי לא ראיתם שום "חור": רק נקודה שנעלמת.`, 'good');
-  }
-
-  go.addEventListener('click', () => {
-    if (running) { stop('הניסוי נעצר.'); return; }
-    marks = []; result.innerHTML = ''; row = 0; held = false;
-    running = true;
-    hold.disabled = false;
-    go.textContent = '■ עצירה';
-    say(msg, 'הסתכלו רק על ה־✚! החזיקו לחוץ כל עוד הנקודה האדומה לא נראית.');
-    t0 = performance.now() + 1200;
-    raf = requestAnimationFrame(frame);
-  });
-  hold.addEventListener('pointerdown', e => { e.preventDefault(); hold.setPointerCapture?.(e.pointerId); press(true); });
-  hold.addEventListener('pointerup', () => press(false));
-  hold.addEventListener('pointercancel', () => press(false));
-  hold.addEventListener('contextmenu', e => e.preventDefault());
-  document.addEventListener('keydown', e => {
-    if (e.code !== 'Space' || !running || !onScreen(go)) return;
-    e.preventDefault();
-    if (!e.repeat) press(true);
-  });
-  document.addEventListener('keyup', e => { if (e.code === 'Space' && running) press(false); });
-
-  eyeListeners.push(() => { setFlip(flip, 820); if (running) stop('החלפתם עין, אז הניסוי התחיל מחדש. לחצו "התחלה".'); result.innerHTML = ''; });
-  setFlip(flip, 820);
-}
-
-// ─────────────────────── Angle calculator ───────────────────────
-function initCalc() {
-  const ids = ['calc-d', 'calc-a', 'calc-w', 'calc-h'];
-  const out = $('calc-out');
-  function calc() {
-    const [d, a, w, h] = ids.map(id => parseFloat($(id).value));
-    if (!(d > 0) || [a, w, h].some(v => !(v >= 0))) { say(out, 'הכניסו מספרים חיוביים.'); return; }
-    const ang = s => deg(Math.atan(s / d));
-    const ac = deg(Math.atan(a / d));
-    const aw = deg(Math.atan((a + w / 2) / d) - Math.atan((a - w / 2) / d));
-    const moons = Math.round(aw / 0.5);
-    say(out, `מרכז הכתם: ${dg(ac.toFixed(1))} מנקודת המבט · רוחב: ${dg(aw.toFixed(1))} · גובה: ${dg(ang(h).toFixed(1))}. ברוחב הכתם נכנסים כ־${moons} ירחים מלאים בשורה!`);
-  }
-  ids.forEach(id => $(id).addEventListener('input', calc));
-  calc();
 }
 
 // ─────────────────────── Cone/rod density chart ───────────────────────
@@ -249,118 +89,12 @@ function initDensity() {
     const t = el('text', { x: tx, y: ty, 'text-anchor': anchor, style: `fill:${color};font-weight:700;font-size:14px` }, svg);
     t.textContent = txt;
   };
-  lab(x(0) + 10, T + 4, 'מדוכים: צבע ופרטים', '#d97706', 'start');
-  lab(x(45), y(rods(45)) - 12, 'קנים: תנועה ואור חלש', '#7c3aed');
+  el('line', { x1: L, y1: T - 8, x2: L, y2: B, stroke: 'var(--border-strong)' }, svg);
+  lab(L + 6, T - 14, '↑ כמות תאי חישה', 'var(--muted)', 'start');
   lab(x(-15.5), T - 14, 'כתם עיוור', '#b45309');
   lab(x(0), B + 42, 'מרכז הראייה', 'var(--text-2)');
   lab(x(-62), B + 42, '← לכיוון האף', 'var(--muted)');
   lab(x(62), B + 42, 'לכיוון האוזן →', 'var(--muted)');
-}
-
-// ─────────────────────── Field of view lab ───────────────────────
-const FOV_KINDS = [
-  { k: 'move', name: 'תנועה', color: '#0e7490' },
-  { k: 'color', name: 'צבע', color: '#d97706' },
-  { k: 'letter', name: 'אות', color: '#7c3aed' },
-];
-const FOV_TYPICAL = { move: { R: 95, L: 95 }, color: { R: 45, L: 45 }, letter: { R: 10, L: 10 } };
-function initFov() {
-  const svg = $('fov-svg'), msg = $('fov-msg');
-  const inputs = [...document.querySelectorAll('#fov-table input')];
-  const CX = 300, CY = 290, RAD = 240;
-  const saved = store('vision-fov') || {};
-  inputs.forEach(i => { const v = saved[i.dataset.k]?.[i.dataset.s]; if (v != null) i.value = v; });
-
-  // a = angle from straight ahead, positive = right side (drawn on the right of the page)
-  const pt = (a, r) => [CX + r * Math.sin((a * Math.PI) / 180), CY - r * Math.cos((a * Math.PI) / 180)];
-  function wedge(r, l, rad) {
-    const [x1, y1] = pt(-l, rad), [x2, y2] = pt(r, rad);
-    const large = r + l > 180 ? 1 : 0;
-    return `M${CX},${CY} L${x1.toFixed(1)},${y1.toFixed(1)} A${rad},${rad} 0 ${large} 1 ${x2.toFixed(1)},${y2.toFixed(1)} Z`;
-  }
-
-  function read() {
-    const data = {};
-    for (const i of inputs) {
-      const v = i.value === '' ? null : Math.max(0, Math.min(120, +i.value));
-      (data[i.dataset.k] ||= {})[i.dataset.s] = v;
-    }
-    return data;
-  }
-
-  function draw() {
-    const data = read();
-    store('vision-fov', data);
-    svg.innerHTML = '';
-    for (const a of [30, 60, 90]) {
-      for (const s of [-1, 1]) {
-        const [px, py] = pt(s * a, RAD + 6);
-        el('line', { x1: CX, y1: CY, x2: px, y2: py, stroke: 'var(--border)', 'stroke-dasharray': '3 4' }, svg);
-        const [tx, ty] = pt(s * a, RAD + 22);
-        const t = el('text', { x: tx, y: ty + 4, 'text-anchor': 'middle', class: 'small' }, svg);
-        t.textContent = a + '°';
-      }
-    }
-    el('path', { d: `M${CX - RAD},${CY} A${RAD},${RAD} 0 0 1 ${CX + RAD},${CY}`, fill: 'none', stroke: 'var(--border-strong)' }, svg);
-    const t0 = el('text', { x: CX, y: CY - RAD - 10, 'text-anchor': 'middle', class: 'small' }, svg);
-    t0.textContent = '0° קדימה';
-    let any = false;
-    FOV_KINDS.forEach(({ k, color }, n) => {
-      const { R, L } = data[k];
-      if (R == null || L == null) return;
-      any = true;
-      el('path', { d: wedge(R, L, RAD - n * 22), fill: color, 'fill-opacity': 0.22, stroke: color, 'stroke-width': 2 }, svg);
-    });
-    // Head seen from above, nose pointing forward
-    el('ellipse', { cx: CX, cy: CY + 4, rx: 26, ry: 30, fill: '#f2c6a0', stroke: '#b97f5b', 'stroke-width': 2 }, svg);
-    el('path', { d: `M${CX - 6},${CY - 24} L${CX},${CY - 36} L${CX + 6},${CY - 24}`, fill: '#f2c6a0', stroke: '#b97f5b', 'stroke-width': 2 }, svg);
-    const side = (tx, txt) => { const t = el('text', { x: tx, y: CY + 30, 'text-anchor': 'middle', style: 'font-weight:600' }, svg); t.textContent = txt; };
-    side(CX + 150, 'ימין'); side(CX - 150, 'שמאל');
-
-    if (!any) { say(msg, 'הכניסו זוויות במעלות (0° = ישר קדימה, 90° = בדיוק בצד). צריך ימין וגם שמאל.'); return; }
-    const total = k => (data[k].R ?? 0) + (data[k].L ?? 0);
-    const parts = FOV_KINDS.filter(({ k }) => data[k].R != null && data[k].L != null).map(({ k, name }) => `${name}: ${dg(total(k))}`);
-    let note = '';
-    if (data.move.R != null && data.letter.R != null && data.move.R > data.letter.R) note = ' רואים תנועה הרבה יותר רחוק משאפשר לקרוא אות. בשוליים המוח יודע ש"משהו שם", ואת השאר הוא משלים.';
-    say(msg, 'רוחב השדה. ' + parts.join(' · ') + '.' + note);
-  }
-
-  inputs.forEach(i => i.addEventListener('input', draw));
-  $('fov-typical').addEventListener('click', () => {
-    inputs.forEach(i => { i.value = FOV_TYPICAL[i.dataset.k][i.dataset.s]; });
-    draw();
-  });
-  $('fov-clear').addEventListener('click', () => { inputs.forEach(i => { i.value = ''; }); draw(); });
-  $('print-protractor').addEventListener('click', e => { e.preventDefault(); printProtractor(); });
-  draw();
-}
-
-// A half-circle protractor on an A4 landscape sheet (print at 100%)
-function printProtractor() {
-  const R = 130; // mm
-  let marks = '';
-  for (let a = -100; a <= 100; a += 5) {
-    const r1 = a % 10 === 0 ? R - 12 : R - 6;
-    const s = Math.sin((a * Math.PI) / 180), c = Math.cos((a * Math.PI) / 180);
-    marks += `<line x1="${148.5 + r1 * s}" y1="${185 - r1 * c}" x2="${148.5 + R * s}" y2="${185 - R * c}" stroke="#000" stroke-width="${a % 10 === 0 ? 0.6 : 0.3}"/>`;
-    if (a % 10 === 0) {
-      marks += `<line x1="148.5" y1="185" x2="${148.5 + (R - 14) * s}" y2="${185 - (R - 14) * c}" stroke="#bbb" stroke-width="0.2"/>`;
-      marks += `<text x="${148.5 + (R + 7) * s}" y="${185 - (R + 7) * c + 1.5}" font-size="5" text-anchor="middle" font-family="sans-serif">${Math.abs(a)}°</text>`;
-    }
-  }
-  const html = `<!doctype html><html lang="he" dir="rtl"><head><meta charset="utf-8"><title>מד זווית לשדה ראייה</title>
-<style>@page{size:A4 landscape;margin:0}body{margin:0}svg{width:297mm;height:210mm;display:block}</style></head><body>
-<svg viewBox="0 0 297 210" xmlns="http://www.w3.org/2000/svg">
-<path d="M${148.5 - R * Math.sin(100 * Math.PI / 180)},${185 + R * 0.1736} A${R},${R} 0 1 1 ${148.5 + R * Math.sin(100 * Math.PI / 180)},${185 + R * 0.1736}" fill="none" stroke="#000" stroke-width="0.6"/>
-${marks}
-<circle cx="148.5" cy="185" r="2" fill="#000"/>
-<text x="148.5" y="196" font-size="5" text-anchor="middle" font-family="sans-serif">כאן הסנטר · 0° = ישר קדימה</text>
-<text x="148.5" y="205" font-size="3.5" text-anchor="middle" font-family="sans-serif" fill="#555">הדפיסו ב־100% (בלי "התאמה לדף"). אפשר להמשיך את הקווים עם סרגל על בריסטול גדול.</text>
-</svg><script>onload=()=>print()<\/script></body></html>`;
-  const w = window.open('', '_blank');
-  if (!w) return;
-  w.document.write(html);
-  w.document.close();
 }
 
 // ─────────────────────── Flash test ───────────────────────
@@ -464,18 +198,35 @@ function initFlash() {
 }
 
 // ─────────────────────── Illusions ───────────────────────
+// All drawn wide (2:1) so the edges really land in peripheral vision
+const W = 800, H = 400, CX = W / 2, CY = H / 2;
+
+function initTroxler() {
+  const svg = $('troxler-svg');
+  el('rect', { width: W, height: H, fill: '#d4d4d8' }, svg);
+  const f = el('filter', { id: 'troxler-blur', x: '-60%', y: '-60%', width: '220%', height: '220%' }, el('defs', {}, svg));
+  el('feGaussianBlur', { stdDeviation: 24 }, f);
+  const g = el('g', { filter: 'url(#troxler-blur)' }, svg);
+  const COLORS = ['#f472b6', '#60a5fa', '#facc15', '#4ade80', '#c084fc', '#fb923c', '#2dd4bf', '#f87171'];
+  COLORS.forEach((c, k) => {
+    const a = (k / COLORS.length) * 2 * Math.PI + 0.2;
+    el('circle', { cx: CX + 290 * Math.cos(a), cy: CY + 135 * Math.sin(a), r: 52, fill: c }, g);
+  });
+  el('circle', { cx: CX, cy: CY, r: 5, fill: '#0f172a' }, svg);
+}
+
 function initLilac() {
   const svg = $('lilac-svg');
-  el('rect', { width: 400, height: 300, fill: '#c9c9c9' }, svg);
+  el('rect', { width: W, height: H, fill: '#c9c9c9' }, svg);
   const f = el('filter', { id: 'lilac-blur', x: '-60%', y: '-60%', width: '220%', height: '220%' }, el('defs', {}, svg));
-  el('feGaussianBlur', { stdDeviation: 6 }, f);
+  el('feGaussianBlur', { stdDeviation: 8 }, f);
   const g = el('g', { filter: 'url(#lilac-blur)' }, svg);
   const disks = [];
   for (let i = 0; i < 12; i++) {
     const a = (i / 12) * 2 * Math.PI;
-    disks.push(el('circle', { cx: 200 + 112 * Math.cos(a), cy: 150 + 112 * Math.sin(a), r: 17, fill: '#e15fd0' }, g));
+    disks.push(el('circle', { cx: CX + 150 * Math.cos(a), cy: CY + 150 * Math.sin(a), r: 22, fill: '#e15fd0' }, g));
   }
-  el('path', { d: 'M200,141 V159 M191,150 H209', stroke: '#000', 'stroke-width': 2.5 }, svg);
+  el('path', { d: `M${CX},${CY - 10} V${CY + 10} M${CX - 10},${CY} H${CX + 10}`, stroke: '#000', 'stroke-width': 3 }, svg);
   let i = 0;
   setInterval(() => {
     if (!onScreen(svg)) return;
@@ -486,45 +237,45 @@ function initLilac() {
 
 function initScint() {
   const svg = $('scint-svg');
-  el('rect', { width: 400, height: 300, fill: '#000' }, svg);
+  el('rect', { width: W, height: H, fill: '#000' }, svg);
   const step = 40, w = 6;
-  for (let x = 20; x < 400; x += step) el('rect', { x: x - w / 2, y: 0, width: w, height: 300, fill: '#808080' }, svg);
-  for (let y = 10; y < 300; y += step) el('rect', { x: 0, y: y - w / 2, width: 400, height: w, fill: '#808080' }, svg);
-  for (let x = 20; x < 400; x += step) for (let y = 10; y < 300; y += step) el('circle', { cx: x, cy: y, r: 5.5, fill: '#fff' }, svg);
+  for (let x = 20; x < W; x += step) el('rect', { x: x - w / 2, y: 0, width: w, height: H, fill: '#808080' }, svg);
+  for (let y = 20; y < H; y += step) el('rect', { x: 0, y: y - w / 2, width: W, height: w, fill: '#808080' }, svg);
+  for (let x = 20; x < W; x += step) for (let y = 20; y < H; y += step) el('circle', { cx: x, cy: y, r: 5.5, fill: '#fff' }, svg);
 }
 
 function initNinio() {
   const svg = $('ninio-svg');
-  el('rect', { width: 400, height: 300, fill: '#fff' }, svg);
+  el('rect', { width: W, height: H, fill: '#fff' }, svg);
   const step = 25;
-  const g = el('g', { stroke: '#9a9a9a', 'stroke-width': 2.2 }, svg);
-  for (let x = 0; x <= 400; x += step) el('line', { x1: x, y1: 0, x2: x, y2: 300 }, g);
-  for (let y = 0; y <= 300; y += step) el('line', { x1: 0, y1: y, x2: 400, y2: y }, g);
+  const g = el('g', { stroke: '#8a8a8a', 'stroke-width': 2.5 }, svg);
+  for (let x = 0; x <= W; x += step) el('line', { x1: x, y1: 0, x2: x, y2: H }, g);
+  for (let y = 0; y <= H; y += step) el('line', { x1: 0, y1: y, x2: W, y2: y }, g);
   // diagonals make the pattern busier, as in the original
-  for (let k = -300; k <= 400; k += step * 2) {
-    el('line', { x1: k, y1: 0, x2: k + 300, y2: 300 }, g);
-    el('line', { x1: k + 300, y1: 0, x2: k, y2: 300 }, g);
+  for (let k = -H; k <= W; k += step * 2) {
+    el('line', { x1: k, y1: 0, x2: k + H, y2: H }, g);
+    el('line', { x1: k + H, y1: 0, x2: k, y2: H }, g);
   }
-  // 12 dots, each on a crossing of all four line directions
-  for (const i of [2, 6, 10, 14]) for (const j of [2, 6, 10]) el('circle', { cx: i * step, cy: j * step, r: 6.5, fill: '#000' }, svg);
+  // 12 small dots, each on a crossing of all four line directions
+  for (const i of [4, 12, 20, 28]) for (const j of [4, 8, 12]) el('circle', { cx: i * step, cy: j * step, r: 4.2, fill: '#000' }, svg);
 }
 
 function initHealing() {
   const svg = $('heal-svg');
-  el('rect', { width: 400, height: 300, fill: '#fff' }, svg);
-  const cols = 16, rows = 12, cw = 400 / cols, ch = 300 / rows;
+  el('rect', { width: W, height: H, fill: '#fff' }, svg);
+  const cols = 32, rows = 16, cw = W / cols, ch = H / rows;
   // Seeded noise so the grid looks the same every visit
   let seed = 7;
   const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647) - 0.5;
   for (let i = 0; i < cols; i++) for (let j = 0; j < rows; j++) {
     const cx = (i + 0.5) * cw, cy = (j + 0.5) * ch;
-    const d = Math.hypot((cx - 200) / 200, (cy - 150) / 150);
-    const mess = Math.max(0, Math.min(1, (d - 0.3) / 0.5));
+    const d = Math.hypot((cx - CX) / CY, (cy - CY) / CY);
+    const mess = Math.max(0, Math.min(1, (d - 0.35) / 0.6));
     const s = 13 * (1 + rnd() * 0.9 * mess);
     const x = cx + rnd() * 9 * mess, y = cy + rnd() * 9 * mess, rot = rnd() * 70 * mess;
     el('rect', { x: x - s / 2, y: y - s / 2, width: s, height: s, fill: '#0f172a', transform: `rotate(${rot.toFixed(1)} ${x.toFixed(1)} ${y.toFixed(1)})` }, svg);
   }
-  el('circle', { cx: 200, cy: 150, r: 4, fill: '#e11d48' }, svg);
+  el('circle', { cx: CX, cy: CY, r: 4, fill: '#e11d48' }, svg);
 }
 
 function initDrift() {
@@ -553,9 +304,12 @@ function initDrift() {
     ctx.fillStyle = '#c8c8c8';
     ctx.beginPath(); ctx.arc(cx, cy, R / 5, 0, 2 * Math.PI); ctx.fill();
   }
-  const R = 130;
-  [[200, 150, 1], [600, 150, -1], [200, 450, -1], [600, 450, 1]].forEach(([x, y, d]) => wheel(x, y, R, d));
-  wheel(400, 300, 95, 1);
+  for (const [x, d0] of [[200, 1], [600, -1], [1000, 1]]) {
+    wheel(x, 150, 135, d0);
+    wheel(x, 450, 135, -d0);
+  }
+  wheel(400, 300, 90, 1);
+  wheel(800, 300, 90, -1);
 }
 
 // ─────────────────────── Afterimage flag ───────────────────────
@@ -622,12 +376,9 @@ function initScramble() {
 // ─────────────────────── Init ───────────────────────
 export function initVision() {
   initPages();
-  initBlindTest();
-  initMapper();
-  initCalc();
   initDensity();
-  initFov();
   initFlash();
+  initTroxler();
   initLilac();
   initScint();
   initNinio();
