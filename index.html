@@ -677,8 +677,22 @@
   .vs-board { max-height: 70vh; }
   .vs-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 28px; align-items: start; }
   .vs-ill-list { display: flex; flex-direction: column; gap: 18px; }
-  .vs-ill-list svg.scene, .vs-ill-list canvas { max-width: calc(72vh * 2); margin: 0 auto; width: 100%; }
-  .vs-ill-list canvas { height: auto; display: block; border-radius: 10px; border: 1px solid var(--border); }
+  .vs-stage { position: relative; width: 100%; max-width: calc(72vh * 2); margin: 0 auto; }
+  .vs-stage > svg.scene, .vs-stage > canvas { width: 100%; height: auto; display: block; border-radius: 10px; border: 1px solid var(--border); }
+  .vs-fs {
+    position: absolute; top: 10px; left: 10px; z-index: 2;
+    border: none; border-radius: 9px; padding: 7px 12px; cursor: pointer;
+    background: rgba(15, 23, 42, 0.72); color: #fff; font-size: 13px; font-weight: 600;
+    backdrop-filter: blur(4px);
+  }
+  .vs-fs:hover { background: rgba(15, 23, 42, 0.9); }
+  .vs-stage.vs-full {
+    position: fixed; inset: 0; z-index: 1000; max-width: none; margin: 0;
+    background: var(--ill-bg, #fff); display: flex; align-items: center; justify-content: center;
+  }
+  .vs-stage.vs-full > svg.scene, .vs-stage.vs-full > canvas { width: 100%; height: 100%; border: 0; border-radius: 0; }
+  .vs-stage.vs-full .vs-fs { top: 16px; left: 16px; font-size: 15px; padding: 9px 14px; }
+  body.vs-noscroll { overflow: hidden; }
   .vs-ill-list .baby-card p, .vs-ill-list details { max-width: 860px; }
   .vs-legend { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 13px; color: var(--text-2); }
   .vs-legend i { display: inline-block; width: 18px; height: 4px; border-radius: 2px; background: var(--c); margin-inline-end: 6px; vertical-align: middle; }
@@ -1857,7 +1871,7 @@
   <section class="rx-block wide" id="vs-ill-intro">
     <div class="rx-text">
       <h2>אשליות של ראייה היקפית</h2>
-      <p>בשוליים המוח מקבל <b>מעט מידע ומטושטש</b>, אז הוא מנחש ומשלים. ברוב הזמן הניחוש מצוין. באשליות האלה הוא <b>טועה</b>: מוחק דברים שקיימים, וממציא דברים שלא קיימים. בכל אשליה: קודם נסו, ורק אחר כך פתחו את ההסבר.</p>
+      <p>בשוליים המוח מקבל <b>מעט מידע ומטושטש</b>, אז הוא מנחש ומשלים. ברוב הזמן הניחוש מצוין. באשליות האלה הוא <b>טועה</b>: מוחק דברים שקיימים, וממציא דברים שלא קיימים. בכל אשליה: קודם נסו, ורק אחר כך פתחו את ההסבר. <b>⛶ מסך מלא</b> (בפינת כל תמונה) מחזק את רוב האשליות, כי ככה השוליים באמת רחוקים מהמבט.</p>
       <p class="vs-wide-note">📱 רוב האשליות צריכות <b>מסך רחב</b>, כדי שהשוליים יגיעו באמת לראייה ההיקפית. בטלפון סובבו אותו לרוחב והתקרבו, או נסו במחשב ובמקרן.</p>
     </div>
   </section>
@@ -1909,11 +1923,11 @@
     </article>
 
     <article class="baby-card">
-      <h3>🌀 גלגלים שמסתובבים <small>Peripheral drift</small></h3>
-      <canvas id="drift-canvas" width="1200" height="600" aria-label="גלגלים עם דוגמת שחור, אפור ולבן"></canvas>
-      <p><b>מה עושים:</b> הסתכלו על התמונה והזיזו את המבט מגלגל לגלגל. אפשר גם למצמץ.</p>
+      <h3>🐍 הנחשים המסתובבים <small>Rotating snakes, קיטאוקה 2003</small></h3>
+      <canvas id="drift-canvas" width="1200" height="600" aria-label="גלגלים עם דוגמה חוזרת של שחור, כחול, לבן וצהוב"></canvas>
+      <p><b>מה עושים:</b> פתחו במסך מלא. <b>אל תנעצו מבט בגלגל אחד:</b> העבירו את המבט לאט ממקום למקום, או הסתכלו על נקודה <b>בין</b> הגלגלים, ומצמצו מדי פעם. הגלגלים שבצד יתחילו להסתובב.</p>
       <details><summary>מה קרה?</summary>
-        <p>הגלגלים נראים מסתובבים, אבל זו תמונה קבועה לגמרי! הגלגל שמסתכלים עליו ישירות דווקא עוצר. תאי העצב מגיבים מהר יותר לאזורים בהירים ומשתהים באזורים כהים. הסדר שחור ← אפור כהה ← לבן ← אפור בהיר יוצר "אות תנועה" מזויף, והוא חזק במיוחד בשוליים, איפה שהמוח ממילא רגיש בעיקר לתנועה.</p>
+        <p>הגלגלים נראים מסתובבים, אבל זו תמונה קבועה לגמרי! הגלגל שמסתכלים עליו ישירות דווקא עוצר. תאי העצב מגיבים מהר יותר לאזורים בהירים ומשתהים באזורים כהים. הסדר החוזר שחור ← כחול ← לבן ← צהוב יוצר "אות תנועה" מזויף, מהשחור לכיוון הכחול. הוא חזק במיוחד בשוליים, איפה שהמוח ממילא רגיש בעיקר לתנועה, ומתחזק בכל פעם שהעין זזה או ממצמצת. גלגלים שכנים בנויים הפוך, ולכן מסתובבים לכיוונים מנוגדים. (יש מעט אנשים שלא רואים את האשליה הזאת בכלל.)</p>
       </details>
     </article>
   </div>
@@ -2033,7 +2047,7 @@
 
   <div class="credit">
     הסרטון: נדב אלשיך, ערוץ <a href="https://www.youtube.com/@making-il" target="_blank" rel="noopener">Making()</a> ביוטיוב.
-    האשליות צוירו מחדש לעמוד הזה לפי: אפקט טרוקסלר (I. P. V. Troxler, 1804) · Lilac chaser (Jeremy Hinton, 2005) · הרשת המנצנצת (Schrauf, Lingelbach & Wist, 1997) · אשליית ההיעלמות (Ninio & Stevens, 2000) · Healing grid (Kanai, 2005) · אשליית התנועה ההיקפית (Fraser & Wilcox, 1979; Kitaoka) · משולש קניזה (Kanizsa, 1955).
+    האשליות צוירו מחדש לעמוד הזה לפי: אפקט טרוקסלר (I. P. V. Troxler, 1804) · Lilac chaser (Jeremy Hinton, 2005) · הרשת המנצנצת (Schrauf, Lingelbach & Wist, 1997) · אשליית ההיעלמות (Ninio & Stevens, 2000) · Healing grid (Kanai, 2005) · הנחשים המסתובבים (Akiyoshi Kitaoka, 2003, לפי Fraser & Wilcox, 1979) · משולש קניזה (Kanizsa, 1955).
     כל האיורים צוירו במיוחד לעמוד הזה. המספרים בעמוד הם הערכות לצורך המחשה.
   </div>
 </main>
@@ -2215,7 +2229,7 @@ function toggleFullscreen() {
 
 // ─────────────────────── Sections ───────────────────────
 // Bump when brain.js, reflexes.js or vision.js change, so browsers never pair a new page with a cached old script
-const ASSET_VERSION = '2026-10-29a';
+const ASSET_VERSION = '2026-10-29b';
 const SECTIONS = ['stroop', 'brain', 'reflex', 'vision'];
 const HASHES = { stroop: '#', brain: '#brain', reflex: '#reflexes', vision: '#vision' };
 let section = 'stroop';
