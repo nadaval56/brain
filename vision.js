@@ -332,53 +332,62 @@ function render(node, full) {
   ILLUSIONS[node.id](node, W, H);
 }
 
-// Wrap every illusion in a stage with a full-screen toggle. Uses the Fullscreen API
-// where it exists, and a fixed overlay elsewhere (e.g. iPhone Safari).
-function initIllusions() {
-  let current = null;
-  const nodes = [...document.querySelectorAll('#section-vision .vs-ill-list .baby-card > svg, #section-vision .vs-ill-list .baby-card > canvas')];
+// Full screen: wraps an image in a stage with a toggle button. Uses the Fullscreen API
+// where it exists, and a fixed overlay elsewhere (e.g. iPhone Safari). `redraw(full)`
+// is called whenever the stage enters or leaves full screen, or the screen resizes.
+let fsCurrent = null;
+const redraws = new WeakMap();
 
-  function exit() {
-    if (!current) return;
-    const stage = current;
-    current = null;
-    stage.classList.remove('vs-full');
-    document.body.classList.remove('vs-noscroll');
-    stage.querySelector('.vs-fs').innerHTML = '⛶ מסך מלא';
-    render(stage.firstElementChild, false);
-    if (document.fullscreenElement) document.exitFullscreen?.();
-  }
+function fsExit() {
+  if (!fsCurrent) return;
+  const stage = fsCurrent;
+  fsCurrent = null;
+  stage.classList.remove('vs-full');
+  document.body.classList.remove('vs-noscroll');
+  stage.querySelector('.vs-fs').innerHTML = '⛶ מסך מלא';
+  redraws.get(stage)(false);
+  if (document.fullscreenElement) document.exitFullscreen?.();
+}
 
-  async function enter(stage) {
-    current = stage;
-    stage.classList.add('vs-full');
-    document.body.classList.add('vs-noscroll');
-    stage.querySelector('.vs-fs').innerHTML = '✕ יציאה ממסך מלא';
-    try { await stage.requestFullscreen?.(); } catch (e) { /* overlay only */ }
-    render(stage.firstElementChild, true);
-  }
+async function fsEnter(stage) {
+  fsCurrent = stage;
+  stage.classList.add('vs-full');
+  document.body.classList.add('vs-noscroll');
+  stage.querySelector('.vs-fs').innerHTML = '✕ יציאה ממסך מלא';
+  try { await stage.requestFullscreen?.(); } catch (e) { /* overlay only */ }
+  redraws.get(stage)(true);
+}
 
-  for (const node of nodes) {
-    const stage = document.createElement('div');
-    stage.className = 'vs-stage';
-    stage.style.setProperty('--ill-bg', node.tagName === 'CANVAS' ? '#9ca3af' : '#fff');
-    node.replaceWith(stage);
-    stage.appendChild(node);
-    const btn = document.createElement('button');
-    btn.className = 'vs-fs';
-    btn.innerHTML = '⛶ מסך מלא';
-    btn.addEventListener('click', () => (current === stage ? exit() : enter(stage)));
-    stage.appendChild(btn);
-    render(node, false);
-    if (node.tagName !== 'CANVAS') stage.style.setProperty('--ill-bg', node.querySelector('rect').getAttribute('fill'));
-  }
+function makeStage(node, redraw) {
+  const stage = document.createElement('div');
+  stage.className = 'vs-stage';
+  node.replaceWith(stage);
+  stage.appendChild(node);
+  const btn = document.createElement('button');
+  btn.className = 'vs-fs';
+  btn.innerHTML = '⛶ מסך מלא';
+  btn.addEventListener('click', () => (fsCurrent === stage ? fsExit() : fsEnter(stage)));
+  stage.appendChild(btn);
+  redraws.set(stage, redraw);
+  redraw(false);
+  return stage;
+}
 
+function initFullscreen() {
   document.addEventListener('fullscreenchange', () => {
-    if (current && !document.fullscreenElement) exit();
-    else if (current) render(current.firstElementChild, true);
+    if (fsCurrent && !document.fullscreenElement) fsExit();
+    else if (fsCurrent) redraws.get(fsCurrent)(true);
   });
-  window.addEventListener('resize', () => { if (current) render(current.firstElementChild, true); });
-  document.addEventListener('keydown', e => { if (e.key === 'Escape' && current) exit(); });
+  window.addEventListener('resize', () => { if (fsCurrent) redraws.get(fsCurrent)(true); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && fsCurrent) fsExit(); });
+}
+
+function initIllusions() {
+  const nodes = [...document.querySelectorAll('#section-vision .vs-ill-list .baby-card > svg, #section-vision .vs-ill-list .baby-card > canvas')];
+  for (const node of nodes) {
+    const stage = makeStage(node, full => render(node, full));
+    stage.style.setProperty('--ill-bg', node.tagName === 'CANVAS' ? '#9ca3af' : node.querySelector('rect').getAttribute('fill'));
+  }
 
   // Lilac chaser: hide one disc at a time, going round
   let i = 0;
@@ -394,42 +403,61 @@ function initAfterimage() {
   const svg = $('after-svg'), go = $('after-go');
   // Israeli flag with inverted colours: blue (#0038b8) becomes yellow, white becomes black
   const INV = '#ffc747';
-  function flag() {
+  let showing = 'flag', full = false;
+
+  function draw() {
+    // The 400 × 300 flag sits in the middle; in full screen the area around it fills the screen
+    let W = 400, H = 300;
+    if (full) {
+      const a = innerWidth / innerHeight;
+      if (a >= 4 / 3) W = Math.round(300 * a); else H = Math.round(400 / a);
+    }
+    const ox = (W - 400) / 2, oy = (H - 300) / 2, cx = W / 2, cy = H / 2;
     svg.innerHTML = '';
-    el('rect', { width: 400, height: 300, fill: '#000' }, svg);
-    el('rect', { x: 0, y: 30, width: 400, height: 40, fill: INV }, svg);
-    el('rect', { x: 0, y: 230, width: 400, height: 40, fill: INV }, svg);
-    const star = (flipY) => {
-      const r = 52, pts = [0, 1, 2].map(k => {
-        const a = (-90 + k * 120 + (flipY ? 180 : 0)) * Math.PI / 180;
-        return `${200 + r * Math.cos(a)},${150 + r * Math.sin(a)}`;
-      });
-      el('polygon', { points: pts.join(' '), fill: 'none', stroke: INV, 'stroke-width': 9, 'stroke-linejoin': 'miter' }, svg);
-    };
-    star(false); star(true);
-    el('circle', { cx: 200, cy: 150, r: 4, fill: '#fff' }, svg);
+    svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+    const bg = showing === 'flag' ? '#000' : '#fff';
+    svg.parentElement.style.setProperty('--ill-bg', bg);
+    el('rect', { width: W, height: H, fill: bg }, svg);
+    if (showing === 'flag') {
+      el('rect', { x: ox, y: oy + 30, width: 400, height: 40, fill: INV }, svg);
+      el('rect', { x: ox, y: oy + 230, width: 400, height: 40, fill: INV }, svg);
+      for (const flipY of [false, true]) {
+        const pts = [0, 1, 2].map(k => {
+          const a = ((-90 + k * 120 + (flipY ? 180 : 0)) * Math.PI) / 180;
+          return `${cx + 52 * Math.cos(a)},${cy + 52 * Math.sin(a)}`;
+        });
+        el('polygon', { points: pts.join(' '), fill: 'none', stroke: INV, 'stroke-width': 9, 'stroke-linejoin': 'miter' }, svg);
+      }
+    }
+    el('circle', { cx, cy, r: 4, fill: showing === 'flag' ? '#fff' : '#0f172a' }, svg);
   }
-  function blank() {
-    svg.innerHTML = '';
-    el('rect', { width: 400, height: 300, fill: '#fff' }, svg);
-    el('circle', { cx: 200, cy: 150, r: 4, fill: '#0f172a' }, svg);
-  }
-  let timer = 0;
-  go.addEventListener('click', () => {
-    clearInterval(timer);
-    flag();
+  const show = what => { showing = what; draw(); };
+
+  const stage = makeStage(svg, f => { full = f; draw(); });
+  // A second start button inside the stage, so the timer can run in full screen too
+  const inGo = document.createElement('button');
+  inGo.className = 'vs-fs vs-fs-go';
+  stage.appendChild(inGo);
+  const label = text => { go.textContent = text; inGo.textContent = text; };
+  label('▶ התחלה (30 שניות)');
+
+  let timer = 0, back = 0;
+  function start() {
+    clearInterval(timer); clearTimeout(back);
+    show('flag');
     let left = 30;
-    go.textContent = `⏳ ${left}…`;
+    label(`⏳ ${left}…`);
     timer = setInterval(() => {
       left--;
-      if (left > 0) { go.textContent = `⏳ ${left}…`; return; }
+      if (left > 0) { label(`⏳ ${left}…`); return; }
       clearInterval(timer);
-      blank();
-      go.textContent = '↺ שוב';
-      setTimeout(() => { if (go.textContent === '↺ שוב') flag(); }, 15000);
+      show('blank');
+      label('↺ שוב');
+      back = setTimeout(() => { show('flag'); label('▶ התחלה (30 שניות)'); }, 15000);
     }, 1000);
-  });
-  flag();
+  }
+  go.addEventListener('click', start);
+  inGo.addEventListener('click', start);
 }
 
 // ─────────────────────── Scrambled reading ───────────────────────
@@ -455,6 +483,7 @@ export function initVision() {
   initPages();
   initDensity();
   initFlash();
+  initFullscreen();
   initIllusions();
   initAfterimage();
   initScramble();
