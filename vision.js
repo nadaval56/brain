@@ -198,11 +198,11 @@ function initFlash() {
 }
 
 // ─────────────────────── Illusions ───────────────────────
-// All drawn wide (2:1) so the edges really land in peripheral vision
-const W = 800, H = 400, CX = W / 2, CY = H / 2;
+// Each illusion is drawn for a given size: 2:1 in the page, and the screen's own
+// shape in full screen, so the edges really land in peripheral vision.
+const ILL_H = 400;
 
-function initTroxler() {
-  const svg = $('troxler-svg');
+function drawTroxler(svg, W, H) {
   el('rect', { width: W, height: H, fill: '#d4d4d8' }, svg);
   const f = el('filter', { id: 'troxler-blur', x: '-60%', y: '-60%', width: '220%', height: '220%' }, el('defs', {}, svg));
   el('feGaussianBlur', { stdDeviation: 24 }, f);
@@ -210,106 +210,183 @@ function initTroxler() {
   const COLORS = ['#f472b6', '#60a5fa', '#facc15', '#4ade80', '#c084fc', '#fb923c', '#2dd4bf', '#f87171'];
   COLORS.forEach((c, k) => {
     const a = (k / COLORS.length) * 2 * Math.PI + 0.2;
-    el('circle', { cx: CX + 290 * Math.cos(a), cy: CY + 135 * Math.sin(a), r: 52, fill: c }, g);
+    el('circle', { cx: W / 2 + (W / 2 - 110) * Math.cos(a), cy: H / 2 + 135 * Math.sin(a), r: 52, fill: c }, g);
   });
-  el('circle', { cx: CX, cy: CY, r: 5, fill: '#0f172a' }, svg);
+  el('circle', { cx: W / 2, cy: H / 2, r: 5, fill: '#0f172a' }, svg);
 }
 
-function initLilac() {
-  const svg = $('lilac-svg');
+let lilacDisks = [];
+function drawLilac(svg, W, H) {
   el('rect', { width: W, height: H, fill: '#c9c9c9' }, svg);
   const f = el('filter', { id: 'lilac-blur', x: '-60%', y: '-60%', width: '220%', height: '220%' }, el('defs', {}, svg));
   el('feGaussianBlur', { stdDeviation: 8 }, f);
   const g = el('g', { filter: 'url(#lilac-blur)' }, svg);
-  const disks = [];
+  lilacDisks = [];
   for (let i = 0; i < 12; i++) {
     const a = (i / 12) * 2 * Math.PI;
-    disks.push(el('circle', { cx: CX + 150 * Math.cos(a), cy: CY + 150 * Math.sin(a), r: 22, fill: '#e15fd0' }, g));
+    lilacDisks.push(el('circle', { cx: W / 2 + 150 * Math.cos(a), cy: H / 2 + 150 * Math.sin(a), r: 22, fill: '#e15fd0' }, g));
   }
-  el('path', { d: `M${CX},${CY - 10} V${CY + 10} M${CX - 10},${CY} H${CX + 10}`, stroke: '#000', 'stroke-width': 3 }, svg);
-  let i = 0;
-  setInterval(() => {
-    if (!onScreen(svg)) return;
-    disks.forEach((d, k) => { d.style.display = k === i ? 'none' : ''; });
-    i = (i + 1) % 12;
-  }, 110);
+  const cx = W / 2, cy = H / 2;
+  el('path', { d: `M${cx},${cy - 10} V${cy + 10} M${cx - 10},${cy} H${cx + 10}`, stroke: '#000', 'stroke-width': 3 }, svg);
 }
 
-function initScint() {
-  const svg = $('scint-svg');
+function drawScint(svg, W, H) {
   el('rect', { width: W, height: H, fill: '#000' }, svg);
-  const step = 40, w = 6;
-  for (let x = 20; x < W; x += step) el('rect', { x: x - w / 2, y: 0, width: w, height: H, fill: '#808080' }, svg);
-  for (let y = 20; y < H; y += step) el('rect', { x: 0, y: y - w / 2, width: W, height: w, fill: '#808080' }, svg);
-  for (let x = 20; x < W; x += step) for (let y = 20; y < H; y += step) el('circle', { cx: x, cy: y, r: 5.5, fill: '#fff' }, svg);
+  const step = 40, w = 6, x0 = (W % step) / 2 + step / 2, y0 = (H % step) / 2 + step / 2;
+  for (let x = x0; x < W; x += step) el('rect', { x: x - w / 2, y: 0, width: w, height: H, fill: '#808080' }, svg);
+  for (let y = y0; y < H; y += step) el('rect', { x: 0, y: y - w / 2, width: W, height: w, fill: '#808080' }, svg);
+  for (let x = x0; x < W; x += step) for (let y = y0; y < H; y += step) el('circle', { cx: x, cy: y, r: 5.5, fill: '#fff' }, svg);
 }
 
-function initNinio() {
-  const svg = $('ninio-svg');
+function drawNinio(svg, W, H) {
   el('rect', { width: W, height: H, fill: '#fff' }, svg);
   const step = 25;
   const g = el('g', { stroke: '#8a8a8a', 'stroke-width': 2.5 }, svg);
   for (let x = 0; x <= W; x += step) el('line', { x1: x, y1: 0, x2: x, y2: H }, g);
   for (let y = 0; y <= H; y += step) el('line', { x1: 0, y1: y, x2: W, y2: y }, g);
   // diagonals make the pattern busier, as in the original
-  for (let k = -H; k <= W; k += step * 2) {
+  for (let k = -2 * H; k <= W + H; k += step * 2) {
     el('line', { x1: k, y1: 0, x2: k + H, y2: H }, g);
     el('line', { x1: k + H, y1: 0, x2: k, y2: H }, g);
   }
-  // 12 small dots, each on a crossing of all four line directions
-  for (const i of [4, 12, 20, 28]) for (const j of [4, 8, 12]) el('circle', { cx: i * step, cy: j * step, r: 4.2, fill: '#000' }, svg);
+  // 12 small dots (4 × 3, or 3 × 4 on a tall screen), each on a crossing of all four line directions
+  const cols = W / step, rows = H / step;
+  const spot = (n, k, len) => Math.min(2 * Math.floor((len - 1) / 2), Math.max(2, 2 * Math.round((len * (k + 0.5)) / n / 2)));
+  const nc = W >= H ? 4 : 3, nr = 12 / nc;
+  for (let c = 0; c < nc; c++) for (let r = 0; r < nr; r++) {
+    el('circle', { cx: spot(nc, c, cols) * step, cy: spot(nr, r, rows) * step, r: 4.2, fill: '#000' }, svg);
+  }
 }
 
-function initHealing() {
-  const svg = $('heal-svg');
+function drawHealing(svg, W, H) {
   el('rect', { width: W, height: H, fill: '#fff' }, svg);
-  const cols = 32, rows = 16, cw = W / cols, ch = H / rows;
+  const cell = 25, cols = Math.floor(W / cell), rows = Math.floor(H / cell);
+  const ox = (W - cols * cell) / 2, oy = (H - rows * cell) / 2;
   // Seeded noise so the grid looks the same every visit
   let seed = 7;
   const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647) - 0.5;
   for (let i = 0; i < cols; i++) for (let j = 0; j < rows; j++) {
-    const cx = (i + 0.5) * cw, cy = (j + 0.5) * ch;
-    const d = Math.hypot((cx - CX) / CY, (cy - CY) / CY);
-    const mess = Math.max(0, Math.min(1, (d - 0.35) / 0.6));
-    const s = 13 * (1 + rnd() * 0.9 * mess);
-    const x = cx + rnd() * 9 * mess, y = cy + rnd() * 9 * mess, rot = rnd() * 70 * mess;
-    el('rect', { x: x - s / 2, y: y - s / 2, width: s, height: s, fill: '#0f172a', transform: `rotate(${rot.toFixed(1)} ${x.toFixed(1)} ${y.toFixed(1)})` }, svg);
+    const cx = ox + (i + 0.5) * cell, cy = oy + (j + 0.5) * cell;
+    // Regular in a central disc, then gradually messier: random size and position, slight tilt
+    const d = Math.hypot(cx - W / 2, cy - H / 2) / (H / 2);
+    const mess = Math.max(0, Math.min(1, (d - 0.4) / 0.5));
+    const sz = 12 * (1 + rnd() * 0.9 * mess);
+    const x = cx + rnd() * 10 * mess, y = cy + rnd() * 10 * mess, rot = rnd() * 30 * mess;
+    el('rect', { x: x - sz / 2, y: y - sz / 2, width: sz, height: sz, fill: '#0f172a', transform: `rotate(${rot.toFixed(1)} ${x.toFixed(1)} ${y.toFixed(1)})` }, svg);
   }
-  el('circle', { cx: CX, cy: CY, r: 4, fill: '#e11d48' }, svg);
+  el('circle', { cx: W / 2, cy: H / 2, r: 4, fill: '#e11d48' }, svg);
 }
 
-function initDrift() {
-  const cv = $('drift-canvas'), ctx = cv.getContext('2d');
-  ctx.fillStyle = '#c8c8c8';
-  ctx.fillRect(0, 0, cv.width, cv.height);
-  // Luminance staircase that produces illusory motion: black → dark grey → white → light grey
-  const SEQ = ['#000000', '#4d4d4d', '#ffffff', '#b3b3b3'];
+// "Rotating snakes" (Kitaoka): every ring of a wheel repeats black → blue → white → yellow.
+// That luminance staircase reads as motion from black towards blue; all rings in a wheel
+// share one direction, and neighbouring wheels turn the opposite way.
+function drawDrift(cv, W, H, rows) {
+  cv.width = W; cv.height = H;
+  const ctx = cv.getContext('2d');
+  ctx.fillStyle = '#9ca3af';
+  ctx.fillRect(0, 0, W, H);
+  const SEQ = ['#000000', '#1d4ed8', '#ffffff', '#facc15'];
   function wheel(cx, cy, R, dir) {
-    const rings = 5;
+    const rings = 4, w = (R * 0.86) / rings;
     for (let r = 0; r < rings; r++) {
-      const ro = R * (1 - r / rings), ri = R * (1 - (r + 1) / rings);
-      const n = 8 * (rings - r) + 8;
-      const off = (r % 2 ? 0.5 : 0) * (2 * Math.PI / n);
-      for (let s = 0; s < n * 4; s++) {
-        const a0 = off + (s / (n * 4)) * 2 * Math.PI, a1 = off + ((s + 1) / (n * 4)) * 2 * Math.PI;
-        const k = r % 2 ? s % 4 : 3 - (s % 4);
-        ctx.fillStyle = SEQ[dir > 0 ? k : 3 - k];
+      const ro = R - r * w, ri = ro - w, rm = (ro + ri) / 2;
+      const units = Math.max(5, Math.round((2 * Math.PI * rm) / (2.4 * w)));
+      const tile = (2 * Math.PI) / (units * 4), off = r * tile * 2;
+      for (let t = 0; t < units * 4; t++) {
+        const a0 = off + t * tile, a1 = a0 + tile + 0.004;
+        ctx.fillStyle = SEQ[dir > 0 ? t % 4 : 3 - (t % 4)];
         ctx.beginPath();
-        ctx.arc(cx, cy, ro, a0, a1 + 0.01);
-        ctx.arc(cx, cy, ri, a1 + 0.01, a0, true);
+        ctx.arc(cx, cy, ro, a0, a1);
+        ctx.arc(cx, cy, ri, a1, a0, true);
         ctx.closePath();
         ctx.fill();
       }
     }
-    ctx.fillStyle = '#c8c8c8';
-    ctx.beginPath(); ctx.arc(cx, cy, R / 5, 0, 2 * Math.PI); ctx.fill();
+    ctx.fillStyle = '#9ca3af';
+    ctx.beginPath(); ctx.arc(cx, cy, R * 0.14, 0, 2 * Math.PI); ctx.fill();
   }
-  for (const [x, d0] of [[200, 1], [600, -1], [1000, 1]]) {
-    wheel(x, 150, 135, d0);
-    wheel(x, 450, 135, -d0);
+  const s = H / rows, cols = Math.max(1, Math.round(W / s)), sx = W / cols;
+  for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) {
+    wheel((c + 0.5) * sx, (r + 0.5) * s, Math.min(sx, s) * 0.47, (r + c) % 2 ? -1 : 1);
   }
-  wheel(400, 300, 90, 1);
-  wheel(800, 300, 90, -1);
+}
+
+const ILLUSIONS = {
+  'troxler-svg': drawTroxler,
+  'lilac-svg': drawLilac,
+  'scint-svg': drawScint,
+  'ninio-svg': drawNinio,
+  'heal-svg': drawHealing,
+};
+
+function render(node, full) {
+  if (node.tagName === 'CANVAS') {
+    const dpr = Math.min(2, window.devicePixelRatio || 1);
+    if (full) drawDrift(node, Math.round(innerWidth * dpr), Math.round(innerHeight * dpr), innerHeight > innerWidth ? 4 : 3);
+    else drawDrift(node, 1200, 600, 2);
+    return;
+  }
+  const H = ILL_H, W = full ? Math.round((H * innerWidth) / innerHeight) : 2 * H;
+  node.innerHTML = '';
+  node.setAttribute('viewBox', `0 0 ${W} ${H}`);
+  ILLUSIONS[node.id](node, W, H);
+}
+
+// Wrap every illusion in a stage with a full-screen toggle. Uses the Fullscreen API
+// where it exists, and a fixed overlay elsewhere (e.g. iPhone Safari).
+function initIllusions() {
+  let current = null;
+  const nodes = [...document.querySelectorAll('#section-vision .vs-ill-list .baby-card > svg, #section-vision .vs-ill-list .baby-card > canvas')];
+
+  function exit() {
+    if (!current) return;
+    const stage = current;
+    current = null;
+    stage.classList.remove('vs-full');
+    document.body.classList.remove('vs-noscroll');
+    stage.querySelector('.vs-fs').innerHTML = '⛶ מסך מלא';
+    render(stage.firstElementChild, false);
+    if (document.fullscreenElement) document.exitFullscreen?.();
+  }
+
+  async function enter(stage) {
+    current = stage;
+    stage.classList.add('vs-full');
+    document.body.classList.add('vs-noscroll');
+    stage.querySelector('.vs-fs').innerHTML = '✕ יציאה ממסך מלא';
+    try { await stage.requestFullscreen?.(); } catch (e) { /* overlay only */ }
+    render(stage.firstElementChild, true);
+  }
+
+  for (const node of nodes) {
+    const stage = document.createElement('div');
+    stage.className = 'vs-stage';
+    stage.style.setProperty('--ill-bg', node.tagName === 'CANVAS' ? '#9ca3af' : '#fff');
+    node.replaceWith(stage);
+    stage.appendChild(node);
+    const btn = document.createElement('button');
+    btn.className = 'vs-fs';
+    btn.innerHTML = '⛶ מסך מלא';
+    btn.addEventListener('click', () => (current === stage ? exit() : enter(stage)));
+    stage.appendChild(btn);
+    render(node, false);
+    if (node.tagName !== 'CANVAS') stage.style.setProperty('--ill-bg', node.querySelector('rect').getAttribute('fill'));
+  }
+
+  document.addEventListener('fullscreenchange', () => {
+    if (current && !document.fullscreenElement) exit();
+    else if (current) render(current.firstElementChild, true);
+  });
+  window.addEventListener('resize', () => { if (current) render(current.firstElementChild, true); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && current) exit(); });
+
+  // Lilac chaser: hide one disc at a time, going round
+  let i = 0;
+  setInterval(() => {
+    if (!lilacDisks.length || !onScreen($('lilac-svg'))) return;
+    lilacDisks.forEach((d, k) => { d.style.display = k === i ? 'none' : ''; });
+    i = (i + 1) % 12;
+  }, 110);
 }
 
 // ─────────────────────── Afterimage flag ───────────────────────
@@ -378,12 +455,7 @@ export function initVision() {
   initPages();
   initDensity();
   initFlash();
-  initTroxler();
-  initLilac();
-  initScint();
-  initNinio();
-  initHealing();
-  initDrift();
+  initIllusions();
   initAfterimage();
   initScramble();
 }
