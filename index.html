@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>המוח · מעבדת מדעי המוח</title>
-<meta name="description" content="ניסויים והדמיות במדעי המוח לכיתה: מבחן סטרופ, אטלס מוח תלת־ממדי, רפלקסים, וראייה: הכתם העיוור, ראייה היקפית ואשליות.">
+<meta name="description" content="ניסויים והדמיות במדעי המוח לכיתה: מבחן סטרופ, אטלס מוח תלת־ממדי, רפלקסים, ראייה (הכתם העיוור, ראייה היקפית ואשליות) ושיווי משקל.">
 <script type="importmap">
 { "imports": {
   "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
@@ -712,10 +712,103 @@
     .vs-cols { grid-template-columns: 1fr; }
     #vs-video .rx-stage { order: -1; }
   }
+  @media (max-width: 760px) {
+    .section-tabs { overflow-x: auto; scrollbar-width: none; justify-content: flex-start; }
+    .section-tabs::-webkit-scrollbar { display: none; }
+    .section-tab { flex-shrink: 0; white-space: nowrap; }
+  }
   @media (max-width: 480px) {
     .section-tabs { gap: 14px; }
     .section-tab { font-size: 14px; gap: 5px; }
     .section-tab svg.icon { width: 16px; height: 16px; }
+  }
+
+  /* ── Balance (vestibular) ── */
+  .bl .rx-block li + li { margin-top: 4px; }
+  .bl-plan { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); padding: 12px 18px; }
+  .rx details.bl-plan { margin-top: 0; padding: 12px 18px; border: 1px solid var(--border); }
+  .bl-plan summary { font-size: 15px; }
+  .bl-plan-grid { display: grid; grid-template-columns: 3fr 2fr; gap: 10px 28px; margin-top: 8px; font-size: 14px; line-height: 1.7; color: var(--text-2); }
+  .bl-plan-grid ol, .bl-plan-grid ul { padding-inline-start: 20px; }
+  .bl-video-link {
+    display: flex; align-items: center; gap: 14px; text-decoration: none; color: var(--text);
+    background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px;
+  }
+  .bl-video-link:hover { border-color: #dc2626; }
+  .bl-video-link small { display: block; color: var(--muted); font-size: 12px; direction: ltr; text-align: right; }
+  .bl-video-icon { width: 46px; height: 34px; border-radius: 9px; background: #dc2626; color: #fff; display: grid; place-items: center; font-size: 16px; flex-shrink: 0; }
+  .bl-scene-poster svg { display: block; width: 100%; height: auto; border-radius: 10px; }
+  .bl-cards .flip { height: 270px; }
+  .bl-cards .face.front .q { font-size: 18px; }
+  .bl-back { justify-content: center !important; gap: 8px; background: color-mix(in srgb, var(--accent) 10%, var(--surface)) !important; border-color: var(--accent) !important; }
+  .bl-back .emoji { font-size: 34px; }
+  .bl-back .why { flex: 0 1 auto !important; font-size: 15px !important; color: var(--text) !important; }
+  .bl-solution { display: grid; grid-template-columns: minmax(0, 6fr) minmax(0, 5fr); gap: 16px; align-items: start; }
+  .bl-solution[hidden] { display: none; }
+  .bl-see { font-size: 15px; color: var(--text-2); background: var(--surface); border: 1px solid var(--border); border-radius: 9px; padding: 8px 12px; }
+  .bl-meter { position: relative; height: 18px; border-radius: 9px; background: var(--surface); border: 1px solid var(--border); overflow: hidden; direction: ltr; }
+  .bl-meter-fill { height: 100%; width: 0; background: #16a34a; transition: width 0.3s, background 0.3s; }
+  .bl-meter-fill.over { background: #dc2626; }
+  .bl-meter-th { position: absolute; top: -2px; bottom: -2px; left: 60%; width: 3px; background: var(--text); }
+  .bl-meter-axis { display: flex; justify-content: space-between; font-size: 11px; color: var(--muted); direction: ltr; }
+  .bl-meter-axis span:nth-child(2) { position: relative; left: 4%; }
+  .bl-two { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 10px 0; }
+  .bl-chipcard { display: flex; flex-direction: column; gap: 4px; border-radius: 10px; padding: 10px 12px; font-size: 14px; line-height: 1.55; color: var(--text-2);
+    background: color-mix(in srgb, var(--c) 10%, var(--surface)); border-inline-start: 4px solid var(--c); }
+  .bl-chipcard b { color: var(--text); }
+  .bl-canal { stroke: #c4b5fd; stroke-width: 16; transition: stroke 0.25s, opacity 0.25s; }
+  #bl-ear-svg.picked .bl-canal { opacity: 0.35; }
+  #bl-ear-svg.picked .bl-canal.on { stroke: #7c3aed; opacity: 1; }
+  #bl-oto { transition: opacity 0.25s; }
+  #bl-ear-svg.picked #bl-oto { opacity: 0.35; }
+  #bl-ear-svg.picked #bl-oto.on { opacity: 1; }
+  .rx .bl-lab text { font-size: 14px; font-weight: 700; fill: #6d28d9; text-anchor: middle; }
+  #bl-canal-plot { width: 100%; height: auto; display: block; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; }
+  .bl-paths { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin-top: 12px; }
+  .bl-paths div { display: flex; flex-direction: column; gap: 4px; background: var(--surface-2); border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; font-size: 14px; line-height: 1.5; color: var(--text-2); }
+  .bl-paths b { color: var(--text); font-size: 15px; }
+  .bl-stations .baby-card ol { padding-inline-start: 20px; }
+  .bl-stations .baby-card li { font-size: 14px; line-height: 1.6; }
+  .bl-vor { overflow: hidden; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; }
+  .bl-vor p { font-size: 17px !important; line-height: 1.7 !important; color: var(--text) !important; }
+  .bl-vor.shaking p { animation: blshake 0.2s linear infinite; }
+  @keyframes blshake { 25% { transform: translateX(-14px); } 75% { transform: translateX(14px); } }
+  .bl-cond { flex-wrap: wrap; }
+  .bl-watch { display: flex; align-items: center; gap: 14px; }
+  .bl-watch-btn { flex: 1; height: 56px; border: none; border-radius: 12px; background: #16a34a; color: #fff; font-size: 18px; font-weight: 700; cursor: pointer; }
+  .bl-watch-btn.active { background: #dc2626; }
+  .bl-watch .rx-clock { font-size: 26px; }
+  .bl-stations .rt-bar { grid-template-columns: 150px 1fr 56px; }
+  .bl-sens h4 { margin: 8px 0 4px; }
+  .bl-sens-rows { display: flex; flex-direction: column; gap: 6px; }
+  .bl-sens-row { display: grid; grid-template-columns: 96px 1fr 96px; align-items: center; gap: 8px; font-size: 13px; color: var(--text-2); }
+  .bl-sens-row .track { height: 12px; background: var(--surface); border: 1px solid var(--border); border-radius: 5px; overflow: hidden; direction: ltr; }
+  .bl-sens-row .fill { height: 100%; background: var(--accent); }
+  .bl-sens-row .val { font-family: var(--mono); font-size: 12px; text-align: left; }
+  .bl-sit { display: flex; flex-wrap: wrap; gap: 8px; }
+  .bl-witness { display: flex; flex-direction: column; gap: 10px; }
+  .bl-wit-title { font-size: 20px; font-weight: 800; color: var(--text); }
+  .bl-wit { display: flex; flex-direction: column; gap: 2px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 10px 14px; font-size: 16px; color: var(--text-2); }
+  .bl-wit b { font-size: 14px; color: var(--muted); }
+  .bl-verdict { border-radius: 10px; padding: 12px 14px; font-size: 16px; font-weight: 700; }
+  .bl-verdict.good { background: color-mix(in srgb, #16a34a 14%, var(--surface)); color: #15803d; border: 1px solid #16a34a; }
+  .bl-verdict.bad { background: color-mix(in srgb, #dc2626 12%, var(--surface)); color: #b91c1c; border: 1px solid #dc2626; }
+  body.dark .bl-verdict.good { color: #4ade80; }
+  body.dark .bl-verdict.bad { color: #f87171; }
+  #bl-vection { width: 100%; height: auto; display: block; }
+  @media (max-width: 900px) {
+    .bl-plan-grid, .bl-solution, .bl-two { grid-template-columns: 1fr; }
+    .bl-paths { grid-template-columns: 1fr 1fr; }
+    #bl-case .rx-stage { order: -1; }
+  }
+  @media (max-width: 600px) {
+    .bl-cards { grid-template-columns: 1fr 1fr; gap: 10px; }
+    .bl-cards .flip { height: 230px; }
+    .bl-cards .face { padding: 12px; }
+    .bl-cards .face.front .q { font-size: 15px; }
+    .bl-cards .face .emoji { font-size: 34px; }
+    .bl-back .why { font-size: 13px !important; line-height: 1.45 !important; overflow-y: auto; }
+    .bl-paths { grid-template-columns: 1fr; }
   }
 
   @media (max-width: 1000px) {
@@ -759,6 +852,7 @@
   <symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 2v5M12 17v5M2 12h5M17 12h5"/></symbol>
   <symbol id="i-zap" viewBox="0 0 24 24"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></symbol>
   <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></symbol>
+  <symbol id="i-balance" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><ellipse cx="12" cy="12" rx="9" ry="3.5"/><ellipse cx="12" cy="12" rx="3.5" ry="9"/></symbol>
   <symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></symbol>
 </svg>
 
@@ -775,6 +869,7 @@
     <button class="section-tab" id="sec-tab-brain" onclick="showSection('brain')"><svg class="icon"><use href="#i-cube"/></svg>אטלס המוח</button>
     <button class="section-tab" id="sec-tab-reflex" onclick="showSection('reflex')"><svg class="icon"><use href="#i-zap"/></svg>רפלקסים</button>
     <button class="section-tab" id="sec-tab-vision" onclick="showSection('vision')"><svg class="icon"><use href="#i-eye"/></svg>ראייה</button>
+    <button class="section-tab" id="sec-tab-balance" onclick="showSection('balance')"><svg class="icon"><use href="#i-balance"/></svg>שיווי משקל</button>
   </nav>
   <div class="top-actions">
     <button class="icon-btn" onclick="toggleFullscreen()" title="מסך מלא (F)" aria-label="מסך מלא"><svg class="icon"><use href="#i-expand"/></svg></button>
@@ -2054,6 +2149,429 @@
   </div>
 </main>
 
+<main class="section rx bl" id="section-balance" hidden>
+
+  <div class="page-head">
+    <div>
+      <div class="eyebrow">שיווי משקל · המערכת הווסטיבולרית</div>
+      <h1 class="page-title">איך הגוף יודע שהוא זז?</h1>
+      <p class="lead">בתוך האוזן יש חיישן תנועה בגודל של אפונה. כשהוא עובד, לא שמים לב אליו. כשמרמים אותו, <b>אפשר להעלים פסל שלם</b>.</p>
+    </div>
+  </div>
+
+  <nav class="rx-tabs" id="bl-tabs" aria-label="חלקי הנושא">
+    <button data-page="mystery">🕵️ התעלומה</button>
+    <button data-page="ear">👂 האוזן הפנימית</button>
+    <button data-page="lab">🧪 תחנות ניסוי</button>
+    <button data-page="sick">🤢 בחילת נסיעה</button>
+    <button data-page="quiz">🃏 חידות</button>
+  </nav>
+
+  <div class="rx-page" data-page="mystery">
+
+  <details class="bl-plan">
+    <summary>🧑‍🏫 למורה: מערך לשעה וחצי, ורשימת ציוד</summary>
+    <div class="bl-plan-grid">
+      <ol>
+        <li><b>0–15 דק׳ · התעלומה:</b> צפייה בקסם, פתיחת קלפי הרמזים, השערות בקבוצות.</li>
+        <li><b>15–30 · האוזן הפנימית:</b> כוס המים + הסימולטור של התעלה.</li>
+        <li><b>30–35 · פתרון התעלומה:</b> הסימולציה, ו"מי היה צריך להתריע?".</li>
+        <li><b>35–70 · תחנות ניסוי:</b> 5 תחנות, כ־7 דקות כל אחת, בשלשות.</li>
+        <li><b>70–80 · בחילת נסיעה:</b> המצבים, והרכבת המדומה.</li>
+        <li><b>80–90 · חידות:</b> כרטיסים, הכיתה מצביעה.</li>
+      </ol>
+      <div>
+        <b>ציוד:</b>
+        <ul>
+          <li>כיסא משרדי מסתובב (יציב!)</li>
+          <li>כוסות שקופות עם מים, ופלפל שחור / עלי תה / נייר קרוע</li>
+          <li>כרית או מזרן ספוג, סטופר (יש באתר)</li>
+          <li>מסקינטייפ לסימון על הרצפה</li>
+          <li>טלפונים חכמים (לתחנת החיישנים)</li>
+        </ul>
+      </div>
+    </div>
+  </details>
+
+  <!-- ───── The case ───── -->
+  <section class="rx-block" id="bl-case">
+    <div class="rx-text">
+      <h2>התיק: פסל החירות נעלם</h2>
+      <p><b>ניו יורק, 8 באפריל 1983, בלילה.</b> הקוסם דייוויד קופרפילד מושיב קהל מול פסל החירות. בין שני מגדלים גבוהים עולה וילון ומסתיר את הפסל. כמה רגעים אחר כך הווילון יורד, ו<b>הפסל איננו</b>. זרקורים ומסוק מאירים את המקום: ריק. מסך מכ״ם: ריק.</p>
+      <p>מאות אנשים ישבו שם, עם עיניים, אוזניים וגוף. <b>איך אף אחד לא הרגיש בתרמית?</b></p>
+      <h4>🔎 המשימה</h4>
+      <ol>
+        <li>צפו בקסם (הכפתור "צפו בקסם ביוטיוב").</li>
+        <li>פתחו את קלפי הרמזים אחד־אחד. אחרי כל קלף: יש לכם השערה?</li>
+        <li>כתבו בקבוצה: איך זה נעשה? ו<b>איזו מערכת בגוף</b> הייתה אמורה לגלות את זה?</li>
+      </ol>
+    </div>
+    <div class="rx-stage">
+      <a class="bl-video-link" href="https://www.youtube.com/results?search_query=David+Copperfield+Statue+of+Liberty+1983" target="_blank" rel="noopener">
+        <span class="bl-video-icon">▶</span>
+        <span><b>צפו בקסם ביוטיוב</b><small>David Copperfield, Statue of Liberty, 1983</small></span>
+      </a>
+      <div class="bl-scene-poster" aria-hidden="true">
+        <svg viewBox="0 0 400 220">
+          <rect width="400" height="220" fill="#0b1530"/>
+          <g fill="#fde68a" opacity="0.8"><circle cx="40" cy="30" r="1.5"/><circle cx="120" cy="18" r="1.2"/><circle cx="300" cy="25" r="1.5"/><circle cx="360" cy="50" r="1.2"/><circle cx="220" cy="12" r="1"/></g>
+          <rect x="0" y="170" width="400" height="50" fill="#13284f"/>
+          <path d="M200,60 l-6,10 h12z" fill="#94a3b8"/>
+          <rect x="193" y="70" width="14" height="60" rx="4" fill="#5eead4" opacity="0.85"/>
+          <path d="M205,72 l14,-26" stroke="#5eead4" stroke-width="5" stroke-linecap="round" opacity="0.85"/>
+          <circle cx="220" cy="42" r="5" fill="#fde047"/>
+          <rect x="182" y="128" width="36" height="42" fill="#64748b"/>
+          <g fill="#334155"><rect x="70" y="40" width="34" height="150"/><rect x="296" y="40" width="34" height="150"/></g>
+          <rect x="104" y="40" width="192" height="5" fill="#334155"/>
+          <path d="M104,45 H296 V150 Q200,140 104,150 Z" fill="#b91c1c" opacity="0.88"/>
+          <g fill="#1e293b"><circle cx="130" cy="210" r="10"/><circle cx="160" cy="214" r="10"/><circle cx="240" cy="214" r="10"/><circle cx="270" cy="210" r="10"/><circle cx="200" cy="216" r="10"/></g>
+        </svg>
+      </div>
+    </div>
+  </section>
+
+  <!-- ───── Clue cards ───── -->
+  <section class="rx-block wide">
+    <div class="rx-text">
+      <h2>🗂️ קלפי רמזים <small>לחצו על קלף כדי להפוך אותו</small></h2>
+    </div>
+    <div class="quiz class-mode bl-cards" id="bl-clues"></div>
+  </section>
+
+  <!-- ───── The solution ───── -->
+  <section class="rx-block wide" id="bl-solve">
+    <div class="rx-text">
+      <h2>🔓 הפתרון</h2>
+      <p>קופרפילד אף פעם לא גילה איך עשה את זה. אבל ההסבר המקובל הוא: <b>הקהל ישב על במה מסתובבת</b>. בזמן שהווילון היה למעלה, הבמה, עם המגדלים, הסתובבה <b>לאט מאוד</b>. כשהווילון ירד, הקהל הסתכל כבר לכיוון אחר, והפסל הוסתר מאחורי אחד המגדלים. האורות על הפסל כובו, ובכיוון החדש הודלקו אורות דומים.</p>
+      <button class="btn btn-main" id="bl-reveal">🔓 הראו לי מה קרה</button>
+    </div>
+    <div class="bl-solution" id="bl-solution" hidden>
+      <div class="rx-stage">
+        <svg class="scene" id="bl-scene" viewBox="0 0 600 440" role="img" aria-label="מבט מלמעלה: במת הקהל מסתובבת והפסל נעלם מאחורי מגדל"></svg>
+        <div class="bl-see" id="bl-see"></div>
+      </div>
+      <div class="rx-stage">
+        <div class="rx-row">
+          <span class="lbl">משך הסיבוב</span>
+          <input type="range" id="bl-dur" min="3" max="180" value="120" aria-label="משך הסיבוב בשניות">
+          <span class="rx-clock" id="bl-dur-out" style="font-size:16px;min-width:auto"></span>
+        </div>
+        <div class="rx-row">
+          <button class="btn btn-main" id="bl-play">▶ הפעילו את הקסם</button>
+          <button class="small-btn" id="bl-reset">↺ מההתחלה</button>
+        </div>
+        <h4 style="margin:4px 0 0">👂 האם האוזן הפנימית תרגיש?</h4>
+        <div class="bl-meter"><div class="bl-meter-fill" id="bl-meter"></div><div class="bl-meter-th"></div></div>
+        <div class="bl-meter-axis"><span>0</span><span>סף התחושה (בערך)</span><span>חזק</span></div>
+        <div class="rx-msg" id="bl-scene-msg"></div>
+        <p class="rx-note">המספרים הם הערכה. האוזן מרגישה <b>שינוי</b> במהירות הסיבוב (תאוצה). אצל רוב האנשים, תאוצה של פחות ממעלה אחת לשנייה בכל שנייה לא מורגשת בכלל. בהדמיה הסיבוב מוצג מהר יותר מהמציאות.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ───── Who should have noticed ───── -->
+  <section class="rx-block wide">
+    <div class="rx-text">
+      <h2>🚨 מי היה אמור להתריע?</h2>
+      <p>ארבע מערכות בגוף יכלו לגלות שהבמה זזה. לכל אחת הייתה "סיבה" לפספס. נחשו, ואז הפכו את הקלף.</p>
+    </div>
+    <div class="quiz class-mode bl-cards" id="bl-systems"></div>
+    <div class="rx-tip"><b>השורה התחתונה:</b> המוח לא "רואה" את העולם ישירות. הוא מחבר מידע מכמה חיישנים. כשכל החיישנים שותקים או מוסתרים, הוא משלים לפי מה שהוא <b>מצפה</b>: "ישבתי במקום, אז לא זזתי". בדיוק כמו בכתם העיוור.</div>
+  </section>
+  </div>
+
+  <div class="rx-page" data-page="ear" hidden>
+
+  <!-- ───── Anatomy ───── -->
+  <section class="rx-block" id="bl-anatomy">
+    <div class="rx-text">
+      <h2>המבוך שבתוך האוזן</h2>
+      <p>עמוק בתוך עצם הגולגולת, ליד השבלול של השמיעה, יש מבנה קטן מלא נוזל: <b>המערכת הווסטיבולרית</b>. יש לה שני סוגי חיישנים:</p>
+      <div class="bl-two">
+        <div class="bl-chipcard" style="--c:#7c3aed">
+          <b>🌀 3 תעלות חצי־מעגליות</b>
+          <span>מרגישות <b>סיבוב</b> של הראש. אחת לכל כיוון: "כן", "לא", ו"אוזן לכתף".</span>
+        </div>
+        <div class="bl-chipcard" style="--c:#0e7490">
+          <b>💎 שתי שקיקות עם "אבנים"</b>
+          <span>(אוטריקולוס וסקולוס) מרגישות <b>כוח משיכה</b> ותנועה <b>בקו ישר</b>: מעלית, בלימה, הטיית הראש.</span>
+        </div>
+      </div>
+      <p>בכל חיישן יש <b>תאי שערה</b>. כשהנוזל או האבנים זזים, השערות מתכופפות ושולחות הודעה ב<b>עצב שיווי המשקל</b> אל גזע המוח.</p>
+      <div class="rx-row" style="margin-top:10px">
+        <span class="lbl">הראו לי:</span>
+        <div class="seg" id="bl-canal-pick">
+          <button data-c="yes">🙂 "כן"</button>
+          <button data-c="no">🙅 "לא"</button>
+          <button data-c="tilt">🤷 אוזן לכתף</button>
+          <button data-c="oto">💎 אבנים</button>
+        </div>
+      </div>
+    </div>
+    <div class="rx-stage">
+      <svg class="scene" id="bl-ear-svg" viewBox="0 0 600 380" role="img" aria-label="איור סכמטי של האוזן הפנימית: שבלול, שלוש תעלות חצי־מעגליות, שקיקות ועצב">
+        <rect width="600" height="380" fill="var(--surface)"/>
+        <g fill="none" stroke-linecap="round">
+          <path id="bl-c-yes" class="bl-canal" d="M300,190 C300,60 400,40 440,90 C470,130 430,175 370,185"/>
+          <path id="bl-c-tilt" class="bl-canal" d="M330,205 C420,230 480,300 420,330 C370,355 330,300 340,240"/>
+          <ellipse id="bl-c-no" class="bl-canal" cx="420" cy="205" rx="90" ry="34"/>
+        </g>
+        <g id="bl-oto">
+          <ellipse cx="300" cy="215" rx="46" ry="32" fill="#cffafe" stroke="#0e7490" stroke-width="3"/>
+          <g fill="#0e7490"><circle cx="286" cy="208" r="3"/><circle cx="296" cy="203" r="2.5"/><circle cx="306" cy="210" r="3"/><circle cx="314" cy="221" r="2.5"/><circle cx="291" cy="223" r="2.5"/></g>
+        </g>
+        <path d="M255,230 C215,240 190,255 180,280 C170,310 200,335 230,325 C255,317 255,290 235,285 C220,281 210,295 220,303" fill="none" stroke="#d97706" stroke-width="16" stroke-linecap="round"/>
+        <path d="M290,248 C270,285 230,330 170,355" fill="none" stroke="#facc15" stroke-width="10" stroke-linecap="round"/>
+        <g class="bl-lab">
+          <text x="380" y="30">תעלה קדמית ("כן")</text>
+          <text x="520" y="160">תעלה אופקית ("לא")</text>
+          <text x="470" y="356">תעלה אחורית (אוזן לכתף)</text>
+          <text x="300" y="275" style="fill:#0e7490">שקיקות עם אבנים</text>
+          <text x="105" y="250" style="fill:#d97706">שבלול (שמיעה)</text>
+          <text x="95" y="345" style="fill:#a16207">עצב ← למוח</text>
+        </g>
+      </svg>
+      <div class="rx-msg" id="bl-ear-msg">כל המבנה בגודל של אפונה, ומלא נוזל. לחצו על כפתור כדי לראות איזה חיישן עובד.</div>
+    </div>
+  </section>
+
+  <!-- ───── Water glass ───── -->
+  <section class="rx-block" id="bl-glass">
+    <div class="rx-text">
+      <h2>🥤 תעלה בכוס <small>ניסוי של 3 דקות</small></h2>
+      <p>התעלות מלאות נוזל. מה קורה לנוזל כשמסובבים אותו? בנו מודל:</p>
+      <ol>
+        <li>מלאו כוס שקופה במים, ופזרו מעט פלפל שחור או עלי תה (שיהיה אפשר לראות את המים זזים).</li>
+        <li>הניחו את הכוס על השולחן וסובבו אותה בבת אחת רבע סיבוב. <b>מה עושים המים?</b></li>
+        <li>סובבו את הכוס לאט וברציפות, כחצי דקה. מה קורה למים אחרי זמן מה?</li>
+        <li>עצרו את הכוס בבת אחת. <b>מה עושים המים עכשיו?</b></li>
+      </ol>
+      <details><summary>מה ראינו, ומה זה אומר על האוזן?</summary>
+        <ul>
+          <li><b>התחלה:</b> המים "נשארים מאחור" כי יש להם התמדה. בתעלה, הנוזל שנשאר מאחור מכופף את השערות, והמוח מרגיש: "מסתובבים!".</li>
+          <li><b>סיבוב קבוע:</b> המים "מדביקים" את הכוס ומסתובבים יחד איתה. בתעלה: הנוזל והראש זזים יחד, השערות חוזרות למקום, ו<b>התחושה נעלמת</b>, למרות שעדיין מסתובבים. (כך הקהל של קופרפילד לא הרגיש!)</li>
+          <li><b>עצירה:</b> המים ממשיכים להסתובב. בתעלה: הנוזל ממשיך, השערות מתכופפות לצד השני, והמוח מרגיש סיבוב <b>לכיוון ההפוך</b>. זו הסחרחורת אחרי קרוסלה.</li>
+        </ul>
+      </details>
+    </div>
+    <div class="rx-stage">
+      <h4 style="margin:0">🌀 הסימולטור של התעלה</h4>
+      <svg class="scene" id="bl-canal-svg" viewBox="0 0 600 300" role="img" aria-label="הדמיה של תעלה חצי־מעגלית: ראש מסתובב, נוזל שמשתהה ושערות שמתכופפות"></svg>
+      <div class="rx-row">
+        <button class="btn btn-main" id="bl-spin">▶ מתחילים להסתובב</button>
+        <button class="small-btn" id="bl-stop" disabled>⏹ עצירה בבת אחת</button>
+      </div>
+      <canvas id="bl-canal-plot" width="1100" height="260" aria-label="גרף: מהירות הסיבוב של הראש ומה שהמוח מרגיש"></canvas>
+      <div class="vs-legend">
+        <span><i style="--c:#64748b"></i>מהירות הסיבוב האמיתית</span>
+        <span><i style="--c:#7c3aed"></i>מה שהמוח <b>מרגיש</b></span>
+      </div>
+      <div class="rx-msg" id="bl-canal-msg">לחצו "מתחילים להסתובב" וצפו בנוזל (הנקודות) ובשערות (הדגל בחלק העליון).</div>
+    </div>
+  </section>
+
+  <!-- ───── Otoliths ───── -->
+  <section class="rx-block" id="bl-otolith">
+    <div class="rx-text">
+      <h2>💎 האבנים שבאוזן <small>אוטוליתים</small></h2>
+      <p>בשקיקות יש שכבת ג׳ל, ועליה <b>גבישים קטנים של סידן</b>. כשמטים את הראש, הגבישים הכבדים "מחליקים" למטה ומושכים את השערות. כך המוח יודע איפה למטה.</p>
+      <p>אבל יש בעיה: גם <b>האצה קדימה</b> (רכב שמזנק) משאירה את הגבישים מאחור, בדיוק כמו הטיה של הראש אחורה. החיישן לא יודע להבדיל! בדרך כלל העיניים עוזרות למוח להחליט.</p>
+      <div class="rx-tip"><b>במעלית:</b> שימו לב שמרגישים רק את ההתחלה והסוף. באמצע, כשהמהירות קבועה, הגבישים לא זזים, ואין שום תחושה.</div>
+    </div>
+    <div class="rx-stage">
+      <svg class="scene" id="bl-oto-svg" viewBox="0 0 600 260" role="img" aria-label="הדמיה של אוטוליתים: גבישים על ג׳ל מעל תאי שערה"></svg>
+      <div class="rx-row">
+        <span class="lbl">הטיית הראש</span>
+        <input type="range" id="bl-tilt" min="-40" max="40" value="0" aria-label="הטיית הראש">
+      </div>
+      <div class="rx-row">
+        <button class="small-btn" id="bl-accel">🚗 רכב מזנק קדימה</button>
+        <button class="small-btn" id="bl-brake">🛑 בלימה חזקה</button>
+      </div>
+      <div class="rx-msg" id="bl-oto-msg"></div>
+    </div>
+  </section>
+
+  <!-- ───── Pathway ───── -->
+  <section class="rx-block wide">
+    <div class="rx-text">
+      <h2>🧠 לאן ההודעה הולכת?</h2>
+      <div class="rx-steps">
+        <span>תעלות + אבנים</span><i>←</i><span>עצב שיווי המשקל</span><i>←</i><span>גזע המוח</span>
+      </div>
+      <div class="bl-paths">
+        <div><b>👀 לעיניים</b><span>רפלקס שמזיז את העיניים הפוך לראש, כדי שהתמונה לא תרעד (תחנה 2).</span></div>
+        <div><b>🦵 לשרירים</b><span>תיקונים קטנים בגב וברגליים כדי לא ליפול (תחנה 3).</span></div>
+        <div><b>🎯 למוח הקטן</b><span>מתאם ומכייל: "כמה חזק לתקן?".</span></div>
+        <div><b>🤢 למרכז ההקאה</b><span>כשהמידע לא מסתדר: בחילה (העמוד "בחילת נסיעה").</span></div>
+      </div>
+      <p class="rx-note">את גזע המוח ואת המוח הקטן אפשר לראות ב<a href="#brain">אטלס המוח</a>.</p>
+    </div>
+  </section>
+  </div>
+
+  <div class="rx-page" data-page="lab" hidden>
+
+  <section class="rx-block wide">
+    <div class="rx-text">
+      <h2>🧪 תחנות ניסוי</h2>
+      <p>עובדים בשלשות: <b>נבדק</b>, <b>מפעיל</b> ו<b>שומר בטיחות</b>. מחליפים תפקידים בכל תחנה.</p>
+      <div class="rx-tip"><b>⚠️ בטיחות:</b> מי שמרגיש סחרחורת חזקה או בחילה עוצר מיד ומתיישב. מי שסובל מבעיות שיווי משקל, אפילפסיה או בחילות חזקות: צופה ורושם, לא נבדק. בתחנות עם עיניים עצומות שומר הבטיחות עומד צמוד.</div>
+    </div>
+  </section>
+
+  <div class="baby-grid bl-stations">
+    <article class="baby-card">
+      <h3>1️⃣ הכיסא המסתובב <small>מה קופרפילד ידע</small></h3>
+      <p><b>צריך:</b> כיסא משרדי מסתובב.</p>
+      <ol>
+        <li>הנבדק יושב, עוצם עיניים, ומרים רגליים מהרצפה.</li>
+        <li><b>סיבוב סודי:</b> המפעיל מתחיל לסובב <b>לאט־לאט</b>, עם האצה עדינה מאוד. הנבדק מצביע עם האגודל לכיוון שהוא מרגיש, או אומר "לא זז". האם הוא מרגיש?</li>
+        <li><b>סיבוב רגיל:</b> מסובבים 10 סיבובים בקצב קבוע (סיבוב בכ־2 שניות). אחרי כ־20 שניות שואלים: "אתה עדיין מסתובב?".</li>
+        <li><b>עצירה:</b> עוצרים בבת אחת. הנבדק מצביע: לאן הוא מרגיש שהוא מסתובב? עכשיו הוא פוקח עיניים, והמפעיל מסתכל לו בעיניים: <b>הן "רועדות" מצד לצד?</b></li>
+      </ol>
+      <details><summary>מה קרה?</summary>
+        <p><b>בסיבוב האיטי</b> ההאצה מתחת לסף, והתעלות לא מגלות כלום. <b>בסיבוב הקבוע</b> הנוזל "מדביק" את הראש, והתחושה דועכת. <b>בעצירה</b> הנוזל ממשיך לזרום, והמוח מרגיש סיבוב לצד השני. את התנועות הקטנות של העיניים, כמו מטוטלת, קוראים <b>ניסטגמוס</b>: העיניים מנסות "לעקוב" אחרי סיבוב שלא קורה. בדיוק כמו בכוס המים!</p>
+      </details>
+    </article>
+
+    <article class="baby-card">
+      <h3>2️⃣ לקרוא בזמן רעידות <small>רפלקס העין</small></h3>
+      <div class="bl-vor" id="bl-vor"><p id="bl-vor-text">המוח שלנו מזיז את העיניים הפוך לתנועת הראש, במהירות של פחות מ־10 אלפיות שנייה. בזכות זה אפשר לקרוא שלט גם בזמן ריצה.</p></div>
+      <div class="rx-row"><button class="small-btn" id="bl-vor-shake">📳 הרעידו את הטקסט</button></div>
+      <ol>
+        <li><b>הטקסט רועד, הראש קבוע:</b> לחצו "הרעידו". אפשר לקרוא?</li>
+        <li><b>הטקסט קבוע, הראש רועד:</b> עצרו את הרעידה, ונענעו את הראש "לא" מהר, באותו קצב. ועכשיו?</li>
+      </ol>
+      <details><summary>למה יש הבדל?</summary>
+        <p>כשהראש זז, התעלות מרגישות את זה ושולחות פקודה ישר לשרירי העיניים: "זוזו הפוך!" (<b>הרפלקס הווסטיבולו־עיני</b>). התמונה נשארת יציבה. כשרק הטקסט זז, אין לחיישן מה להרגיש, והעיניים צריכות "לרדוף" אחרי הטקסט, וזה הרבה יותר איטי.</p>
+      </details>
+    </article>
+
+    <article class="baby-card">
+      <h3>3️⃣ עמידה על רגל אחת <small>שלוש מערכות</small></h3>
+      <p><b>צריך:</b> כרית או מזרן ספוג. הנבדק עומד על רגל אחת, ידיים על המותניים. מודדים כמה זמן עד שהרגל השנייה נוגעת ברצפה (עד 30 שניות).</p>
+      <div class="seg bl-cond" id="bl-cond">
+        <button data-c="0" class="active">👀 רצפה</button>
+        <button data-c="1">🙈 רצפה</button>
+        <button data-c="2">👀 כרית</button>
+        <button data-c="3">🙈 כרית</button>
+      </div>
+      <div class="bl-watch">
+        <button class="bl-watch-btn" id="bl-watch">▶ התחלה</button>
+        <span class="rx-clock" id="bl-watch-out">0.0 ש׳</span>
+      </div>
+      <div class="rt-bars" id="bl-watch-bars"></div>
+      <div class="rx-row"><button class="small-btn" id="bl-watch-clear">🧹 ניקוי תוצאות</button></div>
+      <details><summary>מה גילינו?</summary>
+        <p>כדי לעמוד יציב המוח משתמש ב<b>שלושה</b> מקורות: <b>עיניים</b>, <b>אוזן פנימית</b>, ו<b>תחושה מכפות הרגליים והמפרקים</b>. עוצמים עיניים: נשארו שניים. עומדים על כרית: התחושה מהרגליים משתבשת. עיניים עצומות על כרית: נשארה כמעט רק האוזן הפנימית, וקשה מאוד! רופאים בודקים בדיוק כך (מבחן רומברג).</p>
+      </details>
+    </article>
+
+    <article class="baby-card">
+      <h3>4️⃣ צועדים במקום <small>מבחן פוקודה</small></h3>
+      <p><b>צריך:</b> מסקינטייפ. מסמנים על הרצפה ✚ גדול, והנבדק עומד במרכזו, פונה לאחת הזרועות.</p>
+      <ol>
+        <li>הנבדק מושיט ידיים קדימה, עוצם עיניים וצועד במקום 50 צעדים, עם ברכיים גבוהות.</li>
+        <li>שומר הבטיחות סופר ושומר מקרוב (בשקט! בלי רמזים).</li>
+        <li>בסוף: <b>בכמה מעלות</b> הנבדק הסתובב, ו<b>כמה</b> הוא התקדם? מסמנים בגיר או בטייפ.</li>
+      </ol>
+      <details><summary>מה זה מראה?</summary>
+        <p>בלי עיניים, רק האוזן הפנימית "מחזיקה" את הכיוון. אצל רוב האנשים הסיבוב קטן מ־45°. אם אוזן אחת חלשה מהשנייה, הגוף מסתובב בהתמדה לצד החלש. זה מבחן אמיתי שרופאי אף־אוזן־גרון עושים.</p>
+      </details>
+    </article>
+
+    <article class="baby-card">
+      <h3>5️⃣ גם לטלפון יש אוזן פנימית <small>חיישנים</small></h3>
+      <p>בכל טלפון יש <b>ג׳ירוסקופ</b> (כמו התעלות: מודד סיבוב) ו<b>מד תאוצה</b> (כמו האבנים: מודד כוח משיכה ותאוצה). פתחו את העמוד הזה בטלפון:</p>
+      <div class="rx-row"><button class="btn btn-main" id="bl-sensors">📱 הפעילו חיישנים</button></div>
+      <div class="bl-sens" id="bl-sens" hidden>
+        <h4>🌀 סיבוב (ג׳ירוסקופ)</h4>
+        <div class="bl-sens-rows" id="bl-gyro"></div>
+        <h4>💎 כוח משיכה ותאוצה</h4>
+        <div class="bl-sens-rows" id="bl-acc"></div>
+      </div>
+      <div class="rx-msg" id="bl-sens-msg">נסו: סובבו את הטלפון על השולחן, הטו אותו, ושמטו אותו בעדינות על מיטה.</div>
+      <details><summary>מה לחפש?</summary>
+        <p>בסיבוב רק "סיבוב" קופץ, ובהטיה רק "כוח משיכה" משתנה, בדיוק שני סוגי החיישנים של האוזן. ובנפילה? כל הכוחות כמעט <b>אפס</b>: הטלפון "מרגיש" חוסר משקל, כמו אסטרונאוט. הטלפון משתמש בחיישנים האלה כדי לסובב את המסך, ומשקפי מציאות מדומה כדי להזיז את התמונה עם הראש.</p>
+      </details>
+    </article>
+
+    <article class="baby-card">
+      <h3>6️⃣ הליכה על קו אחרי סחרור <small>בונוס</small></h3>
+      <p><b>צריך:</b> קו מסקינטייפ של כ־3 מטרים על הרצפה, ומקום פנוי מסביב.</p>
+      <ol>
+        <li>הנבדק הולך על הקו, עקב צמוד לאגודל. קל?</li>
+        <li>עכשיו: מסתובב במקום 5 פעמים מהר (שומר הבטיחות צמוד!), ומיד הולך על הקו.</li>
+        <li>לאיזה צד הגוף "נמשך"? ומה קורה אחרי 20 שניות?</li>
+      </ol>
+      <details><summary>למה?</summary>
+        <p>אחרי העצירה הנוזל בתעלות עדיין זורם, והמוח בטוח שהגוף מסתובב לצד השני. הוא "מתקן" את מה שלא קורה, ומושך את הגוף הצידה. אחרי כ־20 שניות הנוזל נעצר והכול חוזר לקדמותו.</p>
+      </details>
+    </article>
+  </div>
+  </div>
+
+  <div class="rx-page" data-page="sick" hidden>
+
+  <section class="rx-block" id="bl-conflict">
+    <div class="rx-text">
+      <h2>🤢 למה מקיאים ברכב?</h2>
+      <p>המוח מקבל דיווח על תנועה משני "עדים": <b>העיניים</b> ו<b>האוזן הפנימית</b>. בדרך כלל הם מסכימים. כשהם <b>סותרים</b> זה את זה, המוח נבהל.</p>
+      <div class="rx-steps">
+        <span>👀 "אנחנו לא זזים"</span><i>+</i><span>👂 "אנחנו זזים!"</span><i>←</i><span>🧠 "משהו לא בסדר..."</span><i>←</i><span>🤢 בחילה</span>
+      </div>
+      <p>למה דווקא בחילה? אחד ההסברים: בטבע, מה שגורם לחושים לא להסתדר זה בעיקר <b>רעל</b>. המוח "מעדיף" להקיא, ליתר ביטחון.</p>
+      <h4>בחרו מצב:</h4>
+      <div class="bl-sit" id="bl-sit"></div>
+    </div>
+    <div class="rx-stage">
+      <div class="bl-witness" id="bl-witness"></div>
+    </div>
+  </section>
+
+  <section class="rx-block" id="bl-tips">
+    <div class="rx-text">
+      <h2>✅ איך מונעים?</h2>
+      <p>הרעיון: לגרום לשני העדים <b>להסכים</b>.</p>
+      <ul>
+        <li><b>להסתכל רחוק קדימה</b>, על האופק. כך העיניים רואות את התנועה שהאוזן מרגישה.</li>
+        <li><b>לשבת מקדימה</b> (או ליד החלון במטוס, מעל הכנף, באונייה: באמצע ולמטה, איפה שהכי פחות מתנדנד).</li>
+        <li><b>לא לקרוא ולא להסתכל בטלפון</b> בנסיעה. הטקסט נייח, והגוף זז.</li>
+        <li>אוויר צח, ולא לאכול ארוחה כבדה לפני הנסיעה.</li>
+        <li>למה <b>הנהג</b> כמעט אף פעם לא מקבל בחילה? הוא <b>יודע מראש</b> לאן הרכב יפנה. המוח מצפה לתנועה, ואין הפתעה.</li>
+      </ul>
+    </div>
+    <div class="rx-stage">
+      <h4 style="margin:0">🚆 הרכבת המדומה <small style="color:var(--muted);font-weight:500">הפוך: העיניים זזות, הגוף לא</small></h4>
+      <canvas id="bl-vection" width="1200" height="600" aria-label="פסים שנעים לרוחב המסך"></canvas>
+      <div class="rx-row">
+        <button class="btn btn-main" id="bl-vection-go">▶ הפעלה</button>
+        <span class="lbl">מהירות</span>
+        <input type="range" id="bl-vection-speed" min="1" max="10" value="4" aria-label="מהירות הפסים">
+      </div>
+      <p class="rx-note">פתחו במסך מלא, שבו קרוב, והסתכלו על הנקודה במרכז כ־30 שניות. האם מרגישים שהגוף שלכם זז הצידה? כך מרגישים ברכבת עומדת כשהרכבת ליד מתחילה לנסוע. ⚠️ מי שמקבל בחילה בקלות: מספיק כמה שניות.</p>
+    </div>
+  </section>
+  </div>
+
+  <div class="rx-page" data-page="quiz" hidden>
+  <section class="rx-block wide">
+    <div class="rx-text">
+      <h2>🃏 חידות שיווי משקל</h2>
+      <p>קראו את החידה, נחשו בקבוצה (או הצביעו בכיתה), ואז לחצו על הכרטיס כדי לגלות את התשובה.</p>
+    </div>
+    <div class="quiz class-mode bl-cards" id="bl-quiz"></div>
+  </section>
+  </div>
+
+  <div class="rx-pager" id="bl-pager"></div>
+
+  <div class="credit">
+    האיורים וההדמיות צוירו במיוחד לעמוד הזה, והם סכמטיים. ההסבר לקסם של קופרפילד הוא ההסבר המקובל, וקופרפילד עצמו מעולם לא אישר אותו. ספי התחושה והזמנים בעמוד הם הערכות לצורך המחשה.
+  </div>
+</main>
+
 <script>
 // ─────────────────────── Colors ───────────────────────
 // One clear, typical shade per color — nobody should have to wonder
@@ -2230,14 +2748,15 @@ function toggleFullscreen() {
 }
 
 // ─────────────────────── Sections ───────────────────────
-// Bump when brain.js, reflexes.js or vision.js change, so browsers never pair a new page with a cached old script
-const ASSET_VERSION = '2026-10-29c';
-const SECTIONS = ['stroop', 'brain', 'reflex', 'vision'];
-const HASHES = { stroop: '#', brain: '#brain', reflex: '#reflexes', vision: '#vision' };
+// Bump when brain.js, reflexes.js, vision.js or balance.js change, so browsers never pair a new page with a cached old script
+const ASSET_VERSION = '2026-11-25a';
+const SECTIONS = ['stroop', 'brain', 'reflex', 'vision', 'balance'];
+const HASHES = { stroop: '#', brain: '#brain', reflex: '#reflexes', vision: '#vision', balance: '#balance' };
 let section = 'stroop';
 let brainLoaded = false;
 let reflexLoaded = false;
 let visionLoaded = false;
+let balanceLoaded = false;
 
 function showSection(name) {
   section = name;
@@ -2246,7 +2765,8 @@ function showSection(name) {
     document.getElementById('sec-tab-' + s).classList.toggle('active', name === s);
   }
   document.getElementById('section-stroop-hint').hidden = name !== 'stroop';
-  const keep = (name === 'reflex' && location.hash.startsWith('#reflexes')) || (name === 'vision' && location.hash.startsWith('#vision'));
+  const keep = (name === 'reflex' && location.hash.startsWith('#reflexes')) || (name === 'vision' && location.hash.startsWith('#vision'))
+    || (name === 'balance' && location.hash.startsWith('#balance'));
   history.replaceState(null, '', keep ? location.hash : HASHES[name]);
   if (name !== 'stroop' && running) doStartStop();
   if (name === 'brain' && !brainLoaded) {
@@ -2266,12 +2786,17 @@ function showSection(name) {
     visionLoaded = true;
     import('./vision.js?v=' + ASSET_VERSION).then(m => m.initVision()).catch(err => console.error(err));
   }
+  if (name === 'balance' && !balanceLoaded) {
+    balanceLoaded = true;
+    import('./balance.js?v=' + ASSET_VERSION).then(m => m.initBalance()).catch(err => console.error(err));
+  }
 }
 
 function sectionFromHash() {
   if (location.hash === '#brain') return 'brain';
   if (location.hash.startsWith('#reflexes')) return 'reflex';
   if (location.hash.startsWith('#vision')) return 'vision';
+  if (location.hash.startsWith('#balance')) return 'balance';
   return 'stroop';
 }
 
