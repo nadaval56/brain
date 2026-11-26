@@ -130,9 +130,11 @@ function initScene() {
   const svg = $('bl-scene'), see = $('bl-see'), msg = $('bl-scene-msg');
   const dur = $('bl-dur'), durOut = $('bl-dur-out'), play = $('bl-play'), meter = $('bl-meter');
 
-  $('bl-reveal').addEventListener('click', e => {
-    $('bl-solution').hidden = false;
-    e.currentTarget.style.display = 'none';
+  // The whole solution opens and closes from its title
+  const toggle = $('bl-solve-toggle'), body = $('bl-solve-body');
+  toggle.addEventListener('click', () => {
+    body.hidden = !body.hidden;
+    toggle.setAttribute('aria-expanded', String(!body.hidden));
   });
 
   // Water, island, statue

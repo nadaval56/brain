@@ -744,7 +744,13 @@
   .bl-back .emoji { font-size: 34px; }
   .bl-back .why { flex: 0 1 auto !important; font-size: 15px !important; color: var(--text) !important; }
   .bl-solution { display: grid; grid-template-columns: minmax(0, 6fr) minmax(0, 5fr); gap: 16px; align-items: start; }
-  .bl-solution[hidden] { display: none; }
+  .bl-solve-body { display: flex; flex-direction: column; gap: 14px; }
+  .bl-solve-body[hidden] { display: none; }
+  .rx-block h2.bl-toggle-h { margin: 0; }
+  .bl-toggle { border: none; background: none; padding: 0; font: inherit; color: var(--text); cursor: pointer; display: inline-flex; align-items: center; gap: 8px; }
+  .bl-toggle:hover { color: var(--accent); }
+  .bl-caret { font-size: 16px; color: var(--accent); transition: transform 0.2s; }
+  .bl-toggle[aria-expanded="true"] .bl-caret { transform: rotate(180deg); }
   .bl-see { font-size: 15px; color: var(--text-2); background: var(--surface); border: 1px solid var(--border); border-radius: 9px; padding: 8px 12px; }
   .bl-meter { position: relative; height: 18px; border-radius: 9px; background: var(--surface); border: 1px solid var(--border); overflow: hidden; direction: ltr; }
   .bl-meter-fill { height: 100%; width: 0; background: #16a34a; transition: width 0.3s, background 0.3s; }
@@ -2248,12 +2254,10 @@
 
   <!-- ───── The solution ───── -->
   <section class="rx-block wide" id="bl-solve">
-    <div class="rx-text">
-      <h2>🔓 הפתרון</h2>
-      <p>קופרפילד אף פעם לא גילה איך עשה את זה. אבל ההסבר המקובל הוא: <b>הקהל ישב על במה מסתובבת</b>. בזמן שהווילון היה למעלה, הבמה, עם המגדלים, הסתובבה <b>לאט מאוד</b>. כשהווילון ירד, הקהל הסתכל כבר לכיוון אחר, והפסל הוסתר מאחורי אחד המגדלים. האורות על הפסל כובו, ובכיוון החדש הודלקו אורות דומים.</p>
-      <button class="btn btn-main" id="bl-reveal">🔓 הראו לי מה קרה</button>
-    </div>
-    <div class="bl-solution" id="bl-solution" hidden>
+    <h2 class="bl-toggle-h"><button class="bl-toggle" id="bl-solve-toggle" aria-expanded="false" aria-controls="bl-solve-body">🔓 הפתרון <span class="bl-caret">▾</span></button></h2>
+    <div class="bl-solve-body" id="bl-solve-body" hidden>
+    <p>קופרפילד אף פעם לא גילה איך עשה את זה. אבל ההסבר המקובל הוא: <b>הקהל ישב על במה מסתובבת</b>. בזמן שהווילון היה למעלה, הבמה, עם המגדלים, הסתובבה <b>לאט מאוד</b>. כשהווילון ירד, הקהל הסתכל כבר לכיוון אחר, והפסל הוסתר מאחורי אחד המגדלים. האורות על הפסל כובו, ובכיוון החדש הודלקו אורות דומים.</p>
+    <div class="bl-solution" id="bl-solution">
       <div class="rx-stage">
         <svg class="scene" id="bl-scene" viewBox="0 0 600 440" role="img" aria-label="מבט מלמעלה: במת הקהל מסתובבת והפסל נעלם מאחורי מגדל"></svg>
         <div class="bl-see" id="bl-see"></div>
@@ -2275,6 +2279,7 @@
         <div class="rx-msg" id="bl-scene-msg"></div>
         <p class="rx-note">המספרים הם הערכה. האוזן מרגישה <b>שינוי</b> במהירות הסיבוב (תאוצה). אצל רוב האנשים, תאוצה של פחות ממעלה אחת לשנייה בכל שנייה לא מורגשת בכלל. בהדמיה הסיבוב מוצג מהר יותר מהמציאות.</p>
       </div>
+    </div>
     </div>
   </section>
 
