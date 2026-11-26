@@ -39,6 +39,7 @@ const onScreen = node => isVisible() && !node.closest('.rx-page').hidden;
 
 // ─────────────────────── Sub-pages ───────────────────────
 const PAGES = ['mystery', 'ear', 'lab', 'sick', 'quiz'];
+const pageHooks = {}; // page → runs each time it is shown
 function initPages() {
   const tabs = $('bl-tabs'), pager = $('bl-pager');
   const pages = [...$('section-balance').querySelectorAll('.rx-page')];
@@ -55,6 +56,7 @@ function initPages() {
       (next ? `<button class="small-btn" data-page="${next}">${label(next)} ←</button>` : '<span></span>');
     if (location.hash !== '#balance/' + p) history.replaceState(null, '', '#balance/' + p);
     if (scroll) window.scrollTo({ top: 0, behavior: 'smooth' });
+    pageHooks[p]?.();
   }
   tabs.addEventListener('click', e => { const b = e.target.closest('[data-page]'); if (b) show(b.dataset.page, true); });
   pager.addEventListener('click', e => { const b = e.target.closest('[data-page]'); if (b) show(b.dataset.page, true); });
@@ -64,14 +66,13 @@ function initPages() {
 
 // ─────────────────────── Flip cards ───────────────────────
 const CLUES = [
-  ['🗽', 'הפסל לבדו גבוה 46 מטר ועשוי מכ־150 טון נחושת ופלדה. יחד עם הכן והבסיס שהוא עומד עליהם הגובה 93 מטר, כמו בניין של 30 קומות. הבסיס לבדו שוקל כ־27,000 טון בטון. וגם הוא "נעלם"!'],
+  ['🗽', 'הפסל לבדו גבוה 46 מטר ועשוי מכ־150 טון נחושת ופלדה. יחד עם הכן והבסיס שהוא עומד עליהם הגובה 93 מטר, כמו בניין של 30 קומות. הבסיס לבדו שוקל כ־27,000 טון. וגם הוא "נעלם"!'],
   ['🌙', 'המופע התקיים בלילה. מסביב היו מים כהים, כמעט בלי נקודות ציון.'],
   ['🪑', 'הקהל לא ישב על האדמה של האי, אלא על במה גדולה שנבנתה במיוחד לערב הזה.'],
   ['🗼', 'הקהל ראה את הפסל רק דרך "חלון" בין שני מגדלים גבוהים.'],
-  ['🎵', 'לאורך כל הקסם ניגנה מוזיקה חזקה, וקופרפילד דיבר כמעט בלי הפסקה.'],
-  ['💡', 'לפני הקסם זרקורים חזקים האירו את הפסל. אחרי הקסם, אורות דומים האירו... מקום ריק.'],
+  ['🎵', 'לאורך כל הקסם התנגנה מוזיקה חזקה, וקופרפילד דיבר כמעט בלי הפסקה.'],
   ['⏳', 'הווילון היה למעלה כמה דקות. לא "פוף" של שנייה.'],
-  ['📺', 'המסוק והמכ״ם שהראו "אין פסל" היו חלק מההפקה של הקוסם.'],
+  ['📺', 'המסוק, המכ״ם והזרקורים היו חלק מההפקה של הקוסם.'],
 ];
 const SYSTEMS = [
   ['👀', 'הראייה', 'לילה חשוך, וילון שהסתיר את הפסל בדיוק בזמן התנועה, ומגדלים שהשאירו "חלון" צר. בלי נקודות ציון, העיניים לא יכלו לראות שהבמה זזה. ובשוליים, זוכרים? רואים מעט מאוד.'],
@@ -277,8 +278,26 @@ const EAR_TEXT = {
   oto: 'השקיקות עם האבנים לא מרגישות סיבוב, אלא לאן "למטה" ומתי מאיצים או בולמים בקו ישר.',
 };
 function initEar() {
-  const svg = $('bl-ear-svg'), msg = $('bl-ear-msg');
+  const svg = $('bl-ear-svg'), msg = $('bl-ear-msg'), box = $('bl-ear3d');
+  // The 3D model loads the first time the page is shown; the drawing stays as a fallback
+  let ear3d = null, loading = false, pick = null;
+  function load() {
+    if (loading) return;
+    loading = true;
+    import('./ear3d.js' + new URL(import.meta.url).search)
+      .then(mod => {
+        ear3d = mod.initEar3D(box, () => onScreen(box));
+        svg.style.display = 'none';
+        box.hidden = false;
+        ear3d.highlight(pick);
+      })
+      .catch(err => { console.error(err); box.hidden = true; });
+  }
+  pageHooks.ear = load;
+  if (!box.closest('.rx-page').hidden) load();
   seg($('bl-canal-pick'), d => {
+    pick = d.c;
+    ear3d?.highlight(d.c);
     svg.classList.add('picked');
     svg.querySelectorAll('.bl-canal').forEach(c => c.classList.toggle('on', c.id === 'bl-c-' + d.c));
     $('bl-oto').classList.toggle('on', d.c === 'oto');
