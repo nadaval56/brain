@@ -146,10 +146,34 @@ function initScene() {
     star.push(`${STATUE.x + r * Math.cos(a)},${STATUE.y + r * Math.sin(a)}`);
   }
   el('polygon', { points: star.join(' '), fill: '#64748b' }, svg);
-  const glow = el('circle', { cx: STATUE.x, cy: STATUE.y, r: 26, fill: '#fde68a', opacity: 0.4 }, svg);
+  // A ring of floodlights; on: lit dots and a glow, off: dark dots
+  function lightRing(cx, cy) {
+    const glowC = el('circle', { cx, cy, r: 30, fill: '#fde68a', opacity: 0.35 }, svg);
+    const dots = [];
+    for (let k = 0; k < 12; k++) {
+      const a = rad(k * 30);
+      dots.push(el('circle', { cx: cx + 33 * Math.cos(a), cy: cy + 33 * Math.sin(a), r: 3.5 }, svg));
+    }
+    return on => {
+      glowC.style.display = on ? '' : 'none';
+      dots.forEach(d => d.setAttribute('fill', on ? '#fef08a' : '#334155'));
+    };
+  }
+  const statueLights = lightRing(STATUE.x, STATUE.y);
   el('circle', { cx: STATUE.x, cy: STATUE.y, r: 8, fill: '#5eead4', stroke: '#134e4a', 'stroke-width': 2 }, svg);
-  const tl = el('text', { x: STATUE.x + 38, y: STATUE.y - 26, style: 'fill:#e2e8f0;font-weight:700;font-size:14px' }, svg);
-  tl.textContent = '🗽 פסל החירות';
+  const tl = el('text', { x: STATUE.x + 42, y: STATUE.y - 30, style: 'fill:#e2e8f0;font-weight:700;font-size:14px' }, svg);
+  tl.textContent = '🗽 פסל החירות על הכן';
+  // The decoy: the same ring of lights around an empty spot, where the audience faces after the turn
+  const D = 243, FAKE = { x: P.x + D * Math.sin(rad(TURN)), y: P.y - D * Math.cos(rad(TURN)) };
+  const fakeLights = lightRing(FAKE.x, FAKE.y);
+  const fl = el('text', { x: FAKE.x, y: FAKE.y + 54, 'text-anchor': 'middle', style: 'fill:#94a3b8;font-weight:700;font-size:13px' }, svg);
+  fl.textContent = 'אורות מתחזים';
+  let lit = 'statue';
+  function setLights(which) {
+    lit = which;
+    statueLights(which === 'statue');
+    fakeLights(which === 'fake');
+  }
 
   // Platform with the audience, the towers and the curtain all turn together
   const g = el('g', {}, svg);
@@ -179,9 +203,9 @@ function initScene() {
     const rel = abs - theta;
     let what;
     if (curtainUp) what = '🟥 וילון אדום';
-    else if (Math.abs(rel) > TOWER_FROM + 1 && Math.abs(rel) < TOWER_TO - 1) what = '🗼 מגדל (הפסל מוסתר מאחוריו, באזור הכהה)';
-    else if (Math.abs(rel) < TOWER_FROM) what = glow.style.display === 'none' ? '🌑 פסל בחושך' : '🗽 פסל החירות';
-    else what = '🌌 שמיים ומים ריקים';
+    else if (Math.abs(rel) < TOWER_FROM) what = lit === 'statue' ? '🗽 פסל החירות, מואר בטבעת אורות' : '🌑 פסל בחושך';
+    else if (Math.abs(TURN - theta) < TOWER_FROM && lit === 'fake') what = '💡 טבעת אורות, בדיוק כמו קודם... ובתוכה כלום! הפסל נעלם 😮';
+    else what = '🌌 שמיים ומים חשוכים';
     see.innerHTML = `<b>מה הקהל רואה מולו:</b> ${what}`;
   }
 
@@ -197,7 +221,7 @@ function initScene() {
   const back = $('bl-back');
   function reset() {
     cancelAnimationFrame(raf);
-    theta = 0; curtainUp = false; glow.style.display = '';
+    theta = 0; curtainUp = false; setLights('statue');
     play.disabled = false; back.disabled = true;
     draw();
     say(msg, 'לחצו "הפעילו את הקסם". נסו גם לשנות את משך הסיבוב.');
@@ -215,10 +239,10 @@ function initScene() {
       const t = now - t0;
       if (t < 1200) { curtainUp = true; }
       else if (t < 1200 + anim) {
-        glow.style.display = lightsOff ? 'none' : '';
+        if (lit !== (lightsOff ? 'fake' : 'statue')) setLights(lightsOff ? 'fake' : 'statue');
         const s = (t - 1200) / anim;
         theta = from + ((to - from) * (1 - Math.cos(Math.PI * s))) / 2;
-        say(msg, `2. ${lightsOff ? 'האורות על הפסל כבים' : 'האורות על הפסל נדלקים'}, והבמה מסתובבת לאט... ${Math.round(theta)}°`);
+        say(msg, `2. ${lightsOff ? 'האורות סביב הפסל כבים, האורות המתחזים נדלקים' : 'האורות המתחזים כבים, האורות סביב הפסל נדלקים'}, והבמה מסתובבת לאט... ${Math.round(theta)}°`);
       } else if (t < 2400 + anim) {
         theta = to; curtainUp = false;
       } else {
