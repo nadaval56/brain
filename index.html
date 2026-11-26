@@ -774,6 +774,7 @@
   .bl-vor.shaking p { animation: blshake 0.2s linear infinite; }
   @keyframes blshake { 25% { transform: translateX(-14px); } 75% { transform: translateX(14px); } }
   .bl-cond { flex-wrap: wrap; }
+  .bl-fukuda { max-width: 420px; margin: 4px auto; }
   .bl-watch { display: flex; align-items: center; gap: 14px; }
   .bl-watch-btn { flex: 1; height: 56px; border: none; border-radius: 12px; background: #16a34a; color: #fff; font-size: 18px; font-weight: 700; cursor: pointer; }
   .bl-watch-btn.active { background: #dc2626; }
@@ -785,9 +786,16 @@
   .bl-sens-row .track { height: 12px; background: var(--surface); border: 1px solid var(--border); border-radius: 5px; overflow: hidden; direction: ltr; }
   .bl-sens-row .fill { height: 100%; background: var(--accent); }
   .bl-sens-row .val { font-family: var(--mono); font-size: 12px; text-align: left; }
-  .bl-sit { display: flex; flex-wrap: wrap; gap: 8px; }
-  .bl-witness { display: flex; flex-direction: column; gap: 10px; }
-  .bl-wit-title { font-size: 20px; font-weight: 800; color: var(--text); }
+  .bl-pairs { grid-column: 1 / -1; display: flex; flex-direction: column; gap: 14px; }
+  .bl-pair { background: var(--surface-2); border: 1px solid var(--border); border-radius: 12px; padding: 12px; }
+  .bl-pair h4 { margin: 0 0 8px; font-size: 16px; }
+  .bl-pair-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .bl-case { display: flex; flex-direction: column; gap: 6px; background: var(--surface); border-radius: 10px; padding: 10px 12px; border: 2px solid var(--border); }
+  .bl-case.bad { border-color: #dc2626; }
+  .bl-case.good { border-color: #16a34a; }
+  .bl-case-title { font-weight: 800; font-size: 15px; color: var(--text); }
+  .bl-case .bl-wit { padding: 6px 10px; font-size: 14px; }
+  .bl-case .bl-verdict { padding: 8px 10px; font-size: 14px; }
   .bl-wit { display: flex; flex-direction: column; gap: 2px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 10px 14px; font-size: 16px; color: var(--text-2); }
   .bl-wit b { font-size: 14px; color: var(--muted); }
   .bl-verdict { border-radius: 10px; padding: 12px 14px; font-size: 16px; font-weight: 700; }
@@ -797,7 +805,7 @@
   body.dark .bl-verdict.bad { color: #f87171; }
   #bl-vection { width: 100%; height: auto; display: block; }
   @media (max-width: 900px) {
-    .bl-plan-grid, .bl-solution, .bl-two { grid-template-columns: 1fr; }
+    .bl-plan-grid, .bl-solution, .bl-two, .bl-pair-row { grid-template-columns: 1fr; }
     .bl-paths { grid-template-columns: 1fr 1fr; }
     #bl-case .rx-stage { order: -1; }
   }
@@ -2174,7 +2182,7 @@
     <div class="bl-plan-grid">
       <ol>
         <li><b>0–15 דק׳ · התעלומה:</b> צפייה בקסם, פתיחת קלפי הרמזים, השערות בקבוצות.</li>
-        <li><b>15–30 · האוזן הפנימית:</b> כוס המים + הסימולטור של התעלה.</li>
+        <li><b>15–30 · האוזן הפנימית:</b> בקבוק המים + הסימולטור של התעלה.</li>
         <li><b>30–35 · פתרון התעלומה:</b> הסימולציה, ו"מי היה צריך להתריע?".</li>
         <li><b>35–70 · תחנות ניסוי:</b> 5 תחנות, כ־7 דקות כל אחת, בשלשות.</li>
         <li><b>70–80 · בחילת נסיעה:</b> המצבים, והרכבת המדומה.</li>
@@ -2184,8 +2192,8 @@
         <b>ציוד:</b>
         <ul>
           <li>כיסא משרדי מסתובב (יציב!)</li>
-          <li>כוסות שקופות עם מים, ופלפל שחור / עלי תה / נייר קרוע</li>
-          <li>כרית או מזרן ספוג, סטופר (יש באתר)</li>
+          <li>בקבוקי מים שקופים (כל תלמיד עם הבקבוק שלו)</li>
+          <li>סטופר (יש באתר)</li>
           <li>מסקינטייפ לסימון על הרצפה</li>
           <li>טלפונים חכמים (לתחנת החיישנים)</li>
         </ul>
@@ -2258,6 +2266,7 @@
         </div>
         <div class="rx-row">
           <button class="btn btn-main" id="bl-play">▶ הפעילו את הקסם</button>
+          <button class="small-btn" id="bl-back" disabled>↩️ החזירו את הפסל</button>
           <button class="small-btn" id="bl-reset">↺ מההתחלה</button>
         </div>
         <h4 style="margin:4px 0 0">👂 האם האוזן הפנימית תרגיש?</h4>
@@ -2338,19 +2347,19 @@
   <!-- ───── Water glass ───── -->
   <section class="rx-block" id="bl-glass">
     <div class="rx-text">
-      <h2>🥤 תעלה בכוס <small>ניסוי של 3 דקות</small></h2>
-      <p>התעלות מלאות נוזל. מה קורה לנוזל כשמסובבים אותו? בנו מודל:</p>
+      <h2>🍶 תעלה בבקבוק <small>ניסוי של 3 דקות</small></h2>
+      <p>התעלות מלאות נוזל. מה קורה לנוזל כשמסובבים אותו? כל אחד עם בקבוק המים שלו:</p>
       <ol>
-        <li>מלאו כוס שקופה במים, ופזרו מעט פלפל שחור או עלי תה (שיהיה אפשר לראות את המים זזים).</li>
-        <li>הניחו את הכוס על השולחן וסובבו אותה בבת אחת רבע סיבוב. <b>מה עושים המים?</b></li>
-        <li>סובבו את הכוס לאט וברציפות, כחצי דקה. מה קורה למים אחרי זמן מה?</li>
-        <li>עצרו את הכוס בבת אחת. <b>מה עושים המים עכשיו?</b></li>
+        <li>קחו בקבוק מים שקוף, מלא בערך עד <b>שלושה רבעים</b>, וסגרו את הפקק.</li>
+        <li>החזיקו אותו זקוף וסובבו אותו בבת אחת סביב עצמו (כמו פתיחת פקק). הסתכלו על המים, על פני המים ועל הבועות: <b>האם המים זזים יחד עם הבקבוק?</b></li>
+        <li>סובבו את הבקבוק ברציפות כחצי דקה, שוב ושוב לאותו כיוון. מה קורה למים אחרי זמן מה?</li>
+        <li>עצרו את הבקבוק בבת אחת והחזיקו אותו בלי לזוז. <b>מה עושים המים עכשיו?</b></li>
       </ol>
       <details><summary>מה ראינו, ומה זה אומר על האוזן?</summary>
         <ul>
-          <li><b>התחלה:</b> המים "נשארים מאחור" כי יש להם התמדה. בתעלה, הנוזל שנשאר מאחור מכופף את השערות, והמוח מרגיש: "מסתובבים!".</li>
-          <li><b>סיבוב קבוע:</b> המים "מדביקים" את הכוס ומסתובבים יחד איתה. בתעלה: הנוזל והראש זזים יחד, השערות חוזרות למקום, ו<b>התחושה נעלמת</b>, למרות שעדיין מסתובבים. (כך הקהל של קופרפילד לא הרגיש!)</li>
-          <li><b>עצירה:</b> המים ממשיכים להסתובב. בתעלה: הנוזל ממשיך, השערות מתכופפות לצד השני, והמוח מרגיש סיבוב <b>לכיוון ההפוך</b>. זו הסחרחורת אחרי קרוסלה.</li>
+          <li><b>התחלה:</b> הבקבוק מסתובב, אבל המים "נשארים מאחור" כי יש להם התמדה. בתעלה, הנוזל שנשאר מאחור מכופף את השערות, והמוח מרגיש: "מסתובבים!".</li>
+          <li><b>סיבוב קבוע:</b> המים "מדביקים" את הבקבוק ומסתובבים יחד איתו. בתעלה: הנוזל והראש זזים יחד, השערות חוזרות למקום, ו<b>התחושה נעלמת</b>, למרות שעדיין מסתובבים. (כך הקהל של קופרפילד לא הרגיש!)</li>
+          <li><b>עצירה:</b> הבקבוק עומד, אבל המים ממשיכים להסתובב בתוכו (רואים מערבולת). בתעלה: התעלה עוצרת עם הראש, הנוזל ממשיך לזרום בתוכה, השערות מתכופפות לצד השני, והמוח מרגיש סיבוב <b>לכיוון ההפוך</b>. זו הסחרחורת אחרי קרוסלה.</li>
         </ul>
       </details>
     </div>
@@ -2366,7 +2375,7 @@
         <span><i style="--c:#64748b"></i>מהירות הסיבוב האמיתית</span>
         <span><i style="--c:#7c3aed"></i>מה שהמוח <b>מרגיש</b></span>
       </div>
-      <div class="rx-msg" id="bl-canal-msg">לחצו "מתחילים להסתובב" וצפו בנוזל (הנקודות) ובשערות (הדגל בחלק העליון).</div>
+      <div class="rx-msg" id="bl-canal-msg">לחצו "מתחילים להסתובב". התעלה (סגול) מחוברת לראש ומסתובבת איתו. בתוכה הנוזל (נקודות כחולות), והשערות (כתום) מחוברות לדופן התעלה.</div>
     </div>
   </section>
 
@@ -2431,7 +2440,7 @@
         <li><b>עצירה:</b> עוצרים בבת אחת. הנבדק מצביע: לאן הוא מרגיש שהוא מסתובב? עכשיו הוא פוקח עיניים, והמפעיל מסתכל לו בעיניים: <b>הן "רועדות" מצד לצד?</b></li>
       </ol>
       <details><summary>מה קרה?</summary>
-        <p><b>בסיבוב האיטי</b> ההאצה מתחת לסף, והתעלות לא מגלות כלום. <b>בסיבוב הקבוע</b> הנוזל "מדביק" את הראש, והתחושה דועכת. <b>בעצירה</b> הנוזל ממשיך לזרום, והמוח מרגיש סיבוב לצד השני. את התנועות הקטנות של העיניים, כמו מטוטלת, קוראים <b>ניסטגמוס</b>: העיניים מנסות "לעקוב" אחרי סיבוב שלא קורה. בדיוק כמו בכוס המים!</p>
+        <p><b>בסיבוב האיטי</b> ההאצה מתחת לסף, והתעלות לא מגלות כלום. <b>בסיבוב הקבוע</b> הנוזל "מדביק" את הראש, והתחושה דועכת. <b>בעצירה</b> הנוזל ממשיך לזרום, והמוח מרגיש סיבוב לצד השני. את התנועות הקטנות של העיניים, כמו מטוטלת, קוראים <b>ניסטגמוס</b>: העיניים מנסות "לעקוב" אחרי סיבוב שלא קורה. בדיוק כמו בבקבוק המים!</p>
       </details>
     </article>
 
@@ -2450,12 +2459,10 @@
 
     <article class="baby-card">
       <h3>3️⃣ עמידה על רגל אחת <small>שלוש מערכות</small></h3>
-      <p><b>צריך:</b> כרית או מזרן ספוג. הנבדק עומד על רגל אחת, ידיים על המותניים. מודדים כמה זמן עד שהרגל השנייה נוגעת ברצפה (עד 30 שניות).</p>
+      <p><b>כמה זמן אפשר לעמוד על רגל אחת?</b> הנבדק עומד על רגל אחת, ידיים על המותניים. המפעיל לוחץ "התחלה", ולוחץ שוב ברגע שהרגל השנייה נוגעת ברצפה (או אחרי 30 שניות). קודם בעיניים פקוחות, אחר כך בעיניים עצומות.</p>
       <div class="seg bl-cond" id="bl-cond">
-        <button data-c="0" class="active">👀 רצפה</button>
-        <button data-c="1">🙈 רצפה</button>
-        <button data-c="2">👀 כרית</button>
-        <button data-c="3">🙈 כרית</button>
+        <button data-c="0" class="active">👀 עיניים פקוחות</button>
+        <button data-c="1">🙈 עיניים עצומות</button>
       </div>
       <div class="bl-watch">
         <button class="bl-watch-btn" id="bl-watch">▶ התחלה</button>
@@ -2464,20 +2471,38 @@
       <div class="rt-bars" id="bl-watch-bars"></div>
       <div class="rx-row"><button class="small-btn" id="bl-watch-clear">🧹 ניקוי תוצאות</button></div>
       <details><summary>מה גילינו?</summary>
-        <p>כדי לעמוד יציב המוח משתמש ב<b>שלושה</b> מקורות: <b>עיניים</b>, <b>אוזן פנימית</b>, ו<b>תחושה מכפות הרגליים והמפרקים</b>. עוצמים עיניים: נשארו שניים. עומדים על כרית: התחושה מהרגליים משתבשת. עיניים עצומות על כרית: נשארה כמעט רק האוזן הפנימית, וקשה מאוד! רופאים בודקים בדיוק כך (מבחן רומברג).</p>
+        <p>כדי לעמוד יציב המוח משתמש ב<b>שלושה</b> מקורות מידע: <b>עיניים</b>, <b>אוזן פנימית</b>, ו<b>תחושה מכפות הרגליים והמפרקים</b>. כשעוצמים עיניים נשארים רק שניים, והזמן יורד בהרבה (אצל רבים, מ־30 שניות לפחות מ־10). רופאים בודקים שיווי משקל בדיוק כך: עם עיניים פקוחות ועצומות (מבחן רומברג).</p>
       </details>
     </article>
 
     <article class="baby-card">
-      <h3>4️⃣ צועדים במקום <small>מבחן פוקודה</small></h3>
-      <p><b>צריך:</b> מסקינטייפ. מסמנים על הרצפה ✚ גדול, והנבדק עומד במרכזו, פונה לאחת הזרועות.</p>
+      <h3>4️⃣ צועדים במקום בעיניים עצומות <small>מבחן פוקודה</small></h3>
+      <p><b>השאלה:</b> בלי עיניים, האם הגוף שומר על הכיוון? <b>צריך:</b> מסקינטייפ.</p>
+      <svg class="scene bl-fukuda" viewBox="0 0 520 190" role="img" aria-label="מבט מלמעלה: עומדים על מרכז סימן פלוס, פונים קדימה, ואחרי 50 צעדים במקום הגוף מסתובב מעט">
+        <g stroke="#94a3b8" stroke-width="6" stroke-linecap="round"><path d="M130,20 V170 M55,95 H205"/><path d="M390,20 V170 M315,95 H465"/></g>
+        <text x="130" y="14" text-anchor="middle" style="font-weight:700;fill:#0e7490">קדימה</text>
+        <text x="390" y="14" text-anchor="middle" style="font-weight:700;fill:#0e7490">קדימה</text>
+        <g fill="#0f172a"><ellipse cx="120" cy="100" rx="7" ry="14"/><ellipse cx="140" cy="100" rx="7" ry="14"/></g>
+        <path d="M130,82 V48" stroke="#16a34a" stroke-width="4" marker-end="url(#bl-arr-g)"/>
+        <g transform="rotate(35 398 92)" fill="#0f172a"><ellipse cx="388" cy="92" rx="7" ry="14"/><ellipse cx="408" cy="92" rx="7" ry="14"/></g>
+        <path d="M398,74 L420,44" stroke="#dc2626" stroke-width="4" marker-end="url(#bl-arr-r)"/>
+        <path d="M390,52 A40,40 0 0 1 413,57" fill="none" stroke="#dc2626" stroke-width="2"/>
+        <text x="440" y="50" style="font-weight:700;fill:#dc2626">35°</text>
+        <defs>
+          <marker id="bl-arr-g" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#16a34a"/></marker>
+          <marker id="bl-arr-r" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#dc2626"/></marker>
+        </defs>
+        <text x="130" y="188" text-anchor="middle" class="small">בהתחלה</text>
+        <text x="390" y="188" text-anchor="middle" class="small">אחרי 50 צעדים</text>
+      </svg>
       <ol>
-        <li>הנבדק מושיט ידיים קדימה, עוצם עיניים וצועד במקום 50 צעדים, עם ברכיים גבוהות.</li>
-        <li>שומר הבטיחות סופר ושומר מקרוב (בשקט! בלי רמזים).</li>
-        <li>בסוף: <b>בכמה מעלות</b> הנבדק הסתובב, ו<b>כמה</b> הוא התקדם? מסמנים בגיר או בטייפ.</li>
+        <li>מדביקים על הרצפה <b>✚ גדול</b> ממסקינטייפ (כל קו באורך כמטר). מחליטים איזה קו הוא "קדימה".</li>
+        <li>הנבדק עומד <b>במרכז ה־✚</b>, פונה "קדימה", מושיט את שתי הידיים קדימה ועוצם עיניים.</li>
+        <li>הנבדק <b>צועד במקום</b> (לא הולך!), מרים ברכיים גבוה, בקצב של צעד בשנייה, 50 צעדים. המפעיל סופר בשקט. בכיתה שקט, כדי שלא יהיו רמזים מקולות.</li>
+        <li>אחרי 50 צעדים הנבדק <b>נעצר ונשאר במקום</b>. בודקים: לאן הוא פונה עכשיו לעומת "קדימה"? (רבע סיבוב = 90°, חצי מזה = 45°.) וכמה הוא התרחק ממרכז ה־✚?</li>
       </ol>
       <details><summary>מה זה מראה?</summary>
-        <p>בלי עיניים, רק האוזן הפנימית "מחזיקה" את הכיוון. אצל רוב האנשים הסיבוב קטן מ־45°. אם אוזן אחת חלשה מהשנייה, הגוף מסתובב בהתמדה לצד החלש. זה מבחן אמיתי שרופאי אף־אוזן־גרון עושים.</p>
+        <p>בלי עיניים, האוזן הפנימית היא זו ש"מחזיקה" את הכיוון. אצל רוב האנשים הגוף מסתובב פחות מ־45°, ולפעמים מתקדם מעט קדימה. אם אוזן אחת חלשה מהשנייה, הגוף מסתובב בהתמדה לצד החלש. זה מבחן אמיתי שרופאי אף־אוזן־גרון עושים.</p>
       </details>
     </article>
 
@@ -2514,29 +2539,27 @@
 
   <div class="rx-page" data-page="sick" hidden>
 
-  <section class="rx-block" id="bl-conflict">
+  <section class="rx-block wide" id="bl-conflict">
     <div class="rx-text">
       <h2>🤢 למה מקיאים ברכב?</h2>
-      <p>המוח מקבל דיווח על תנועה משני "עדים": <b>העיניים</b> ו<b>האוזן הפנימית</b>. בדרך כלל הם מסכימים. כשהם <b>סותרים</b> זה את זה, המוח נבהל.</p>
+      <p>המוח מקבל מידע על תנועה משני <b>מקורות מידע</b>: <b>העיניים</b> ו<b>האוזן הפנימית</b>. בדרך כלל הם מסכימים. כשהם <b>סותרים</b> זה את זה, המוח נבהל.</p>
       <div class="rx-steps">
         <span>👀 "אנחנו לא זזים"</span><i>+</i><span>👂 "אנחנו זזים!"</span><i>←</i><span>🧠 "משהו לא בסדר..."</span><i>←</i><span>🤢 בחילה</span>
       </div>
       <p>למה דווקא בחילה? אחד ההסברים: בטבע, מה שגורם לחושים לא להסתדר זה בעיקר <b>רעל</b>. המוח "מעדיף" להקיא, ליתר ביטחון.</p>
-      <h4>בחרו מצב:</h4>
-      <div class="bl-sit" id="bl-sit"></div>
+      <h4>⚖️ אותו מקום, שתי דרכים</h4>
+      <p>בכל שורה, באותו רכב, אונייה או משחק: מצב אחד מבלבל את המוח, והשני לא. מה ההבדל?</p>
     </div>
-    <div class="rx-stage">
-      <div class="bl-witness" id="bl-witness"></div>
-    </div>
+    <div class="bl-pairs" id="bl-pairs"></div>
   </section>
 
   <section class="rx-block" id="bl-tips">
     <div class="rx-text">
       <h2>✅ איך מונעים?</h2>
-      <p>הרעיון: לגרום לשני העדים <b>להסכים</b>.</p>
+      <p>הרעיון: לגרום לשני מקורות המידע <b>להסכים</b>.</p>
       <ul>
         <li><b>להסתכל רחוק קדימה</b>, על האופק. כך העיניים רואות את התנועה שהאוזן מרגישה.</li>
-        <li><b>לשבת מקדימה</b> (או ליד החלון במטוס, מעל הכנף, באונייה: באמצע ולמטה, איפה שהכי פחות מתנדנד).</li>
+        <li><b>לשבת מקדימה</b> ברכב. במטוס: ליד החלון, מעל הכנף. באונייה: לצאת לסיפון ולהסתכל על האופק.</li>
         <li><b>לא לקרוא ולא להסתכל בטלפון</b> בנסיעה. הטקסט נייח, והגוף זז.</li>
         <li>אוויר צח, ולא לאכול ארוחה כבדה לפני הנסיעה.</li>
         <li>למה <b>הנהג</b> כמעט אף פעם לא מקבל בחילה? הוא <b>יודע מראש</b> לאן הרכב יפנה. המוח מצפה לתנועה, ואין הפתעה.</li>
@@ -2749,7 +2772,7 @@ function toggleFullscreen() {
 
 // ─────────────────────── Sections ───────────────────────
 // Bump when brain.js, reflexes.js, vision.js or balance.js change, so browsers never pair a new page with a cached old script
-const ASSET_VERSION = '2026-11-25a';
+const ASSET_VERSION = '2026-11-26a';
 const SECTIONS = ['stroop', 'brain', 'reflex', 'vision', 'balance'];
 const HASHES = { stroop: '#', brain: '#brain', reflex: '#reflexes', vision: '#vision', balance: '#balance' };
 let section = 'stroop';

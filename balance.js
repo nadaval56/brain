@@ -64,6 +64,7 @@ function initPages() {
 
 // ─────────────────────── Flip cards ───────────────────────
 const CLUES = [
+  ['🗽', 'הפסל לבדו גבוה 46 מטר ועשוי מכ־150 טון נחושת ופלדה. יחד עם הכן והבסיס שהוא עומד עליהם הגובה 93 מטר, כמו בניין של 30 קומות. הבסיס לבדו שוקל כ־27,000 טון בטון. וגם הוא "נעלם"!'],
   ['🌙', 'המופע התקיים בלילה. מסביב היו מים כהים, כמעט בלי נקודות ציון.'],
   ['🪑', 'הקהל לא ישב על האדמה של האי, אלא על במה גדולה שנבנתה במיוחד לערב הזה.'],
   ['🗼', 'הקהל ראה את הפסל רק דרך "חלון" בין שני מגדלים גבוהים.'],
@@ -126,7 +127,7 @@ function initScene() {
 
   $('bl-reveal').addEventListener('click', e => {
     $('bl-solution').hidden = false;
-    e.currentTarget.hidden = true;
+    e.currentTarget.style.display = 'none';
   });
 
   // Water, island, statue
@@ -186,18 +187,20 @@ function initScene() {
     meter.classList.toggle('over', a > THRESHOLD);
   }
 
+  const back = $('bl-back');
   function reset() {
     cancelAnimationFrame(raf);
     theta = 0; curtainUp = false; glow.style.display = '';
-    play.disabled = false;
+    play.disabled = false; back.disabled = true;
     draw();
     say(msg, 'לחצו "הפעילו את הקסם". נסו גם לשנות את משך הסיבוב.');
   }
 
-  play.addEventListener('click', () => {
-    reset();
-    play.disabled = true;
-    const T = +dur.value, a = peakAccel();
+  // One run of the trick: curtain up, lights swap, the platform turns from → to, curtain down
+  function run(from, to, lightsOff, done) {
+    cancelAnimationFrame(raf);
+    play.disabled = true; back.disabled = true;
+    const T = +dur.value;
     const anim = Math.min(T, 6) * 1000; // shown faster than real life
     const t0 = performance.now();
     say(msg, '1. הווילון עולה...');
@@ -205,26 +208,38 @@ function initScene() {
       const t = now - t0;
       if (t < 1200) { curtainUp = true; }
       else if (t < 1200 + anim) {
-        if (glow.style.display !== 'none') glow.style.display = 'none';
+        glow.style.display = lightsOff ? 'none' : '';
         const s = (t - 1200) / anim;
-        theta = (TURN * (1 - Math.cos(Math.PI * s))) / 2;
-        say(msg, `2. האורות על הפסל כבים, והבמה מסתובבת לאט... ${Math.round(theta)}°`);
+        theta = from + ((to - from) * (1 - Math.cos(Math.PI * s))) / 2;
+        say(msg, `2. ${lightsOff ? 'האורות על הפסל כבים' : 'האורות על הפסל נדלקים'}, והבמה מסתובבת לאט... ${Math.round(theta)}°`);
       } else if (t < 2400 + anim) {
-        theta = TURN; curtainUp = false;
+        theta = to; curtainUp = false;
       } else {
         draw();
-        play.disabled = false;
-        const aTxt = a < 0.1 ? a.toFixed(3) : a.toFixed(1);
-        say(msg, a > THRESHOLD
-          ? `הבמה הסתובבה ${TURN}° ב־${fmt(T)}. התאוצה הגדולה ביותר: ${aTxt}°/ש׳². זה מעל הסף: הקהל היה מרגיש שהבמה זזה, והקסם היה נכשל!`
-          : `הבמה הסתובבה ${TURN}° ב־${fmt(T)}. התאוצה הגדולה ביותר: ${aTxt}°/ש׳², הרבה מתחת לסף. אף אחד לא הרגיש כלום, והפסל "נעלם" מאחורי המגדל.`,
-        a > THRESHOLD ? 'bad' : 'good');
+        done();
         return;
       }
       draw();
       raf = requestAnimationFrame(frame);
     }
     raf = requestAnimationFrame(frame);
+  }
+
+  function verdict(what) {
+    const T = +dur.value, a = peakAccel();
+    const aTxt = a < 0.1 ? a.toFixed(3) : a.toFixed(1);
+    say(msg, a > THRESHOLD
+      ? `הבמה הסתובבה ${TURN}° ב־${fmt(T)}. התאוצה הגדולה ביותר: ${aTxt}°/ש׳². זה מעל הסף: הקהל היה מרגיש שהבמה זזה, והקסם היה נכשל!`
+      : `הבמה הסתובבה ${TURN}° ב־${fmt(T)}. התאוצה הגדולה ביותר: ${aTxt}°/ש׳², הרבה מתחת לסף. אף אחד לא הרגיש כלום, ו${what}`,
+    a > THRESHOLD ? 'bad' : 'good');
+  }
+
+  play.addEventListener('click', () => {
+    reset();
+    run(0, TURN, true, () => { play.disabled = false; back.disabled = false; verdict('הפסל "נעלם" מאחורי המגדל. עכשיו נסו להחזיר אותו!'); });
+  });
+  back.addEventListener('click', () => {
+    run(TURN, 0, false, () => { play.disabled = false; verdict('הפסל "חזר" בדיוק למקום שבו תמיד עמד. הוא לא זז לרגע, רק הקהל זז.'); });
   });
   $('bl-reset').addEventListener('click', reset);
   dur.addEventListener('input', updateDur);
@@ -256,11 +271,22 @@ function initCanal() {
   const plot = $('bl-canal-plot'), ctx = plot.getContext('2d');
   const C = { x: 150, y: 150 }, R = 100, TAU = 4, SPEED = 120;
 
-  el('circle', { cx: C.x, cy: C.y, r: R, fill: 'none', stroke: '#ddd6fe', 'stroke-width': 30 }, svg);
+  // The canal turns with the head: tube, wall marks, the head itself and the hair cells
+  // (cupula) fixed to the canal wall. Only the fluid inside is free to lag behind.
   const head = el('g', {}, svg);
+  el('circle', { cx: C.x, cy: C.y, r: R, fill: 'none', stroke: '#ede9fe', 'stroke-width': 30 }, head);
   el('circle', { cx: C.x, cy: C.y, r: R + 15, fill: 'none', stroke: '#7c3aed', 'stroke-width': 3 }, head);
   el('circle', { cx: C.x, cy: C.y, r: R - 15, fill: 'none', stroke: '#7c3aed', 'stroke-width': 3 }, head);
-  el('path', { d: `M${C.x - 10},${C.y - R - 18} L${C.x},${C.y - R - 34} L${C.x + 10},${C.y - R - 18} Z`, fill: '#7c3aed' }, head);
+  for (let k = 0; k < 24; k++) {
+    const a = rad(k * 15);
+    el('line', { x1: C.x + (R + 15) * Math.cos(a), y1: C.y + (R + 15) * Math.sin(a), x2: C.x + (R + 23) * Math.cos(a), y2: C.y + (R + 23) * Math.sin(a), stroke: '#7c3aed', 'stroke-width': 3 }, head);
+  }
+  el('circle', { cx: C.x, cy: C.y, r: 52, fill: '#f2c6a0', stroke: '#b97f5b', 'stroke-width': 2 }, head);
+  el('path', { d: `M${C.x - 9},${C.y - 50} L${C.x},${C.y - 66} L${C.x + 9},${C.y - 50} Z`, fill: '#f2c6a0', stroke: '#b97f5b', 'stroke-width': 2 }, head);
+  el('circle', { cx: C.x - 18, cy: C.y - 22, r: 5, fill: '#0f172a' }, head);
+  el('circle', { cx: C.x + 18, cy: C.y - 22, r: 5, fill: '#0f172a' }, head);
+  el('ellipse', { cx: C.x - 54, cy: C.y, rx: 7, ry: 12, fill: '#e2a982' }, head);
+  el('ellipse', { cx: C.x + 54, cy: C.y, rx: 7, ry: 12, fill: '#e2a982' }, head);
   const cupula = el('path', { d: '', fill: '#f59e0b', stroke: '#b45309', 'stroke-width': 1.5 }, head);
   const fluid = el('g', {}, svg);
   for (let k = 0; k < 14; k++) {
@@ -271,7 +297,7 @@ function initCanal() {
   const t2 = el('text', { x: 300, y: 110, style: 'font-weight:700;font-size:15px;fill:#7c3aed' }, svg);
   const arrow = el('text', { x: 450, y: 200, 'text-anchor': 'middle', style: 'font-size:64px' }, svg);
   const legend = el('text', { x: 300, y: 270, class: 'small' }, svg);
-  legend.textContent = 'סגול: התעלה (זזה עם הראש) · כחול: הנוזל · כתום: השערות';
+  legend.textContent = 'סגול: התעלה (מסתובבת עם הראש) · כחול: הנוזל שבתוכה · כתום: השערות, מחוברות לתעלה';
 
   let wH = 0, wF = 0, aH = 0, aF = 0, target = 0, last = 0, hist = [], phase = 'idle', phaseT = 0;
 
@@ -301,13 +327,14 @@ function initCanal() {
     fluid.setAttribute('transform', `rotate(${aF} ${C.x} ${C.y})`);
     // The cupula: a flap across the canal, bent by the fluid lagging behind
     const bend = clamp(-feel / 6, -18, 18);
-    cupula.setAttribute('d', `M${C.x - 6},${C.y - R + 14} Q${C.x + bend},${C.y - R} ${C.x - 6 + bend * 1.2},${C.y - R - 14} L${C.x + 6 + bend * 1.2},${C.y - R - 14} Q${C.x + bend + 6},${C.y - R} ${C.x + 6},${C.y - R + 14} Z`);
+    const yi = C.y - R + 14, yo = C.y - R - 14;
+    cupula.setAttribute('d', `M${C.x - 4},${yi} Q${C.x - 4 + bend * 2},${C.y - R} ${C.x - 4},${yo} L${C.x + 4},${yo} Q${C.x + 4 + bend * 2},${C.y - R} ${C.x + 4},${yi} Z`);
     t1.textContent = `הראש באמת: ${Math.round(wH)} מעלות בשנייה`;
     t2.textContent = `המוח מרגיש: ${Math.abs(feel) < 6 ? 'לא זז' : (feel > 0 ? 'מסתובב ↻' : 'מסתובב ↺')} (${Math.round(Math.abs(feel))})`;
     arrow.textContent = Math.abs(feel) < 6 ? '😌' : (feel > 0 ? '↻' : '↺');
     arrow.style.opacity = clamp(Math.abs(feel) / 60, 0.25, 1);
-    if (phase === 'spin' && phaseT > 2 && Math.abs(feel) < 30) say(msg, 'עדיין מסתובבים, אבל התחושה כמעט נעלמה! הנוזל "הדביק" את הראש והשערות חזרו למקום. עכשיו לחצו "עצירה".');
-    if (phase === 'stop' && phaseT > 0.2 && phaseT < 1) say(msg, 'עצרנו, אבל הנוזל ממשיך לזרום: המוח מרגיש סיבוב לכיוון ההפוך! זו הסחרחורת אחרי קרוסלה.', 'bad');
+    if (phase === 'spin' && phaseT > 2 && Math.abs(feel) < 30) say(msg, 'עדיין מסתובבים, אבל התחושה כמעט נעלמה! הנוזל "הדביק" את התעלה ומסתובב יחד איתה, אז השערות חזרו למקום. עכשיו לחצו "עצירה".');
+    if (phase === 'stop' && phaseT > 0.2 && phaseT < 1) say(msg, 'הראש והתעלה עצרו, אבל הנוזל ממשיך לזרום בתוך התעלה העומדת ומכופף את השערות לצד השני: המוח מרגיש סיבוב לכיוון ההפוך! זו הסחרחורת אחרי קרוסלה.', 'bad');
     if (phase === 'stop' && Math.abs(feel) < 6 && phaseT > 2) { say(msg, 'הנוזל נעצר, והתחושה נעלמה. אפשר לנסות שוב.', 'good'); phase = 'idle'; }
     hist.push({ t: now / 1000, h: wH, f: wF });
     while (hist.length && now / 1000 - hist[0].t > 30) hist.shift();
@@ -318,7 +345,7 @@ function initCanal() {
   spin.addEventListener('click', () => {
     target = SPEED; phase = 'spin'; phaseT = 0;
     spin.disabled = true; stop.disabled = false;
-    say(msg, 'הראש מתחיל להסתובב. הנוזל נשאר מאחור ומכופף את השערות: המוח מרגיש סיבוב חזק.');
+    say(msg, 'הראש והתעלה מתחילים להסתובב. הנוזל שבתוך התעלה נשאר מאחור, והשערות (שזזות עם התעלה) נתקלות בו ומתכופפות: המוח מרגיש סיבוב חזק.');
   });
   stop.addEventListener('click', () => {
     target = 0; wH = 0; phase = 'stop'; phaseT = 0;
@@ -386,11 +413,11 @@ function initVOR() {
 }
 
 // ─────────────────────── Station 3: standing stopwatch ───────────────────────
-const COND = ['👀 רצפה, עיניים פקוחות', '🙈 רצפה, עיניים עצומות', '👀 כרית, עיניים פקוחות', '🙈 כרית, עיניים עצומות'];
+const COND = ['👀 עיניים פקוחות', '🙈 עיניים עצומות'];
 function initStopwatch() {
   const btn = $('bl-watch'), out = $('bl-watch-out'), bars = $('bl-watch-bars');
   let cond = 0, running = false, t0 = 0, raf = 0;
-  let results = store('balance-stand') || [[], [], [], []];
+  let results = store('balance-stand-2') || [[], []];
 
   function render() {
     bars.innerHTML = COND.map((name, i) => {
@@ -404,7 +431,7 @@ function initStopwatch() {
     const s = Math.min(30, (performance.now() - t0) / 1000);
     out.textContent = s.toFixed(1) + ' ש׳';
     results[cond].push(+s.toFixed(1));
-    store('balance-stand', results);
+    store('balance-stand-2', results);
     btn.textContent = '▶ התחלה';
     btn.classList.remove('active');
     render();
@@ -418,12 +445,12 @@ function initStopwatch() {
   btn.addEventListener('click', () => {
     if (running) { stopWatch(); return; }
     running = true; t0 = performance.now();
-    btn.textContent = '⏹ נגע ברצפה!';
+    btn.textContent = '⏹ הרגל נגעה ברצפה!';
     btn.classList.add('active');
     raf = requestAnimationFrame(frame);
   });
   seg($('bl-cond'), d => { if (running) stopWatch(); cond = +d.c; out.textContent = '0.0 ש׳'; });
-  $('bl-watch-clear').addEventListener('click', () => { results = [[], [], [], []]; store('balance-stand', results); render(); });
+  $('bl-watch-clear').addEventListener('click', () => { results = [[], []]; store('balance-stand-2', results); render(); });
   render();
 }
 
@@ -466,30 +493,35 @@ function initSensors() {
 }
 
 // ─────────────────────── Motion sickness: eyes vs ear ───────────────────────
-const SITS = [
-  ['📖', 'קוראים במושב האחורי', 'הספר לא זז. אנחנו עומדים במקום.', 'פניות, בלימות, מהמורות. אנחנו זזים!', 1],
-  ['🪟', 'מסתכלים קדימה מהחלון', 'הנוף זורם. אנחנו זזים.', 'אנחנו זזים.', 0],
-  ['🧑‍✈️', 'נוהגים', 'אנחנו זזים, ואני יודע לאן נפנה.', 'אנחנו זזים, בדיוק כמו שציפיתי.', 0],
-  ['🥽', 'טסים במשחק מציאות מדומה', 'אנחנו טסים ומסתובבים!', 'אנחנו יושבים בכיסא ולא זזים.', 1],
-  ['🚢', 'בתא סגור באונייה', 'החדר לא זז (הוא זז יחד איתנו).', 'מתנדנדים למעלה ולמטה!', 1],
-  ['🌊', 'על הסיפון, מסתכלים על האופק', 'האופק עולה ויורד: מתנדנדים.', 'מתנדנדים.', 0],
-  ['🚀', 'אסטרונאוט ביום הראשון בחלל', 'יש בחללית רצפה ותקרה.', 'אין כוח משיכה! האבנים לא מראות איפה למטה.', 1],
-  ['🎠', 'רגע אחרי שירדנו מקרוסלה', 'העולם עומד.', 'אנחנו עדיין מסתובבים!', 1],
+// Pairs of the same place: one way confuses the brain, the other does not
+const PAIRS = [
+  ['🚗 ברכב', [
+    ['📖 קוראים ספר במושב האחורי', 'הספר לא זז. אנחנו עומדים במקום.', 'פניות, בלימות, מהמורות. אנחנו זזים!', 1],
+    ['🪟 מסתכלים החוצה, קדימה על הכביש', 'הנוף זורם. אנחנו זזים.', 'אנחנו זזים.', 0],
+  ]],
+  ['🚢 באונייה', [
+    ['🛏️ בתא סגור בבטן האונייה', 'הקירות לא זזים (הם זזים יחד איתנו).', 'מתנדנדים למעלה ולמטה!', 1],
+    ['🌊 על הסיפון, מסתכלים על האופק', 'האופק עולה ויורד: מתנדנדים.', 'מתנדנדים.', 0],
+  ]],
+  ['🥽 במשחק מציאות מדומה', [
+    ['🎮 טסים במשחק, ויושבים על כיסא', 'אנחנו טסים ומסתובבים!', 'יושבים בכיסא ולא זזים.', 1],
+    ['🚶 הולכים באמת בחדר עם המשקפיים', 'הולכים קדימה.', 'הולכים קדימה.', 0],
+  ]],
+  ['🎠 בקרוסלה', [
+    ['🛑 רגע אחרי שירדנו', 'העולם עומד.', 'אנחנו עדיין מסתובבים!', 1],
+    ['⏳ אחרי חצי דקה על הקרקע', 'העולם עומד.', 'הנוזל נרגע: לא זזים.', 0],
+  ]],
 ];
 function initSick() {
-  const box = $('bl-sit'), wit = $('bl-witness');
-  box.innerHTML = SITS.map((s, i) => `<button class="small-btn" data-i="${i}">${s[0]} ${s[1]}</button>`).join('');
-  function show(i) {
-    const [emoji, name, eyes, ear, conflict] = SITS[i];
-    box.querySelectorAll('button').forEach(b => b.classList.toggle('active', +b.dataset.i === i));
-    wit.innerHTML = `
-      <div class="bl-wit-title">${emoji} ${name}</div>
-      <div class="bl-wit"><b>👀 העיניים אומרות:</b><span>${eyes}</span></div>
-      <div class="bl-wit"><b>👂 האוזן הפנימית אומרת:</b><span>${ear}</span></div>
-      <div class="bl-verdict ${conflict ? 'bad' : 'good'}">🧠 ${conflict ? 'העדים סותרים זה את זה: סיכוי גבוה לבחילה 🤢' : 'העדים מסכימים: הכול בסדר 🙂'}</div>`;
-  }
-  box.addEventListener('click', e => { const b = e.target.closest('button'); if (b) show(+b.dataset.i); });
-  show(0);
+  const caseHtml = ([name, eyes, ear, conflict]) => `
+    <div class="bl-case ${conflict ? 'bad' : 'good'}">
+      <div class="bl-case-title">${name}</div>
+      <div class="bl-wit"><b>👀 העיניים:</b><span>${eyes}</span></div>
+      <div class="bl-wit"><b>👂 האוזן הפנימית:</b><span>${ear}</span></div>
+      <div class="bl-verdict ${conflict ? 'bad' : 'good'}">${conflict ? '🤢 סותרים זה את זה: סיכוי לבחילה' : '🙂 מסכימים: הכול בסדר'}</div>
+    </div>`;
+  $('bl-pairs').innerHTML = PAIRS.map(([title, cases]) => `
+    <div class="bl-pair"><h4>${title}</h4><div class="bl-pair-row">${cases.map(caseHtml).join('')}</div></div>`).join('');
 }
 
 // ─────────────────────── Vection: the moving train ───────────────────────
