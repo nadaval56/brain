@@ -118,7 +118,12 @@ function initCards() {
 
 // ─────────────────────── The vanishing statue (top view) ───────────────────────
 const P = { x: 300, y: 335 }, STATUE = { x: 300, y: 92 };
-const TURN = 42; // degrees: the statue ends up behind the left tower
+// Towers sit ±TX to the sides and TY ahead of the audience's centre, TH = half their width
+const TX = 85, TY = 92, TH = 22;
+const deg = r => (r * 180) / Math.PI;
+const TURN = deg(Math.atan2(TX, TY)); // turning by this puts the statue right behind the left tower
+// Directions (from straight ahead) that a tower blocks, from its corners
+const TOWER_FROM = deg(Math.atan2(TX - TH, TY + TH)), TOWER_TO = deg(Math.atan2(TX + TH, TY - TH));
 const THRESHOLD = 1; // °/s², a rough perception threshold for slow rotation
 
 function initScene() {
@@ -132,32 +137,33 @@ function initScene() {
 
   // Water, island, statue
   el('rect', { width: 600, height: 440, fill: '#0b1a33' }, svg);
-  el('ellipse', { cx: STATUE.x, cy: STATUE.y, rx: 80, ry: 52, fill: '#1f3b2d' }, svg);
+  el('circle', { cx: STATUE.x, cy: STATUE.y, r: 30, fill: '#1f3b2d' }, svg);
   const star = [];
   for (let k = 0; k < 22; k++) {
-    const r = k % 2 ? 22 : 36, a = rad(k * (360 / 22) - 90);
+    const r = k % 2 ? 13 : 21, a = rad(k * (360 / 22) - 90);
     star.push(`${STATUE.x + r * Math.cos(a)},${STATUE.y + r * Math.sin(a)}`);
   }
   el('polygon', { points: star.join(' '), fill: '#64748b' }, svg);
-  const glow = el('circle', { cx: STATUE.x, cy: STATUE.y, r: 30, fill: '#fde68a', opacity: 0.35 }, svg);
-  el('circle', { cx: STATUE.x, cy: STATUE.y, r: 11, fill: '#5eead4', stroke: '#134e4a', 'stroke-width': 2 }, svg);
-  const tl = el('text', { x: STATUE.x + 46, y: STATUE.y - 34, style: 'fill:#e2e8f0;font-weight:700;font-size:14px' }, svg);
+  const glow = el('circle', { cx: STATUE.x, cy: STATUE.y, r: 26, fill: '#fde68a', opacity: 0.4 }, svg);
+  el('circle', { cx: STATUE.x, cy: STATUE.y, r: 8, fill: '#5eead4', stroke: '#134e4a', 'stroke-width': 2 }, svg);
+  const tl = el('text', { x: STATUE.x + 38, y: STATUE.y - 26, style: 'fill:#e2e8f0;font-weight:700;font-size:14px' }, svg);
   tl.textContent = '🗽 פסל החירות';
 
   // Platform with the audience, the towers and the curtain all turn together
   const g = el('g', {}, svg);
-  const cone = el('path', { d: '', fill: '#fde68a', opacity: 0.16 }, g);
+  const far = 420;
+  const ray = a => `${P.x + far * Math.sin(rad(a))},${P.y - far * Math.cos(rad(a))}`;
+  // What the audience can see: the window between the towers. Behind each tower: its "shadow"
+  el('path', { d: `M${P.x},${P.y} L${ray(-TOWER_FROM)} L${ray(TOWER_FROM)} Z`, fill: '#fde68a', opacity: 0.16 }, g);
+  for (const sgn of [-1, 1]) el('path', { d: `M${P.x},${P.y} L${ray(sgn * TOWER_FROM)} L${ray(sgn * TOWER_TO)} Z`, fill: '#000', opacity: 0.45 }, g);
   el('circle', { cx: P.x, cy: P.y, r: 98, fill: '#334155', stroke: '#94a3b8', 'stroke-width': 2 }, g);
   for (let row = 0; row < 4; row++) for (let c = -4 + (row % 2) * 0.5; c <= 4; c++) {
     const x = P.x + c * 17, y = P.y - 30 + row * 20;
     if (Math.hypot(x - P.x, y - P.y) < 86) el('circle', { cx: x, cy: y, r: 6, fill: '#f2c6a0' }, g);
   }
-  const towerL = { x: P.x - 80, y: P.y - 92 }, towerR = { x: P.x + 80, y: P.y - 92 };
-  for (const t of [towerL, towerR]) el('rect', { x: t.x - 14, y: t.y - 14, width: 28, height: 28, fill: '#cbd5e1', stroke: '#475569', 'stroke-width': 2 }, g);
-  const curtain = el('path', { d: `M${towerL.x + 14},${towerL.y} Q${P.x},${towerL.y - 12} ${towerR.x - 14},${towerR.y}`, stroke: '#dc2626', 'stroke-width': 7, fill: 'none', 'stroke-linecap': 'round' }, g);
-  // Sight cone from the audience through the gap between the towers
-  const far = 330, half = 34;
-  cone.setAttribute('d', `M${P.x},${P.y - 20} L${P.x + far * Math.sin(rad(-half))},${P.y - 20 - far * Math.cos(rad(-half))} L${P.x + far * Math.sin(rad(half))},${P.y - 20 - far * Math.cos(rad(half))} Z`);
+  const towerL = { x: P.x - TX, y: P.y - TY }, towerR = { x: P.x + TX, y: P.y - TY };
+  for (const t of [towerL, towerR]) el('rect', { x: t.x - TH, y: t.y - TH, width: 2 * TH, height: 2 * TH, fill: '#cbd5e1', stroke: '#475569', 'stroke-width': 2 }, g);
+  const curtain = el('path', { d: `M${towerL.x + TH},${towerL.y} Q${P.x},${towerL.y - 12} ${towerR.x - TH},${towerR.y}`, stroke: '#dc2626', 'stroke-width': 7, fill: 'none', 'stroke-linecap': 'round' }, g);
   const al = el('text', { x: P.x, y: P.y + 62, 'text-anchor': 'middle', style: 'fill:#e2e8f0;font-weight:700;font-size:13px' }, g);
   al.textContent = 'הקהל';
 
@@ -169,11 +175,10 @@ function initScene() {
     // Angle of the statue relative to where the audience faces
     const abs = (Math.atan2(STATUE.x - P.x, P.y - STATUE.y) * 180) / Math.PI;
     const rel = abs - theta;
-    const towerAng = (Math.atan2(80, 92) * 180) / Math.PI;
     let what;
     if (curtainUp) what = '🟥 וילון אדום';
-    else if (Math.abs(rel + towerAng) < 7 || Math.abs(rel - towerAng) < 7) what = '🗼 מגדל, ומאחוריו... כלום';
-    else if (Math.abs(rel) < half) what = glow.style.display === 'none' ? '🌑 פסל בחושך' : '🗽 פסל החירות';
+    else if (Math.abs(rel) > TOWER_FROM + 1 && Math.abs(rel) < TOWER_TO - 1) what = '🗼 מגדל (הפסל מוסתר מאחוריו, באזור הכהה)';
+    else if (Math.abs(rel) < TOWER_FROM) what = glow.style.display === 'none' ? '🌑 פסל בחושך' : '🗽 פסל החירות';
     else what = '🌌 שמיים ומים ריקים';
     see.innerHTML = `<b>מה הקהל רואה מולו:</b> ${what}`;
   }
@@ -229,8 +234,8 @@ function initScene() {
     const T = +dur.value, a = peakAccel();
     const aTxt = a < 0.1 ? a.toFixed(3) : a.toFixed(1);
     say(msg, a > THRESHOLD
-      ? `הבמה הסתובבה ${TURN}° ב־${fmt(T)}. התאוצה הגדולה ביותר: ${aTxt}°/ש׳². זה מעל הסף: הקהל היה מרגיש שהבמה זזה, והקסם היה נכשל!`
-      : `הבמה הסתובבה ${TURN}° ב־${fmt(T)}. התאוצה הגדולה ביותר: ${aTxt}°/ש׳², הרבה מתחת לסף. אף אחד לא הרגיש כלום, ו${what}`,
+      ? `הבמה הסתובבה ${Math.round(TURN)}° ב־${fmt(T)}. התאוצה הגדולה ביותר: ${aTxt}°/ש׳². זה מעל הסף: הקהל היה מרגיש שהבמה זזה, והקסם היה נכשל!`
+      : `הבמה הסתובבה ${Math.round(TURN)}° ב־${fmt(T)}. התאוצה הגדולה ביותר: ${aTxt}°/ש׳², הרבה מתחת לסף. אף אחד לא הרגיש כלום, ו${what}`,
     a > THRESHOLD ? 'bad' : 'good');
   }
 
