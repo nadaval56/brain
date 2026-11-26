@@ -770,7 +770,13 @@
   #bl-ear-svg.picked #bl-oto.on { opacity: 1; }
   .rx .bl-lab text { font-size: 14px; font-weight: 700; fill: #6d28d9; text-anchor: middle; }
   #bl-canal-plot { width: 100%; height: auto; display: block; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; }
-  .bl-paths { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin-top: 12px; }
+  .bl-flow { display: flex; align-items: center; gap: 8px; margin-top: 8px; }
+  .bl-flow span { flex: 1; text-align: center; font-size: 15px; font-weight: 700; color: var(--text); background: var(--accent-soft); border: 1px solid var(--accent); border-radius: 10px; padding: 10px 8px; }
+  .bl-flow i { font-style: normal; color: var(--accent); font-size: 20px; font-weight: 700; }
+  .bl-flow i::before { content: '←'; }
+  .bl-flow-split { margin-top: 12px; text-align: center; font-weight: 700; color: var(--text-2) !important; }
+  .bl-flow-split::after { content: ' ↓'; color: var(--accent); }
+  .bl-paths { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin-top: 8px; }
   .bl-paths div { display: flex; flex-direction: column; gap: 4px; background: var(--surface-2); border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; font-size: 14px; line-height: 1.5; color: var(--text-2); }
   .bl-paths b { color: var(--text); font-size: 15px; }
   .bl-stations .baby-card ol { padding-inline-start: 20px; }
@@ -823,6 +829,9 @@
     .bl-cards .face .emoji { font-size: 34px; }
     .bl-back .why { font-size: 13px !important; line-height: 1.45 !important; overflow-y: auto; }
     .bl-paths { grid-template-columns: 1fr; }
+    .bl-flow { flex-direction: column; align-items: stretch; gap: 4px; }
+    .bl-flow i { text-align: center; }
+    .bl-flow i::before { content: '↓'; }
   }
 
   @media (max-width: 1000px) {
@@ -2380,7 +2389,7 @@
         <span><i style="--c:#64748b"></i>מהירות הסיבוב האמיתית</span>
         <span><i style="--c:#7c3aed"></i>מה שהמוח <b>מרגיש</b></span>
       </div>
-      <div class="rx-msg" id="bl-canal-msg">לחצו "מתחילים להסתובב". התעלה (סגול) מחוברת לראש ומסתובבת איתו. בתוכה הנוזל (נקודות כחולות), והשערות (כתום) מחוברות לדופן התעלה.</div>
+      <div class="rx-msg" id="bl-canal-msg">לחצו "מתחילים להסתובב". התעלה (סגול) מחוברת לראש ומסתובבת איתו. בתוכה הנוזל (נקודות כחולות). השערות (אדום) יושבות בבליטה אחת של התעלה, ומחוברות לדופן שלה.</div>
     </div>
   </section>
 
@@ -2410,9 +2419,10 @@
   <section class="rx-block wide">
     <div class="rx-text">
       <h2>🧠 לאן ההודעה הולכת?</h2>
-      <div class="rx-steps">
-        <span>תעלות + אבנים</span><i>←</i><span>עצב שיווי המשקל</span><i>←</i><span>גזע המוח</span>
+      <div class="bl-flow">
+        <span>👂 תעלות + אבנים</span><i aria-hidden="true"></i><span>〰️ עצב שיווי המשקל</span><i aria-hidden="true"></i><span>🧠 גזע המוח</span>
       </div>
+      <p class="bl-flow-split">ומגזע המוח ההודעה מתפצלת ל־4 כיוונים:</p>
       <div class="bl-paths">
         <div><b>👀 לעיניים</b><span>רפלקס שמזיז את העיניים הפוך לראש, כדי שהתמונה לא תרעד (תחנה 2).</span></div>
         <div><b>🦵 לשרירים</b><span>תיקונים קטנים בגב וברגליים כדי לא ליפול (תחנה 3).</span></div>
@@ -2777,7 +2787,7 @@ function toggleFullscreen() {
 
 // ─────────────────────── Sections ───────────────────────
 // Bump when brain.js, reflexes.js, vision.js or balance.js change, so browsers never pair a new page with a cached old script
-const ASSET_VERSION = '2026-11-26a';
+const ASSET_VERSION = '2026-11-26b';
 const SECTIONS = ['stroop', 'brain', 'reflex', 'vision', 'balance'];
 const HASHES = { stroop: '#', brain: '#brain', reflex: '#reflexes', vision: '#vision', balance: '#balance' };
 let section = 'stroop';

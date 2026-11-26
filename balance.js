@@ -278,8 +278,8 @@ function initCanal() {
   const plot = $('bl-canal-plot'), ctx = plot.getContext('2d');
   const C = { x: 150, y: 150 }, R = 100, TAU = 4, SPEED = 120;
 
-  // The canal turns with the head: tube, wall marks, the head itself and the hair cells
-  // (cupula) fixed to the canal wall. Only the fluid inside is free to lag behind.
+  // The canal turns with the head: tube, wall marks, the head itself and the hair cells,
+  // which sit in one bulge of the canal (the ampulla). Only the fluid is free to lag behind.
   const head = el('g', {}, svg);
   el('circle', { cx: C.x, cy: C.y, r: R, fill: 'none', stroke: '#ede9fe', 'stroke-width': 30 }, head);
   el('circle', { cx: C.x, cy: C.y, r: R + 15, fill: 'none', stroke: '#7c3aed', 'stroke-width': 3 }, head);
@@ -294,7 +294,8 @@ function initCanal() {
   el('circle', { cx: C.x + 18, cy: C.y - 22, r: 5, fill: '#0f172a' }, head);
   el('ellipse', { cx: C.x - 54, cy: C.y, rx: 7, ry: 12, fill: '#e2a982' }, head);
   el('ellipse', { cx: C.x + 54, cy: C.y, rx: 7, ry: 12, fill: '#e2a982' }, head);
-  const cupula = el('path', { d: '', fill: '#f59e0b', stroke: '#b45309', 'stroke-width': 1.5 }, head);
+  el('ellipse', { cx: C.x, cy: C.y - R, rx: 24, ry: 26, fill: '#ede9fe', stroke: '#7c3aed', 'stroke-width': 3 }, head);
+  const hairs = [-12, -6, 0, 6, 12].map(dx => ({ dx, p: el('path', { d: '', stroke: '#dc2626', 'stroke-width': 3, fill: 'none', 'stroke-linecap': 'round' }, head) }));
   const fluid = el('g', {}, svg);
   for (let k = 0; k < 14; k++) {
     const a = rad((k * 360) / 14 + 12);
@@ -303,8 +304,8 @@ function initCanal() {
   const t1 = el('text', { x: 300, y: 70, style: 'font-weight:700;font-size:15px' }, svg);
   const t2 = el('text', { x: 300, y: 110, style: 'font-weight:700;font-size:15px;fill:#7c3aed' }, svg);
   const arrow = el('text', { x: 450, y: 200, 'text-anchor': 'middle', style: 'font-size:64px' }, svg);
-  const legend = el('text', { x: 300, y: 270, class: 'small' }, svg);
-  legend.textContent = 'סגול: התעלה (מסתובבת עם הראש) · כחול: הנוזל שבתוכה · כתום: השערות, מחוברות לתעלה';
+  const legend = el('text', { x: 300, y: 293, 'text-anchor': 'middle', class: 'small' }, svg);
+  legend.textContent = 'סגול: התעלה (מסתובבת עם הראש) · כחול: הנוזל שבתוכה · אדום: השערות, בבליטה של התעלה';
 
   let wH = 0, wF = 0, aH = 0, aF = 0, target = 0, last = 0, hist = [], phase = 'idle', phaseT = 0;
 
@@ -332,10 +333,9 @@ function initCanal() {
     const feel = wH - wF;
     head.setAttribute('transform', `rotate(${aH} ${C.x} ${C.y})`);
     fluid.setAttribute('transform', `rotate(${aF} ${C.x} ${C.y})`);
-    // The cupula: a flap across the canal, bent by the fluid lagging behind
-    const bend = clamp(-feel / 6, -18, 18);
-    const yi = C.y - R + 14, yo = C.y - R - 14;
-    cupula.setAttribute('d', `M${C.x - 4},${yi} Q${C.x - 4 + bend * 2},${C.y - R} ${C.x - 4},${yo} L${C.x + 4},${yo} Q${C.x + 4 + bend * 2},${C.y - R} ${C.x + 4},${yi} Z`);
+    // The hairs grow from the outer wall of the bulge and bend with the fluid flowing past them
+    const bend = clamp(-feel / 5, -22, 22), root = C.y - R - 24, tip = C.y - R + 8;
+    for (const h of hairs) h.p.setAttribute('d', `M${C.x + h.dx},${root} Q${C.x + h.dx},${(root + tip) / 2} ${C.x + h.dx + bend},${tip}`);
     t1.textContent = `הראש באמת: ${Math.round(wH)} מעלות בשנייה`;
     t2.textContent = `המוח מרגיש: ${Math.abs(feel) < 6 ? 'לא זז' : (feel > 0 ? 'מסתובב ↻' : 'מסתובב ↺')} (${Math.round(Math.abs(feel))})`;
     arrow.textContent = Math.abs(feel) < 6 ? '😌' : (feel > 0 ? '↻' : '↺');
