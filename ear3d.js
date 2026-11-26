@@ -70,23 +70,31 @@ export function initEar3D(container, isVisible) {
     sac: mat(COLORS.sac), cochlea: mat(COLORS.cochlea), nerve: mat(COLORS.nerve), crystal: mat(COLORS.crystal),
   };
 
-  // Vestibule: utricle (bigger) and saccule, with calcium crystals on top
+  // Vestibule: utricle (bigger) and saccule, see-through, each with calcium crystals inside:
+  // on the floor of the utricle and on the side wall of the saccule
+  m.sac.depthWrite = false;
+  m.crystal.emissive = new THREE.Color(0x475569);
+  m.sac.side = THREE.DoubleSide;
   const utricle = new THREE.Mesh(new THREE.SphereGeometry(0.4, 32, 20), m.sac);
   utricle.scale.set(1.25, 0.75, 0.95);
   const saccule = new THREE.Mesh(new THREE.SphereGeometry(0.27, 28, 18), m.sac);
   saccule.position.set(0.02, -0.42, 0.28);
-  wobble.add(utricle, saccule);
-  const crystalGeo = new THREE.OctahedronGeometry(0.035);
+  const crystalGeo = new THREE.OctahedronGeometry(0.045);
   let seed = 5;
   const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
-  for (let k = 0; k < 40; k++) {
-    const onSaccule = k >= 26, c = new THREE.Mesh(crystalGeo, m.crystal);
-    const a = rnd() * Math.PI * 2, r = Math.sqrt(rnd()) * (onSaccule ? 0.16 : 0.3);
-    if (onSaccule) c.position.set(0.02 + 0.27 + 0.01, -0.42 + r * Math.sin(a), 0.28 + r * Math.cos(a));
-    else c.position.set(r * Math.cos(a) * 1.2, 0.3 + 0.01, r * Math.sin(a) * 0.9);
+  const stones = new THREE.Group(); // slides as one layer when the head speeds up or slows down
+  const crystals = [];
+  for (let k = 0; k < 44; k++) {
+    const inSaccule = k >= 28, c = new THREE.Mesh(crystalGeo, m.crystal);
+    const a = rnd() * Math.PI * 2, r = Math.sqrt(rnd());
+    if (inSaccule) c.position.set(0.14, -0.42 + 0.13 * r * Math.sin(a), 0.28 + 0.13 * r * Math.cos(a));
+    else c.position.set(0.32 * r * Math.cos(a), -0.15, 0.24 * r * Math.sin(a));
     c.rotation.set(rnd() * 3, rnd() * 3, 0);
-    wobble.add(c);
+    c.userData.home = c.position.clone();
+    crystals.push(c);
+    stones.add(c);
   }
+  wobble.add(stones, utricle, saccule);
 
   // Three canals at right angles: horizontal ("no"), front-vertical ("yes"), back-vertical ("ear to shoulder")
   const dA = X.clone().add(Z).normalize(), dP = X.clone().sub(Z).normalize();
@@ -153,7 +161,8 @@ export function initEar3D(container, isVisible) {
     m.yes.opacity = on('yes') ? 1 : 0.2;
     m.no.opacity = on('no') ? 1 : 0.2;
     m.tilt.opacity = on('tilt') ? 1 : 0.2;
-    m.sac.opacity = m.crystal.opacity = on('oto') ? 1 : 0.25;
+    m.sac.opacity = on('oto') ? 0.2 : 0.1;
+    m.crystal.opacity = on('oto') ? 1 : 0.3;
     m.cochlea.opacity = m.nerve.opacity = key ? 0.2 : 1;
     for (const [k, div] of Object.entries(L)) div.classList.toggle('dim', !!key && k !== key);
     const c = CANAL[key];
@@ -184,8 +193,17 @@ export function initEar3D(container, isVisible) {
       wobble.position.copy(c.centre).sub(c.centre.clone().applyAxisAngle(c.axis, ang));
       wobble.quaternion.setFromAxisAngle(c.axis, ang);
     } else {
-      wobble.position.set(0, 0, 0);
       wobble.quaternion.identity();
+      wobble.position.set(0, 0, 0);
+    }
+    // Stones: when the head speeds up forward and back, they lag behind and rattle in their sacs
+    if (picked === 'oto') {
+      const w = (2 * Math.PI) / 1.6, t = (now - t0) / 1000;
+      wobble.position.z = 0.22 * Math.sin(w * t);
+      stones.position.z = 0.06 * Math.sin(w * t - 0.5);
+      for (const c of crystals) c.position.copy(c.userData.home).addScalar((Math.random() - 0.5) * 0.012);
+    } else {
+      stones.position.set(0, 0, 0);
     }
     controls.update();
     renderer.render(scene, camera);
