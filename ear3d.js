@@ -28,7 +28,9 @@ function canal(U, V, cu, cv, R, material) {
   const tube = new THREE.Mesh(new THREE.TubeGeometry(curve, 160, 0.07, 14, false), material);
   const amp = new THREE.Mesh(new THREE.SphereGeometry(0.14, 24, 16), material);
   amp.position.copy(pts[2]);
-  return { tube, amp, top: at(cu, cv + R + 0.18), side: at(cu + R + 0.12, cv + 0.1) };
+  // The canal senses rotation about the axis at right angles to its plane, through its centre
+  const axis = new THREE.Vector3().crossVectors(U, V).normalize();
+  return { tube, amp, axis, centre: at(cu, cv), top: at(cu, cv + R + 0.18), side: at(cu + R + 0.12, cv + 0.1) };
 }
 
 function label(text, pos, group) {
@@ -115,8 +117,8 @@ export function initEar3D(container, isVisible) {
   label('קדימה (אף)', new THREE.Vector3(0.9, -1.25, 1.5), root);
 
   const L = {
-    yes: label('תעלה קדמית ("כן")', cYes.side, wobble),
-    tilt: label('תעלה אחורית (אוזן לכתף)', cTilt.side, wobble),
+    yes: label('תעלה קדמית', cYes.side, wobble),
+    tilt: label('תעלה אחורית', cTilt.side, wobble),
     no: label('תעלה אופקית ("לא")', cNo.top, wobble),
     oto: label('שקיקות עם אבנים', new THREE.Vector3(0.5, -0.72, 0.45), wobble),
     cochlea: label('שבלול (שמיעה)', O.clone().add(new THREE.Vector3(0, -0.62, 0.2)), wobble),
@@ -139,7 +141,11 @@ export function initEar3D(container, isVisible) {
 
   // Highlight one sensor and swing the model the way the head moves for it
   let picked = null, t0 = 0;
-  const AXIS = { yes: 'x', no: 'y', tilt: 'z' };
+  const CANAL = { yes: cYes, no: cNo, tilt: cTilt };
+  // A rod along the picked canal's own axis: the model swings around it like a wheel on its axle
+  const rod = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.025, 3.2, 10), new THREE.MeshBasicMaterial({ color: 0x0f172a }));
+  rod.visible = false;
+  root.add(rod);
   function highlight(key) {
     picked = key;
     t0 = performance.now();
@@ -150,6 +156,12 @@ export function initEar3D(container, isVisible) {
     m.sac.opacity = m.crystal.opacity = on('oto') ? 1 : 0.25;
     m.cochlea.opacity = m.nerve.opacity = key ? 0.2 : 1;
     for (const [k, div] of Object.entries(L)) div.classList.toggle('dim', !!key && k !== key);
+    const c = CANAL[key];
+    rod.visible = !!c;
+    if (c) {
+      rod.position.copy(c.centre);
+      rod.quaternion.setFromUnitVectors(Y, c.axis);
+    }
   }
 
   function resize() {
@@ -165,8 +177,16 @@ export function initEar3D(container, isVisible) {
   function frame(now) {
     requestAnimationFrame(frame);
     if (!isVisible()) return;
-    wobble.rotation.set(0, 0, 0);
-    if (picked && AXIS[picked]) wobble.rotation[AXIS[picked]] = 0.45 * Math.sin((now - t0) / 450);
+    const c = CANAL[picked];
+    if (c) {
+      // Rotate about the canal's axis through its centre: T(centre) · R(axis, angle) · T(−centre)
+      const ang = 0.5 * Math.sin((now - t0) / 450);
+      wobble.position.copy(c.centre).sub(c.centre.clone().applyAxisAngle(c.axis, ang));
+      wobble.quaternion.setFromAxisAngle(c.axis, ang);
+    } else {
+      wobble.position.set(0, 0, 0);
+      wobble.quaternion.identity();
+    }
     controls.update();
     renderer.render(scene, camera);
     labels.render(scene, camera);

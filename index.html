@@ -2292,7 +2292,7 @@
       <div class="bl-two">
         <div class="bl-chipcard" style="--c:#7c3aed">
           <b>🌀 3 תעלות חצי־מעגליות</b>
-          <span>מרגישות <b>סיבוב</b> של הראש. אחת לכל כיוון: "כן", "לא", ו"אוזן לכתף".</span>
+          <span>מרגישות <b>סיבוב</b> של הראש. הן בשלושה מישורים, בזווית ישרה זו לזו, כך שכל סיבוב מפעיל לפחות אחת מהן. "לא" מפעיל בעיקר את האופקית; "כן" ו"אוזן לכתף" מפעילים את שתי האנכיות יחד.</span>
         </div>
         <div class="bl-chipcard" style="--c:#0e7490">
           <b>💎 שתי שקיקות עם "אבנים"</b>
@@ -2303,9 +2303,9 @@
       <div class="rx-row" style="margin-top:10px">
         <span class="lbl">הראו לי:</span>
         <div class="seg" id="bl-canal-pick">
-          <button data-c="yes">🙂 "כן"</button>
-          <button data-c="no">🙅 "לא"</button>
-          <button data-c="tilt">🤷 אוזן לכתף</button>
+          <button data-c="no">↔️ תעלה אופקית</button>
+          <button data-c="yes">↗️ תעלה קדמית</button>
+          <button data-c="tilt">↖️ תעלה אחורית</button>
           <button data-c="oto">💎 אבנים</button>
         </div>
       </div>
@@ -2326,15 +2326,15 @@
         <path d="M255,230 C215,240 190,255 180,280 C170,310 200,335 230,325 C255,317 255,290 235,285 C220,281 210,295 220,303" fill="none" stroke="#d97706" stroke-width="16" stroke-linecap="round"/>
         <path d="M290,248 C270,285 230,330 170,355" fill="none" stroke="#facc15" stroke-width="10" stroke-linecap="round"/>
         <g class="bl-lab">
-          <text x="380" y="30">תעלה קדמית ("כן")</text>
+          <text x="380" y="30">תעלה קדמית</text>
           <text x="520" y="160">תעלה אופקית ("לא")</text>
-          <text x="470" y="356">תעלה אחורית (אוזן לכתף)</text>
+          <text x="470" y="356">תעלה אחורית</text>
           <text x="300" y="275" style="fill:#0e7490">שקיקות עם אבנים</text>
           <text x="105" y="250" style="fill:#d97706">שבלול (שמיעה)</text>
           <text x="95" y="345" style="fill:#a16207">עצב ← למוח</text>
         </g>
       </svg>
-      <div class="rx-msg" id="bl-ear-msg">כל המבנה בגודל של אפונה, ומלא נוזל. לחצו על כפתור כדי לראות איזה חיישן עובד ואיך הראש זז.</div>
+      <div class="rx-msg" id="bl-ear-msg">כל המבנה בגודל של אפונה, ומלא נוזל. לחצו על תעלה כדי לראות את הציר שלה, ואת הסיבוב שהיא מרגישה הכי חזק.</div>
     </div>
   </section>
 
@@ -2767,7 +2767,7 @@ function toggleFullscreen() {
 
 // ─────────────────────── Sections ───────────────────────
 // Bump when brain.js, reflexes.js, vision.js, balance.js or ear3d.js change, so browsers never pair a new page with a cached old script
-const ASSET_VERSION = '2026-11-26e';
+const ASSET_VERSION = '2026-11-26f';
 const SECTIONS = ['stroop', 'brain', 'reflex', 'vision', 'balance'];
 const HASHES = { stroop: '#', brain: '#brain', reflex: '#reflexes', vision: '#vision', balance: '#balance' };
 let section = 'stroop';
