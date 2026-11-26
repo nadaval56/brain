@@ -730,14 +730,6 @@
   .bl-plan summary { font-size: 15px; }
   .bl-plan-grid { display: grid; grid-template-columns: 3fr 2fr; gap: 10px 28px; margin-top: 8px; font-size: 14px; line-height: 1.7; color: var(--text-2); }
   .bl-plan-grid ol, .bl-plan-grid ul { padding-inline-start: 20px; }
-  .bl-video-link {
-    display: flex; align-items: center; gap: 14px; text-decoration: none; color: var(--text);
-    background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px;
-  }
-  .bl-video-link:hover { border-color: #dc2626; }
-  .bl-video-link small { display: block; color: var(--muted); font-size: 12px; direction: ltr; text-align: right; }
-  .bl-video-icon { width: 46px; height: 34px; border-radius: 9px; background: #dc2626; color: #fff; display: grid; place-items: center; font-size: 16px; flex-shrink: 0; }
-  .bl-scene-poster svg { display: block; width: 100%; height: auto; border-radius: 10px; }
   .bl-cards .flip { height: 270px; }
   .bl-cards .face.front .q { font-size: 18px; }
   .bl-back { justify-content: center !important; gap: 8px; background: color-mix(in srgb, var(--accent) 10%, var(--surface)) !important; border-color: var(--accent) !important; }
@@ -2223,32 +2215,18 @@
       <p>מאות אנשים ישבו שם, עם עיניים, אוזניים וגוף. <b>איך אף אחד לא הרגיש בתרמית?</b></p>
       <h4>🔎 המשימה</h4>
       <ol>
-        <li>צפו בקסם (הכפתור "צפו בקסם ביוטיוב").</li>
+        <li>צפו בקסם בסרטון.</li>
         <li>פתחו את קלפי הרמזים אחד־אחד. אחרי כל קלף: יש לכם השערה?</li>
         <li>כתבו בקבוצה: איך זה נעשה? ו<b>איזו מערכת בגוף</b> הייתה אמורה לגלות את זה?</li>
       </ol>
     </div>
     <div class="rx-stage">
-      <a class="bl-video-link" href="https://www.youtube.com/results?search_query=David+Copperfield+Statue+of+Liberty+1983" target="_blank" rel="noopener">
-        <span class="bl-video-icon">▶</span>
-        <span><b>צפו בקסם ביוטיוב</b><small>David Copperfield, Statue of Liberty, 1983</small></span>
-      </a>
-      <div class="bl-scene-poster" aria-hidden="true">
-        <svg viewBox="0 0 400 220">
-          <rect width="400" height="220" fill="#0b1530"/>
-          <g fill="#fde68a" opacity="0.8"><circle cx="40" cy="30" r="1.5"/><circle cx="120" cy="18" r="1.2"/><circle cx="300" cy="25" r="1.5"/><circle cx="360" cy="50" r="1.2"/><circle cx="220" cy="12" r="1"/></g>
-          <rect x="0" y="170" width="400" height="50" fill="#13284f"/>
-          <path d="M200,60 l-6,10 h12z" fill="#94a3b8"/>
-          <rect x="193" y="70" width="14" height="60" rx="4" fill="#5eead4" opacity="0.85"/>
-          <path d="M205,72 l14,-26" stroke="#5eead4" stroke-width="5" stroke-linecap="round" opacity="0.85"/>
-          <circle cx="220" cy="42" r="5" fill="#fde047"/>
-          <rect x="182" y="128" width="36" height="42" fill="#64748b"/>
-          <g fill="#334155"><rect x="70" y="40" width="34" height="150"/><rect x="296" y="40" width="34" height="150"/></g>
-          <rect x="104" y="40" width="192" height="5" fill="#334155"/>
-          <path d="M104,45 H296 V150 Q200,140 104,150 Z" fill="#b91c1c" opacity="0.88"/>
-          <g fill="#1e293b"><circle cx="130" cy="210" r="10"/><circle cx="160" cy="214" r="10"/><circle cx="240" cy="214" r="10"/><circle cx="270" cy="210" r="10"/><circle cx="200" cy="216" r="10"/></g>
-        </svg>
+      <div class="vs-video">
+        <iframe src="https://www.youtube-nocookie.com/embed/wt2JbtqF3yo?rel=0" title="The Magic of David Copperfield V: Vanishing the Statue of Liberty (1983)" loading="lazy"
+          allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen"
+          referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
       </div>
+      <p class="rx-note">השידור המקורי מ־1983 (באנגלית). הסרטון לא נטען? <a href="https://youtu.be/wt2JbtqF3yo" target="_blank" rel="noopener">פתחו אותו ביוטיוב</a>.</p>
     </div>
   </section>
 
@@ -2265,6 +2243,14 @@
     <h2 class="bl-toggle-h"><button class="bl-toggle" id="bl-solve-toggle" aria-expanded="false" aria-controls="bl-solve-body">🔓 הפתרון <span class="bl-caret">▾</span></button></h2>
     <div class="bl-solve-body" id="bl-solve-body" hidden>
     <p>קופרפילד אף פעם לא גילה איך עשה את זה. אבל ההסבר המקובל הוא: <b>הקהל ישב על במה מסתובבת</b>. בזמן שהווילון היה למעלה, הבמה, עם המגדלים, הסתובבה <b>לאט מאוד</b>. כשהווילון ירד, הקהל הסתכל כבר לכיוון אחר, והפסל הוסתר מאחורי אחד המגדלים. האורות על הפסל כובו, ובכיוון החדש הודלקו אורות דומים.</p>
+    <details class="bl-explain">
+      <summary>🎬 סרטון הסבר (באנגלית)</summary>
+      <div class="vs-video" style="margin-top:8px;max-width:720px">
+        <iframe src="https://www.youtube-nocookie.com/embed/pKr6Npp4kvQ?rel=0" title="How Copperfield Vanished the Statue of Liberty" loading="lazy"
+          allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen"
+          referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+      </div>
+    </details>
     <div class="bl-solution" id="bl-solution">
       <div class="rx-stage">
         <svg class="scene" id="bl-scene" viewBox="0 0 600 440" role="img" aria-label="מבט מלמעלה: במת הקהל מסתובבת והפסל נעלם מאחורי מגדל"></svg>
@@ -2785,7 +2771,7 @@ function toggleFullscreen() {
 
 // ─────────────────────── Sections ───────────────────────
 // Bump when brain.js, reflexes.js, vision.js or balance.js change, so browsers never pair a new page with a cached old script
-const ASSET_VERSION = '2026-11-26c';
+const ASSET_VERSION = '2026-11-26d';
 const SECTIONS = ['stroop', 'brain', 'reflex', 'vision', 'balance'];
 const HASHES = { stroop: '#', brain: '#brain', reflex: '#reflexes', vision: '#vision', balance: '#balance' };
 let section = 'stroop';
