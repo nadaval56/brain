@@ -127,7 +127,7 @@ const TOWER_FROM = deg(Math.atan2(TX - TH, TY + TH)), TOWER_TO = deg(Math.atan2(
 const THRESHOLD = 1; // °/s², a rough perception threshold for slow rotation
 
 function initScene() {
-  const svg = $('bl-scene'), see = $('bl-see'), msg = $('bl-scene-msg');
+  const svg = $('bl-scene'), msg = $('bl-scene-msg');
   const dur = $('bl-dur'), durOut = $('bl-dur-out'), play = $('bl-play'), meter = $('bl-meter');
 
   // The whole solution opens and closes from its title
@@ -146,28 +146,28 @@ function initScene() {
     star.push(`${STATUE.x + r * Math.cos(a)},${STATUE.y + r * Math.sin(a)}`);
   }
   el('polygon', { points: star.join(' '), fill: '#64748b' }, svg);
-  // A ring of floodlights; on: lit dots and a glow, off: dark dots
+  // A ring of floodlights that fades on and off smoothly
+  const FADE = 'opacity 1.8s ease-in-out, fill 1.8s ease-in-out';
   function lightRing(cx, cy) {
-    const glowC = el('circle', { cx, cy, r: 30, fill: '#fde68a', opacity: 0.35 }, svg);
+    const glowC = el('circle', { cx, cy, r: 30, fill: '#fde68a' }, svg);
+    glowC.style.transition = FADE;
     const dots = [];
     for (let k = 0; k < 12; k++) {
       const a = rad(k * 30);
-      dots.push(el('circle', { cx: cx + 33 * Math.cos(a), cy: cy + 33 * Math.sin(a), r: 3.5 }, svg));
+      const d = el('circle', { cx: cx + 33 * Math.cos(a), cy: cy + 33 * Math.sin(a), r: 3.5 }, svg);
+      d.style.transition = FADE;
+      dots.push(d);
     }
     return on => {
-      glowC.style.display = on ? '' : 'none';
-      dots.forEach(d => d.setAttribute('fill', on ? '#fef08a' : '#334155'));
+      glowC.style.opacity = on ? 0.35 : 0;
+      dots.forEach(d => { d.style.fill = on ? '#fef08a' : '#334155'; });
     };
   }
   const statueLights = lightRing(STATUE.x, STATUE.y);
   el('circle', { cx: STATUE.x, cy: STATUE.y, r: 8, fill: '#5eead4', stroke: '#134e4a', 'stroke-width': 2 }, svg);
-  const tl = el('text', { x: STATUE.x + 42, y: STATUE.y - 30, style: 'fill:#e2e8f0;font-weight:700;font-size:14px' }, svg);
-  tl.textContent = '🗽 פסל החירות על הכן';
   // The decoy: the same ring of lights around an empty spot, where the audience faces after the turn
   const D = 243, FAKE = { x: P.x + D * Math.sin(rad(TURN)), y: P.y - D * Math.cos(rad(TURN)) };
   const fakeLights = lightRing(FAKE.x, FAKE.y);
-  const fl = el('text', { x: FAKE.x, y: FAKE.y + 54, 'text-anchor': 'middle', style: 'fill:#94a3b8;font-weight:700;font-size:13px' }, svg);
-  fl.textContent = 'אורות מתחזים';
   let lit = 'statue';
   function setLights(which) {
     lit = which;
@@ -198,15 +198,6 @@ function initScene() {
   function draw() {
     g.setAttribute('transform', `rotate(${theta} ${P.x} ${P.y})`);
     curtain.style.display = curtainUp ? '' : 'none';
-    // Angle of the statue relative to where the audience faces
-    const abs = (Math.atan2(STATUE.x - P.x, P.y - STATUE.y) * 180) / Math.PI;
-    const rel = abs - theta;
-    let what;
-    if (curtainUp) what = '🟥 וילון אדום';
-    else if (Math.abs(rel) < TOWER_FROM) what = lit === 'statue' ? '🗽 פסל החירות, מואר בטבעת אורות' : '🌑 פסל בחושך';
-    else if (Math.abs(TURN - theta) < TOWER_FROM && lit === 'fake') what = '💡 טבעת אורות, בדיוק כמו קודם... ובתוכה כלום! הפסל נעלם 😮';
-    else what = '🌌 שמיים ומים חשוכים';
-    see.innerHTML = `<b>מה הקהל רואה מולו:</b> ${what}`;
   }
 
   function fmt(s) { return s < 60 ? `${s} שניות` : `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')} דקות`; }

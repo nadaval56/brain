@@ -751,7 +751,6 @@
   .bl-toggle:hover { color: var(--accent); }
   .bl-caret { font-size: 16px; color: var(--accent); transition: transform 0.2s; }
   .bl-toggle[aria-expanded="true"] .bl-caret { transform: rotate(180deg); }
-  .bl-see { font-size: 15px; color: var(--text-2); background: var(--surface); border: 1px solid var(--border); border-radius: 9px; padding: 8px 12px; }
   .bl-meter { position: relative; height: 18px; border-radius: 9px; background: var(--surface); border: 1px solid var(--border); overflow: hidden; direction: ltr; }
   .bl-meter-fill { height: 100%; width: 0; background: #16a34a; transition: width 0.3s, background 0.3s; }
   .bl-meter-fill.over { background: #dc2626; }
@@ -2269,7 +2268,6 @@
     <div class="bl-solution" id="bl-solution">
       <div class="rx-stage">
         <svg class="scene" id="bl-scene" viewBox="0 0 600 440" role="img" aria-label="מבט מלמעלה: במת הקהל מסתובבת והפסל נעלם מאחורי מגדל"></svg>
-        <div class="bl-see" id="bl-see"></div>
       </div>
       <div class="rx-stage">
         <div class="rx-row">
@@ -2787,7 +2785,7 @@ function toggleFullscreen() {
 
 // ─────────────────────── Sections ───────────────────────
 // Bump when brain.js, reflexes.js, vision.js or balance.js change, so browsers never pair a new page with a cached old script
-const ASSET_VERSION = '2026-11-26b';
+const ASSET_VERSION = '2026-11-26c';
 const SECTIONS = ['stroop', 'brain', 'reflex', 'vision', 'balance'];
 const HASHES = { stroop: '#', brain: '#brain', reflex: '#reflexes', vision: '#vision', balance: '#balance' };
 let section = 'stroop';
