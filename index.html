@@ -760,6 +760,15 @@
   #bl-ear-svg.picked #bl-oto { opacity: 0.35; }
   #bl-ear-svg.picked #bl-oto.on { opacity: 1; }
   .rx .bl-lab text { font-size: 14px; font-weight: 700; fill: #6d28d9; text-anchor: middle; }
+  .bl-ear3d { position: relative; width: 100%; aspect-ratio: 4 / 3; max-height: 70vh; border-radius: 10px; background: radial-gradient(circle at 50% 40%, var(--surface), var(--surface-2)); border: 1px solid var(--border); overflow: hidden; touch-action: none; }
+  .bl-ear3d[hidden] { display: none; }
+  .bl-ear3d canvas { display: block; }
+  .bl3d-labels { position: absolute; inset: 0; pointer-events: none; direction: ltr; }
+  .bl3d-labels > div { direction: rtl; }
+  .bl3d-label { font-size: 13px; font-weight: 700; color: #5b21b6; background: color-mix(in srgb, var(--surface) 85%, transparent); border-radius: 6px; padding: 1px 6px; white-space: nowrap; transition: opacity 0.25s; }
+  body.dark .bl3d-label { color: #c4b5fd; }
+  .bl3d-label.dim { opacity: 0.25; }
+  .bl3d-hint { position: absolute; bottom: 8px; left: 10px; z-index: 2; font-size: 11px; color: var(--muted); pointer-events: none; }
   #bl-canal-plot { width: 100%; height: auto; display: block; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; }
   .bl-flow { display: flex; align-items: center; gap: 8px; margin-top: 8px; }
   .bl-flow span { flex: 1; text-align: center; font-size: 15px; font-weight: 700; color: var(--text); background: var(--accent-soft); border: 1px solid var(--accent); border-radius: 10px; padding: 10px 8px; }
@@ -2302,6 +2311,7 @@
       </div>
     </div>
     <div class="rx-stage">
+      <div class="bl-ear3d" id="bl-ear3d" hidden><span class="bl3d-hint">גררו לסיבוב · צביטה או גלילה לזום</span></div>
       <svg class="scene" id="bl-ear-svg" viewBox="0 0 600 380" role="img" aria-label="איור סכמטי של האוזן הפנימית: שבלול, שלוש תעלות חצי־מעגליות, שקיקות ועצב">
         <rect width="600" height="380" fill="var(--surface)"/>
         <g fill="none" stroke-linecap="round">
@@ -2324,7 +2334,7 @@
           <text x="95" y="345" style="fill:#a16207">עצב ← למוח</text>
         </g>
       </svg>
-      <div class="rx-msg" id="bl-ear-msg">כל המבנה בגודל של אפונה, ומלא נוזל. לחצו על כפתור כדי לראות איזה חיישן עובד.</div>
+      <div class="rx-msg" id="bl-ear-msg">כל המבנה בגודל של אפונה, ומלא נוזל. לחצו על כפתור כדי לראות איזה חיישן עובד ואיך הראש זז.</div>
     </div>
   </section>
 
@@ -2756,8 +2766,8 @@ function toggleFullscreen() {
 }
 
 // ─────────────────────── Sections ───────────────────────
-// Bump when brain.js, reflexes.js, vision.js or balance.js change, so browsers never pair a new page with a cached old script
-const ASSET_VERSION = '2026-11-26d';
+// Bump when brain.js, reflexes.js, vision.js, balance.js or ear3d.js change, so browsers never pair a new page with a cached old script
+const ASSET_VERSION = '2026-11-26e';
 const SECTIONS = ['stroop', 'brain', 'reflex', 'vision', 'balance'];
 const HASHES = { stroop: '#', brain: '#brain', reflex: '#reflexes', vision: '#vision', balance: '#balance' };
 let section = 'stroop';
